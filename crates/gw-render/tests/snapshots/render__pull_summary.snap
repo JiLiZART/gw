@@ -1,0 +1,11 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: "show(&render_pull_summary(&l, true))"
+---
+Updating 41c93ad..1045c5e
+Fast-forward
+ f3.txt | 1 ␛[32m+␛[0m
+ f4.txt | 1 ␛[32m+␛[0m
+ f5.txt | 2 ␛[31m--␛[0m
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ delete mode 100644 f5.txt

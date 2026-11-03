@@ -1,0 +1,8 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&b)
+---
+␛[2m┌␛[0m ␛[1mMerge request␛[0m ␛[2m─────────────────────────────────────────────┐␛[0m
+␛[2m│␛[0m View merge request for ␛[36mfeat-forms-constructor␛[0m:             ␛[2m│␛[0m
+␛[2m│␛[0m   ␛]8;;https://gitlab.example.com/group/repo/-/merge_requests/2␛\␛[4;34mhttps://gitlab.example.com/group/repo/-/merge_requests/2␛[0m␛]8;;␛\ ␛[2m│␛[0m
+␛[2m└────────────────────────────────────────────────────────────┘␛[0m

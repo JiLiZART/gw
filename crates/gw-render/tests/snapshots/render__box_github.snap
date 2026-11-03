@@ -1,0 +1,8 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&b)
+---
+┌ Pull request ───────────────────────────────────────────┐
+│ Create a pull request for 'feat' on GitHub by visiting: │
+│      ␛]8;;https://github.com/o/r/pull/new/feat␛\https://github.com/o/r/pull/new/feat␛]8;;␛\               │
+└─────────────────────────────────────────────────────────┘

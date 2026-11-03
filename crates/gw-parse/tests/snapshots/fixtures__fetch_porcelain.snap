@@ -1,0 +1,28 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "parse_fetch_porcelain(&String::from_utf8(fx(\"fetch.stdout\")).unwrap())"
+---
+[
+    RefUpdate {
+        kind: FastForward,
+        old: Some(
+            "eed9586c9c149be6222baa5003172ed1bfb210d1",
+        ),
+        new: Some(
+            "41c93ada663cd831bb765267f347deaf36bea115",
+        ),
+        src: "",
+        dst: "origin/main",
+        reason: None,
+    },
+    RefUpdate {
+        kind: New,
+        old: None,
+        new: Some(
+            "6153929416a899e5ed0dbb723e4f33119195257f",
+        ),
+        src: "",
+        dst: "origin/feat-y",
+        reason: None,
+    },
+]

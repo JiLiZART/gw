@@ -1,0 +1,779 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "events(\"push-ff.stderr\")"
+---
+[
+    Progress(
+        Progress {
+            remote: false,
+            label: "Enumerating objects",
+            cur: Some(
+                21,
+            ),
+            total: None,
+            pct: None,
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                4,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                9,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                14,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                4,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                19,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                5,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                23,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                6,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                28,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                7,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                33,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                8,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                38,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                9,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                42,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                10,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                47,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                11,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                52,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                12,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                57,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                13,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                61,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                14,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                66,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                15,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                71,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                16,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                76,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                17,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                80,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                18,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                85,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                19,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                90,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                20,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                95,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                21,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                21,
+            ),
+            total: Some(
+                21,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Delta compression",
+            cur: None,
+            total: None,
+            pct: None,
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                9,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                18,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                27,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                4,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                36,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                5,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                45,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                6,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                54,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                7,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                63,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                8,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                72,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                9,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                81,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                10,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                90,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                11,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                11,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                9,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                18,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                27,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                4,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                36,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                5,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                45,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                6,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                54,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                7,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                63,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                8,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                72,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                9,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                81,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                10,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                90,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                11,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                11,
+            ),
+            total: Some(
+                11,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", 843 bytes | 843.00 KiB/s, done.",
+        },
+    ),
+    Other(
+        "Total 11 (delta 10), reused 0 (delta 0), pack-reused 0 (from 0)",
+    ),
+    Remote(
+        "",
+    ),
+    Remote(
+        "View merge request for main:",
+    ),
+    Remote(
+        "  https://gitlab.example.com/group/repo/-/merge_requests/2",
+    ),
+    Remote(
+        "",
+    ),
+]

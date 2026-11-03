@@ -1,0 +1,33 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "parse_push_porcelain(\"To x\\n+\\trefs/heads/a:refs/heads/a\\t+1111111...2222222 (forced update)\\n-\\t:refs/heads/old\\t[deleted]\\nDone\\n\")"
+---
+[
+    Target(
+        "x",
+    ),
+    RefUpdate(
+        RefUpdate {
+            kind: Forced,
+            old: Some(
+                "1111111",
+            ),
+            new: Some(
+                "2222222",
+            ),
+            src: "a",
+            dst: "a",
+            reason: None,
+        },
+    ),
+    RefUpdate(
+        RefUpdate {
+            kind: Deleted,
+            old: None,
+            new: None,
+            src: "",
+            dst: "old",
+            reason: None,
+        },
+    ),
+]

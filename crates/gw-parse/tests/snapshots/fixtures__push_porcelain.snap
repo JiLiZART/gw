@@ -1,0 +1,84 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: all
+---
+[
+    (
+        "push-ff",
+        [
+            Target(
+                "file:///tmp/w/gitlab.git",
+            ),
+            RefUpdate(
+                RefUpdate {
+                    kind: FastForward,
+                    old: Some(
+                        "25180fd",
+                    ),
+                    new: Some(
+                        "eed9586",
+                    ),
+                    src: "main",
+                    dst: "main",
+                    reason: None,
+                },
+            ),
+        ],
+    ),
+    (
+        "push-new",
+        [
+            Target(
+                "file:///tmp/w/gitlab.git",
+            ),
+            RefUpdate(
+                RefUpdate {
+                    kind: New,
+                    old: None,
+                    new: None,
+                    src: "feat-forms-constructor",
+                    dst: "feat-forms-constructor",
+                    reason: None,
+                },
+            ),
+        ],
+    ),
+    (
+        "push-rejected",
+        [
+            Target(
+                "file:///tmp/w/gitlab.git",
+            ),
+            RefUpdate(
+                RefUpdate {
+                    kind: Rejected,
+                    old: None,
+                    new: None,
+                    src: "main",
+                    dst: "main",
+                    reason: Some(
+                        "fetch first",
+                    ),
+                },
+            ),
+        ],
+    ),
+    (
+        "push-uptodate",
+        [
+            Target(
+                "file:///tmp/w/gitlab.git",
+            ),
+            RefUpdate(
+                RefUpdate {
+                    kind: UpToDate,
+                    old: None,
+                    new: None,
+                    src: "feat-forms-constructor",
+                    dst: "feat-forms-constructor",
+                    reason: None,
+                },
+            ),
+        ],
+    ),
+]

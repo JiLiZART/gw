@@ -1,0 +1,96 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "(refs, extra)"
+---
+(
+    [
+        Other(
+            "remote: Total 4 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)        ",
+        ),
+        Target(
+            "file:///tmp/w/gitlab",
+        ),
+        RefUpdate(
+            RefUpdate {
+                kind: UpToDate,
+                old: None,
+                new: None,
+                src: "main",
+                dst: "FETCH_HEAD",
+                reason: None,
+            },
+        ),
+        RefUpdate(
+            RefUpdate {
+                kind: FastForward,
+                old: Some(
+                    "41c93ad",
+                ),
+                new: Some(
+                    "1045c5e",
+                ),
+                src: "main",
+                dst: "origin/main",
+                reason: None,
+            },
+        ),
+    ],
+    [
+        Some(
+            RefUpdate {
+                kind: New,
+                old: None,
+                new: None,
+                src: "feat",
+                dst: "origin/feat",
+                reason: None,
+            },
+        ),
+        Some(
+            RefUpdate {
+                kind: Forced,
+                old: Some(
+                    "1111111",
+                ),
+                new: Some(
+                    "2222222",
+                ),
+                src: "force",
+                dst: "origin/force",
+                reason: None,
+            },
+        ),
+        Some(
+            RefUpdate {
+                kind: Rejected,
+                old: None,
+                new: None,
+                src: "main",
+                dst: "main",
+                reason: Some(
+                    "non-fast-forward",
+                ),
+            },
+        ),
+        Some(
+            RefUpdate {
+                kind: Deleted,
+                old: None,
+                new: None,
+                src: "(none)",
+                dst: "origin/gone",
+                reason: None,
+            },
+        ),
+        Some(
+            RefUpdate {
+                kind: UpToDate,
+                old: None,
+                new: None,
+                src: "main",
+                dst: "origin/main",
+                reason: None,
+            },
+        ),
+    ],
+)

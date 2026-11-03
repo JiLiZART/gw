@@ -1,0 +1,7 @@
+Updating 41c93ad..1045c5e
+Fast-forward
+ f3.txt | 1 +
+ f4.txt | 1 +
+ f5.txt | 2 --
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ delete mode 100644 f5.txt

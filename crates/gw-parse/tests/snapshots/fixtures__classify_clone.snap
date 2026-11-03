@@ -1,0 +1,376 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: out
+---
+[
+    Other(
+        "Cloning into 'cloned'...",
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Enumerating objects",
+            cur: Some(
+                66,
+            ),
+            total: None,
+            pct: None,
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                1,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                17,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                25,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                33,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                50,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                50,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                75,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                66,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Counting objects",
+            cur: Some(
+                66,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                1,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                16,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                25,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                32,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                50,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                48,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                75,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                64,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: true,
+            label: "Compressing objects",
+            cur: Some(
+                64,
+            ),
+            total: Some(
+                64,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                1,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                17,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                25,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                33,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                50,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                50,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                75,
+            ),
+            tail: "",
+        },
+    ),
+    Other(
+        "remote: Total 66 (delta 17), reused 0 (delta 0), pack-reused 0 (from 0)        ",
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                52,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                78,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                66,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Receiving objects",
+            cur: Some(
+                66,
+            ),
+            total: Some(
+                66,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", 121.78 KiB | 60.89 MiB/s, done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Resolving deltas",
+            cur: Some(
+                0,
+            ),
+            total: Some(
+                17,
+            ),
+            pct: Some(
+                0,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Resolving deltas",
+            cur: Some(
+                17,
+            ),
+            total: Some(
+                17,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Resolving deltas",
+            cur: Some(
+                17,
+            ),
+            total: Some(
+                17,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+]

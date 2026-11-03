@@ -1,0 +1,17 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&out)
+---
+␛[1m->␛[0m ␛]8;;file:///tmp/w/gitlab.git␛\␛[4;34mfile:///tmp/w/gitlab.git␛[0m␛]8;;␛\
+  ␛[32m✓␛[0m ␛[2m25180fd␛[0m..␛[1meed9586␛[0m  ␛[36mmain␛[0m -> ␛[36mmain␛[0m
+␛[1m->␛[0m ␛]8;;file:///tmp/w/gitlab.git␛\␛[4;34mfile:///tmp/w/gitlab.git␛[0m␛]8;;␛\
+  ␛[32m+ new␛[0m ␛[36mfeat-forms-constructor␛[0m -> ␛[36mfeat-forms-constructor␛[0m
+␛[1m->␛[0m ␛]8;;file:///tmp/w/gitlab.git␛\␛[4;34mfile:///tmp/w/gitlab.git␛[0m␛]8;;␛\
+  ␛[31m✗ rejected␛[0m ␛[36mmain␛[0m -> ␛[36mmain␛[0m  ␛[31m(fetch first)␛[0m
+  ␛[32m✓␛[0m ␛[2meed9586␛[0m..␛[1m41c93ad␛[0m  ␛[36morigin/main␛[0m
+  ␛[32m+ new␛[0m ␛[36morigin/feat-y␛[0m
+␛[1m->␛[0m ␛]8;;file:///tmp/w/gitlab␛\␛[4;34mfile:///tmp/w/gitlab␛[0m␛]8;;␛\
+  ␛[2m=␛[0m ␛[2mmain -> FETCH_HEAD␛[0m
+  ␛[32m✓␛[0m ␛[2m41c93ad␛[0m..␛[1m1045c5e␛[0m  ␛[36mmain␛[0m -> ␛[36morigin/main␛[0m
+  ␛[33m± forced␛[0m ␛[2m1111111␛[0m...␛[1m2222222␛[0m  ␛[36ma␛[0m -> ␛[36ma␛[0m
+  ␛[31m- deleted␛[0m ␛[36mold␛[0m

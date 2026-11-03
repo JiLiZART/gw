@@ -1,0 +1,235 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "events(\"push-new.stderr\")"
+---
+[
+    Progress(
+        Progress {
+            remote: false,
+            label: "Enumerating objects",
+            cur: Some(
+                4,
+            ),
+            total: None,
+            pct: None,
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                4,
+            ),
+            pct: Some(
+                25,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                4,
+            ),
+            pct: Some(
+                50,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                4,
+            ),
+            pct: Some(
+                75,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                4,
+            ),
+            total: Some(
+                4,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Counting objects",
+            cur: Some(
+                4,
+            ),
+            total: Some(
+                4,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Delta compression",
+            cur: None,
+            total: None,
+            pct: None,
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                2,
+            ),
+            pct: Some(
+                50,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                2,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Compressing objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                2,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", done.",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                1,
+            ),
+            total: Some(
+                3,
+            ),
+            pct: Some(
+                33,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                2,
+            ),
+            total: Some(
+                3,
+            ),
+            pct: Some(
+                66,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                3,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: "",
+        },
+    ),
+    Progress(
+        Progress {
+            remote: false,
+            label: "Writing objects",
+            cur: Some(
+                3,
+            ),
+            total: Some(
+                3,
+            ),
+            pct: Some(
+                100,
+            ),
+            tail: ", 249 bytes | 249.00 KiB/s, done.",
+        },
+    ),
+    Other(
+        "Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)",
+    ),
+    Remote(
+        "",
+    ),
+    Remote(
+        "View merge request for feat-forms-constructor:",
+    ),
+    Remote(
+        "  https://gitlab.example.com/group/repo/-/merge_requests/2",
+    ),
+    Remote(
+        "",
+    ),
+]

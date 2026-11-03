@@ -1,0 +1,10 @@
+[package]
+name = "gw"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+gw-parse.workspace = true
+gw-render.workspace = true
+ratatui.workspace = true

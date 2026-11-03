@@ -1,0 +1,8 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&b)
+---
+┌ Merge request ───────────────────────────────────────────────────────────────┐
+│ View merge request:                                                          │
+│   ␛]8;;https://gitlab.example.com/group/sub/repo/-/merge_requests/new?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx␛\https://gitlab.example.com/group/sub/repo/-/merge_requests/new?xxxxxxxxxx…␛]8;;␛\ │
+└──────────────────────────────────────────────────────────────────────────────┘

@@ -1,0 +1,7 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&b)
+---
+┌ remote ───────────────────────────┐
+│ Processing changes: refs: 1, done │
+└───────────────────────────────────┘

@@ -1,0 +1,37 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: out
+---
+== status-mixed prefix=""
+feat -> origin/feat  ↑1 ↓0
+Staged (3)
+  A added.txt
+  M f1.txt
+  R f6.txt -> renamed.txt
+Changed (2)
+  M f1.txt
+  M f2.txt
+Untracked (1)
+  ? n.txt
+== status-mixed prefix="sub/"
+feat -> origin/feat  ↑1 ↓0
+Staged (3)
+  A ../added.txt
+  M ../f1.txt
+  R ../f6.txt -> ../renamed.txt
+Changed (2)
+  M ../f1.txt
+  M ../f2.txt
+Untracked (1)
+  ? ../n.txt
+== status-clean prefix=""
+feat -> origin/feat  ↑3 ↓0
+clean
+== status-detached prefix=""
+detached at 80ed5fb
+Changed (1)
+  M f3.txt
+== status-conflict prefix=""
+nou  no upstream
+Conflicts (1)
+  U conf.txt

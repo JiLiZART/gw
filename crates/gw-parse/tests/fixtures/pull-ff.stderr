@@ -1,0 +1,7 @@
+remote: Enumerating objects: 7, done.        
+remote: Counting objects:  14% (1/7)        remote: Counting objects:  28% (2/7)        remote: Counting objects:  42% (3/7)        remote: Counting objects:  57% (4/7)        remote: Counting objects:  71% (5/7)        remote: Counting objects:  85% (6/7)        remote: Counting objects: 100% (7/7)        remote: Counting objects: 100% (7/7), done.        
+remote: Compressing objects:  25% (1/4)        remote: Compressing objects:  50% (2/4)        remote: Compressing objects:  75% (3/4)        remote: Compressing objects: 100% (4/4)        remote: Compressing objects: 100% (4/4), done.        
+remote: Total 4 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)        
+From file:///tmp/w/gitlab
+ * branch            main       -> FETCH_HEAD
+   41c93ad..1045c5e  main       -> origin/main

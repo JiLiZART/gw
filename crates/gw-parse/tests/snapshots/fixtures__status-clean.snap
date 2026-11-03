@@ -1,0 +1,22 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "parse_status_v2(&fx(&format!(\"{n}.z\")))"
+---
+Status {
+    oid: Some(
+        "4b7b514802f83a5bb773a7134cc1189bab59cd49",
+    ),
+    head: Some(
+        "feat",
+    ),
+    upstream: Some(
+        "origin/feat",
+    ),
+    ahead_behind: Some(
+        (
+            3,
+            0,
+        ),
+    ),
+    entries: [],
+}

@@ -1,0 +1,21 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "parse_status_v2(&fx(&format!(\"{n}.z\")))"
+---
+Status {
+    oid: Some(
+        "80ed5fb5744ab6414a470503148b04b757d498aa",
+    ),
+    head: None,
+    upstream: None,
+    ahead_behind: None,
+    entries: [
+        Entry {
+            x: '.',
+            y: 'M',
+            unmerged: false,
+            path: "f3.txt",
+            orig: None,
+        },
+    ],
+}
