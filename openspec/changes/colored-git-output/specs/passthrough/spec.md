@@ -45,7 +45,7 @@ When stdout is not a terminal, `gw` SHALL behave exactly like plain `git <cmd> [
 - **THEN** the output is identical to `git push | cat`
 
 ### Requirement: NO_COLOR
-When the `NO_COLOR` environment variable is set to a non-empty value, `gw` SHALL keep its structured layout (progress line, box, grouped lists) but emit no color or style escape sequences; the progress bar SHALL use `#` for filled and `.` for empty cells. Hyperlinks SHALL still be emitted.
+When the `NO_COLOR` environment variable is set to a non-empty value, `gw` SHALL keep its structured layout (progress line, box, grouped lists) but emit no SGR color or style codes (bare reset sequences such as `ESC[0m` from the bar renderer are allowed); the progress bar SHALL use `#` for filled and `.` for empty cells. Hyperlinks SHALL still be emitted.
 
 #### Scenario: NO_COLOR push
 - **WHEN** `NO_COLOR=1 gw push` runs on a TTY
@@ -57,3 +57,10 @@ When the `NO_COLOR` environment variable is set to a non-empty value, `gw` SHALL
 #### Scenario: Alias with arguments
 - **WHEN** alias `p` is `!gw push` and the user runs `git p origin feat`
 - **THEN** `gw push origin feat` runs with formatted output
+
+### Requirement: Unrecognized git messages
+stderr lines from git that `gw` does not recognize (e.g. `error:`, `hint:`, `Cloning into ...`) SHALL be printed unchanged to stderr, after all formatted sections.
+
+#### Scenario: Rejected push hints
+- **WHEN** git push is rejected and prints `error:` and `hint:` lines
+- **THEN** those lines appear unchanged after the ref list

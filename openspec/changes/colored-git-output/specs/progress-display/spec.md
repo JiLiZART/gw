@@ -29,6 +29,10 @@ The bar SHALL restart from 0% when git moves to a new stage that reports a perce
 - **WHEN** "Compressing objects" reaches 100% and "Writing objects: 11% (1/9)" arrives
 - **THEN** the label changes to "Writing objects" and the bar shows 11%
 
+#### Scenario: Stage without percentage
+- **WHEN** git emits `Delta compression using up to 14 threads`
+- **THEN** the label changes to "Delta compression" with an indeterminate bar
+
 #### Scenario: Remote progress is not boxed
 - **WHEN** git emits `remote: Resolving deltas:  50% (3/6)`
 - **THEN** it drives the progress line and does NOT appear in the remote box
@@ -50,3 +54,14 @@ When the terminal is narrower than 40 columns, the system SHALL omit the label a
 #### Scenario: 30-column terminal
 - **WHEN** the terminal width is 30 columns
 - **THEN** the progress line fits on one line and contains no stage label
+
+### Requirement: Connecting indicator
+When no progress has arrived within 300 ms of starting git, the system SHALL show the live line with the spinner, the label `Connecting…`, and an empty bar. The first progress event SHALL replace it. If git exits before 300 ms without progress, no live line SHALL be drawn.
+
+#### Scenario: Slow server handshake
+- **WHEN** `gw push` runs and git emits no progress for 1 second
+- **THEN** the live line shows the animated spinner and `Connecting…` until the first progress event
+
+#### Scenario: Fast up-to-date push
+- **WHEN** git prints "Everything up-to-date" and exits within 300 ms
+- **THEN** no progress line is printed

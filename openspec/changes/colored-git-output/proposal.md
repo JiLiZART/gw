@@ -6,11 +6,12 @@ Git's network commands (`push`, `pull`, `fetch`, `clone`) print flat, uncolored 
 
 - New Rust Cargo workspace with `apps/` and `crates/` folders.
 - New binary `gw` that wraps `git push`, `git pull`, `git fetch`, `git clone`, and `git status`, passing all user arguments through to the real `git`.
-- Progress output replaced by a single live line: a ratatui throbber followed by a green-filled bar containing the stage label, `cur/total` and percentage; it refills per git stage and ends with a success/failure mark.
+- Progress output replaced by a single live line: a ratatui throbber followed by a green-filled bar containing the stage label, `cur/total` and percentage; it refills per git stage and ends with a success/failure mark. If git shows no progress within 300 ms, the line shows `Connecting…`.
 - All `remote:` server messages collected (prefix stripped) and rendered in a thin-bordered box, with a host-aware title ("Merge request", "Pull request", or "remote").
 - URLs rendered as clickable OSC 8 hyperlinks; branch names and SHAs highlighted.
 - Ref updates (`old..new src -> dst`) rendered as a colored list grouped under the remote URL.
-- `gw status` renders branch/upstream with ahead/behind counts and files grouped into Staged / Changed / Untracked.
+- `gw status` renders branch/upstream with ahead/behind counts and files grouped into Staged / Changed / Untracked, with per-file `+N -M` line counts and a `Total +X -Y` line, like a merge request view.
+- Untrusted text (file names, server messages) has control characters shown as `\xNN`, so it cannot inject terminal escapes.
 - Raw passthrough when stdout is not a TTY; `NO_COLOR` respected; git's exit code always propagated.
 - Documented usage through git aliases under new names (e.g. `git p` → `gw push`), since git ignores aliases that shadow built-in commands.
 

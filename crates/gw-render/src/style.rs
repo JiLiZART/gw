@@ -9,6 +9,7 @@ pub const DIM: &str = "2";
 pub const BOLD: &str = "1";
 pub const BRANCH: &str = "36";
 pub const BRANCH_BOLD: &str = "1;36";
+pub const UPSTREAM: &str = "35";
 pub const LINK: &str = "4;34";
 
 /// True when `NO_COLOR` is set to a non-empty value.
@@ -24,6 +25,20 @@ pub fn paint(s: &str, sgr: &str, color: bool) -> String {
 /// OSC 8 hyperlink. Emitted even without color: links are not styling.
 pub fn link(url: &str, text: &str) -> String {
     format!("\x1b]8;;{url}\x1b\\{text}\x1b]8;;\x1b\\")
+}
+
+/// Makes untrusted text (file names, server messages) inert: control chars (C0, DEL, C1)
+/// become `\xNN`, tab becomes a space. Prevents terminal escape injection.
+pub fn sanitize(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '\t' => out.push(' '),
+            c if c.is_control() => out += &format!("\\x{:02x}", c as u32),
+            c => out.push(c),
+        }
+    }
+    out
 }
 
 /// Removes CSI (`ESC [ ... final`) and OSC (`ESC ] ... ST|BEL`) sequences.
@@ -91,6 +106,12 @@ mod tests {
         let s = format!("{} {}", paint("x", GREEN, false), link("https://a.b", "a.b"));
         assert!(!s.contains("\x1b["));
         assert!(s.contains("\x1b]8;;https://a.b\x1b\\"));
+    }
+
+    #[test]
+    fn sanitize_controls() {
+        assert_eq!(sanitize("a\x1b]8;;x\x07b\u{9b}c\td"), "a\\x1b]8;;x\\x07b\\x9bc d");
+        assert_eq!(sanitize("ünï"), "ünï");
     }
 
     #[test]

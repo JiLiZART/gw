@@ -1,6 +1,6 @@
 //! Box around `remote:` messages, with a host-aware title, links, and branch highlighting.
 
-use crate::style::{BRANCH, DIM, LINK, link, paint, truncate};
+use crate::style::{BRANCH, DIM, LINK, link, paint, sanitize, truncate};
 use unicode_width::UnicodeWidthStr;
 
 enum Seg<'a> {
@@ -55,7 +55,8 @@ fn segments<'a>(line: &'a str, branches: &[String]) -> Vec<Seg<'a>> {
 /// Renders the box, or an empty string when there is nothing to show.
 /// `term_width` caps the box width; `branches` are highlighted when they appear as words.
 pub fn render_box(lines: &[String], branches: &[String], term_width: usize, color: bool) -> String {
-    let lines: Vec<&str> = lines.iter().map(|l| l.trim_end()).collect();
+    let clean: Vec<String> = lines.iter().map(|l| sanitize(l)).collect();
+    let lines: Vec<&str> = clean.iter().map(|l| l.trim_end()).collect();
     let Some(first) = lines.iter().position(|l| !l.is_empty()) else { return String::new() };
     let last = lines.iter().rposition(|l| !l.is_empty()).unwrap();
     let lines = &lines[first..=last];

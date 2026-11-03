@@ -4,7 +4,7 @@ mod refs;
 mod status;
 
 pub use refs::{RefKind, RefUpdate, parse_fetch_porcelain, parse_human_ref_line, parse_push_porcelain};
-pub use status::{Entry, Status, parse_status_v2};
+pub use status::{Entry, Numstat, Status, parse_numstat_z, parse_status_v2};
 
 /// One classified line of git output.
 #[derive(Debug, Clone, PartialEq, Eq)]

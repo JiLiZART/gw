@@ -9,19 +9,21 @@ use std::{
     time::{Duration, Instant},
 };
 
-use gw_parse::{Event, Progress, RefUpdate, Splitter, classify, is_pack_stats, parse_fetch_porcelain, parse_push_porcelain, parse_status_v2};
+use gw_parse::{Event, Progress, RefUpdate, Splitter, classify, is_pack_stats, parse_fetch_porcelain, parse_numstat_z, parse_push_porcelain, parse_status_v2};
 use gw_render::{
     ThrobberState,
     bar::ProgressLine,
     refs::{all_up_to_date, render_pull_summary, render_refs, render_up_to_date},
     remote_box::render_box,
-    status::render_status,
+    status::{LineStats, relative, render_status},
     style::no_color_env,
 };
 use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, layout::Position};
 
 const FORMATTED: [&str; 5] = ["push", "pull", "fetch", "clone", "status"];
 const TICK: Duration = Duration::from_millis(80);
+/// No progress for this long: show `Connecting…` so slow handshakes are not a blank wait.
+const CONNECT_DELAY: Duration = Duration::from_millis(300);
 
 fn main() {
     let args: Vec<OsString> = std::env::args_os().skip(1).collect();
@@ -142,6 +144,10 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
     let mut progress: Option<Progress> = None;
     let mut term: Option<Live> = None;
     let mut term_tried = false;
+    // True once git sent real progress; a `Connecting…`-only line is cleared at the end.
+    let mut real_progress = false;
+    let started = Instant::now();
+    let start_live = || Terminal::with_options(CrosstermBackend::new(io::stdout()), TerminalOptions { viewport: Viewport::Inline(1) }).ok();
     let mut last_tick = Instant::now();
     let (mut remote, mut others, mut stdout_lines) = (Vec::new(), Vec::new(), Vec::new());
     let mut target: Option<String> = None;
@@ -153,10 +159,10 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
             Ok((true, line)) => match classify(&line) {
                 Event::Progress(p) => {
                     progress = Some(p);
-                    // Lazy start: auth prompts come before any progress, so they are never overdrawn.
+                    real_progress = true;
                     if !term_tried {
                         term_tried = true;
-                        term = Terminal::with_options(CrosstermBackend::new(io::stdout()), TerminalOptions { viewport: Viewport::Inline(1) }).ok();
+                        term = start_live();
                     }
                 }
                 Event::Remote(r) => remote.push(r),
@@ -168,6 +174,13 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
             },
             Err(mpsc::RecvTimeoutError::Timeout) => {}
             Err(mpsc::RecvTimeoutError::Disconnected) => break,
+        }
+        // Delayed start: fast commands (up-to-date push) never draw a live line.
+        // Prompts go to /dev/tty, unseen by gw; one appearing after the delay may be overdrawn (accepted risk).
+        if !term_tried && started.elapsed() >= CONNECT_DELAY {
+            term_tried = true;
+            progress = Some(Progress { label: "Connecting…".into(), ..Default::default() });
+            term = start_live();
         }
         if last_tick.elapsed() >= TICK {
             th.calc_next();
@@ -181,9 +194,14 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
 
     let mut out = io::stdout().lock();
     if let (Some(mut t), Some(p)) = (term.take(), progress.as_ref()) {
-        draw(&mut t, p, &th, Some(code == 0), color);
-        drop(t);
-        let _ = write!(out, "\r\n");
+        if real_progress {
+            draw(&mut t, p, &th, Some(code == 0), color);
+            drop(t);
+            let _ = write!(out, "\r\n");
+        } else {
+            // Only `Connecting…` was shown: erase it so e.g. "Everything up-to-date" stands alone.
+            let _ = t.clear();
+        }
     }
 
     match cmd {
@@ -260,6 +278,29 @@ fn status(rest: &[OsString]) -> i32 {
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
         .unwrap_or_default();
-    print!("{}", render_status(&parse_status_v2(&out.stdout), &prefix, !no_color_env()));
+    let st = parse_status_v2(&out.stdout);
+    let numstat = |cached: bool| {
+        let mut c = Command::new("git");
+        c.args(["diff", "--numstat", "-z", "--no-ext-diff", "--no-textconv"]);
+        if cached {
+            c.arg("--cached");
+        }
+        c.output().map(|o| parse_numstat_z(&o.stdout)).unwrap_or_default()
+    };
+    let mut stats = LineStats { staged: numstat(true), unstaged: numstat(false), ..Default::default() };
+    for e in st.entries.iter().filter(|e| e.x == '?' && !e.path.ends_with('/')) {
+        stats.untracked.insert(e.path.clone(), count_lines(&relative(&e.path, &prefix)));
+    }
+    print!("{}", render_status(&st, &prefix, &stats, !no_color_env()));
     0
+}
+
+/// New-file line count for an untracked file; `None` (shown as `bin`) when it contains NUL.
+fn count_lines(path: &str) -> Option<(u64, u64)> {
+    let bytes = std::fs::read(path).ok()?;
+    if bytes.contains(&0) {
+        return None;
+    }
+    let n = bytes.iter().filter(|&&b| b == b'\n').count() + usize::from(bytes.last().is_some_and(|&b| b != b'\n'));
+    Some((n as u64, 0))
 }

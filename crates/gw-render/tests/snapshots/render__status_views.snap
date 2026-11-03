@@ -35,3 +35,15 @@ Changed (1)
 nou  no upstream
 Conflicts (1)
   U conf.txt
+== status-mixed with stats
+feat -> origin/feat  ↑1 ↓0
+Staged (3)
+  A added.txt              +1 -0
+  M f1.txt                 bin
+  R f6.txt -> renamed.txt  +0 -0
+Changed (2)
+  M f1.txt  +12 -3
+  M f2.txt  +1 -0
+Untracked (1)
+  ? n.txt  +1 -0
+Total +15 -3

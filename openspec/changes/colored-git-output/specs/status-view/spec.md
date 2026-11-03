@@ -5,7 +5,7 @@ Gives `gw status` a compact, grouped, colored view of the working tree and branc
 ## ADDED Requirements
 
 ### Requirement: Branch header
-`gw status` SHALL print a header line with the current branch (branch color, bold), its upstream if any, and ahead/behind counts shown as `↑N ↓M` (ahead in green, behind in yellow; zero counts dim). A detached HEAD SHALL show `detached at <short-sha>` in yellow. No upstream SHALL show `no upstream` dim.
+`gw status` SHALL print a header line with the current branch (branch color, bold), its upstream if any (in an upstream color distinct from the branch color), and ahead/behind counts shown as `↑N ↓M` (ahead in green, behind in yellow; zero counts dim). A detached HEAD SHALL show `detached at <short-sha>` in yellow. No upstream SHALL show `no upstream` dim.
 
 #### Scenario: Branch ahead of upstream
 - **WHEN** branch `feat` tracks `origin/feat` and is 2 ahead, 0 behind
@@ -46,3 +46,32 @@ File paths SHALL be displayed relative to the current working directory, matchin
 #### Scenario: Running from subdirectory
 - **WHEN** `gw status` runs in `src/` and `src/a.rs` is changed
 - **THEN** the path is shown as `a.rs`
+
+#### Scenario: Untracked directory
+- **WHEN** `gw status` runs in `src/` and `src/` itself is reported as an untracked directory `src/`
+- **THEN** the entry is shown as `../src/`, keeping the trailing slash
+
+### Requirement: Per-file line stats
+Each file in the Staged, Changed, and Untracked groups SHALL show its line counts as `+N -M` after the path, aligned in one column per group, with `+N` green and `-M` red (a zero count dim). Staged counts SHALL come from `git diff --cached --numstat`, Changed counts from `git diff --numstat`, and Untracked files SHALL count every line as added. Binary files SHALL show `bin`. Conflicts and untracked directories SHALL show no stats.
+
+#### Scenario: Changed file stats
+- **WHEN** `b.rs` has 12 lines added and 3 removed in the working tree
+- **THEN** the Changed group shows `M b.rs  +12 -3`
+
+#### Scenario: Binary file
+- **WHEN** a staged file is binary
+- **THEN** its stat shows `bin`
+
+### Requirement: Total line
+After the groups, `gw status` SHALL print one line `Total +X -Y`, where X and Y are the sums of all counts shown. The line SHALL be omitted for a clean tree.
+
+#### Scenario: Total of mixed tree
+- **WHEN** shown stats are `+1 -0`, `+12 -3`, and `+2 -0`
+- **THEN** the last line is `Total +15 -3`
+
+### Requirement: Safe file names
+Control characters (C0, DEL, C1) in paths and branch names SHALL be shown as `\xNN`, and tabs as a space, so file names cannot inject terminal escape sequences.
+
+#### Scenario: Escape sequence in a file name
+- **WHEN** an untracked file is named `a<ESC>[31mb`
+- **THEN** it is shown as `a\x1b[31mb` and no escape sequence reaches the terminal

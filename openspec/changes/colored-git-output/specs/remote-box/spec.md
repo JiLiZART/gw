@@ -17,6 +17,10 @@ The system SHALL collect all non-progress `remote:` lines from a wrapped command
   ```
 - **THEN** a single bordered box is printed containing exactly two lines: `View merge request for feat-forms-constructor:` and `  https://gitlab.example.com/group/repo/-/merge_requests/2`, with no `remote:` prefixes
 
+#### Scenario: Pack statistics are not boxed
+- **WHEN** git emits `remote: Total 6 (delta 3), reused 0 (delta 0)`
+- **THEN** the line does not appear in the box
+
 #### Scenario: No remote messages
 - **WHEN** the command produces no non-progress `remote:` lines
 - **THEN** no box is printed
@@ -45,3 +49,10 @@ Branch names that also appear in the command's ref updates SHALL be highlighted 
 #### Scenario: Branch mentioned in MR message
 - **WHEN** the pushed branch is `feat-forms-constructor` and the box line says `View merge request for feat-forms-constructor:`
 - **THEN** `feat-forms-constructor` is rendered in the branch color
+
+### Requirement: Untrusted server text is inert
+Before link detection, control characters (C0, DEL, C1) in collected `remote:` text SHALL be shown as `\xNN`, and tabs as a space.
+
+#### Scenario: Injected escape in server message
+- **WHEN** a `remote:` line contains `ESC]8;;https://evil` or `ESC[2J`
+- **THEN** the box shows the escape as `\x1b` text and no hyperlink or screen command reaches the terminal

@@ -58,6 +58,8 @@ UpToDate | Other(String)
 
 A `remote:` line is classified as progress when its stripped body matches `<Label>: <pct>% (<cur>/<total>)` or ends with `, done.`. Otherwise it is remote text (spec `remote-box`).
 
+Two special cases: pack statistics lines (`Total N (delta M), reused ...`, local or `remote:`) are dropped, since they are neither progress nor a server message. `Delta compression using up to N threads` is a progress stage without a percentage. Other unrecognized stderr lines are printed unchanged to stderr after all formatted sections.
+
 ### D4. Event loop: reader threads + channel + inline viewport
 ```
 git stdout --> thread --+
@@ -67,7 +69,7 @@ on child exit: drain channel, final frame (check/cross), drop terminal,
                print static sections, exit(code)
 ```
 - ratatui `Terminal` with `Viewport::Inline(1)` on the **stdout** backend, **without raw mode**. Raw mode would break typed SSH/credential prompts, and the live line needs no key input.
-- **Lazy start:** the live line is not drawn until the first `Progress` event arrives. Auth prompts happen before pack transfer, so they are never overwritten by the bar.
+- **Delayed start:** the live line is not drawn until the first `Progress` event, or until 300 ms pass with no progress, in which case it shows `Connecting…` with an empty bar. A short delay keeps fast commands (up-to-date push) free of a live line. Prompts are written to `/dev/tty`, so `gw` cannot see them; a prompt that appears after 300 ms may be partly overdrawn (see Risks).
 - The spinner uses `throbber-widgets-tui` (`ThrobberState::calc_next` on each tick).
 - The bar is a small custom widget: ratatui `Gauge` centers its label, but the spec needs the label left-aligned and `cur/total pct%` right-aligned. It computes `fill = width * pct / 100`, writes the text into the cells, and sets each cell's bg to green if `x < fill`, else dark gray, with fg chosen for contrast. In `NO_COLOR` mode it renders `#`/`.` instead.
 
@@ -77,10 +79,15 @@ The remote box, target/ref list, pull summary, and status are printed after the 
 Box drawing: thin `┌─┐│└┘` borders, title inlined into the top border (`┌ Merge request ───┐`). Width is `min(terminal width, longest line + 4)`, and display width is measured with `unicode-width` on the visible text, excluding escapes. URLs are found by scanning whitespace-separated tokens that start with `http://` or `https://` (trailing `.,)` trimmed) and emitted as `ESC]8;;URL ESC\ text ESC]8;; ESC\`, with visible text truncated with `…` to fit.
 
 ### D6. Status uses porcelain v2 + prefix
-`gw status [args]` runs `git status --porcelain=v2 --branch -z [args]` and `git rev-parse --show-prefix`. It then rewrites repo-relative paths to be cwd-relative (`../` for paths outside the prefix). User-supplied pathspec args are forwarded. Flags that change the output format (`-s`, `--porcelain`, `--long`) make `gw` fall back to plain `git status` passthrough.
+`gw status [args]` runs `git status --porcelain=v2 --branch -z [args]` and `git rev-parse --show-prefix`. It then rewrites repo-relative paths to be cwd-relative (`../` for paths outside the prefix). User-supplied pathspec args are forwarded. Untracked directory entries (`dir/`) keep their trailing slash after rewriting.
+
+Line stats: `git diff --cached --numstat -z` (Staged) and `git diff --numstat -z` (Changed), parsed by a pure `parse_numstat_z` in gw-parse. Untracked files are read by `gw` and every line counts as added; a file containing NUL counts as binary (`bin`). The renderer aligns stats per group and prints `Total +X -Y`, the sum of all shown counts. Flags that change the output format (`-s`, `--porcelain`, `--long`) make `gw` fall back to plain `git status` passthrough.
 
 ### D7. Dispatch and passthrough (apps/gw)
 `std::env::args` is matched by hand (no clap): the first arg is the subcommand, and the rest are forwarded verbatim. Non-TTY stdout or an unknown subcommand leads to `Command::new("git").args(..).status()` with inherited stdio, exiting with the same code. Exit code: `status.code()`, or `128 + signal` via `ExitStatusExt::signal()`. A spawn error of kind NotFound exits with 127.
+
+### D8. Untrusted text is sanitized
+File names from `-z` status output are unquoted, and `remote:` text comes from the server. Both can carry escape sequences. A single `sanitize` helper in gw-render shows control characters (C0, DEL, C1) as `\xNN` and tabs as a space. It runs on status paths and branch names, and on box lines before link detection, so a link can never contain ESC or BEL. Ref names are not sanitized: git forbids control characters in them.
 
 ## Risks / Trade-offs
 
@@ -90,7 +97,8 @@ Box drawing: thin `┌─┐│└┘` borders, title inlined into the top borde
 - [stdout/stderr ordering is not preserved across the two pipes] → Static sections are printed only after exit in a fixed order, so interleaving does not matter.
 - [`--porcelain` push prints `Done` and changes stdout for hooks that expect human output] → `pre-push` hooks receive refs on stdin regardless of the flag, so they are unaffected.
 - [Terminals without OSC 8 support show the link text only] → The link is still visible and selectable. Acceptable.
-- [A spinner without raw mode and a prompt appearing *after* progress starts (rare: an LFS auth mid-transfer) could collide] → Accepted for v1. Revisit if it shows up in practice.
+- [A spinner without raw mode and a prompt appearing *after* the live line starts could collide. With the 300 ms `Connecting…` line this includes slow credential or SSH passphrase prompts] → Accepted (user decision). Revisit if it shows up in practice.
+- [Line stats add two `git diff` runs and read every untracked file] → May slow `gw status` on large repos or with large untracked files. Accepted.
 
 ## Migration Plan
 

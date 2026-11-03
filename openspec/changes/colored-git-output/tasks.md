@@ -31,3 +31,12 @@
 - [x] 5.1 Add integration test script/test that creates a temp repo + bare remote, exercises `gw push`, `gw fetch`, `gw pull`, `gw clone`, `gw status`, and asserts exit codes and that `NO_COLOR=1` output has no SGR codes; verify `cargo test --workspace` passes
 - [ ] 5.2 Manually verify against the real GitLab remote: MR box titled "Merge request", link clickable in terminal, SSH passphrase prompt still usable; record result in the change notes
 - [x] 5.3 Write `README.md`: install (`cargo install --path apps/gw`), usage, alias examples (`git config --global alias.p '!gw push'`), note that aliases cannot shadow built-in commands, `NO_COLOR`; verify the alias example works as written
+
+## 6. Follow-ups from first use
+
+- [x] 6.1 Add `sanitize` (control chars to `\xNN`, tab to space) and apply it to status paths and branch names and to remote box lines; verify a test that an ESC/BEL payload reaches neither output raw
+- [x] 6.2 Show the upstream branch in its own color (magenta) in the status header; verify the header escape codes in a TTY run
+- [x] 6.3 Add `parse_numstat_z` and per-file `+N -M` / `bin` stats aligned per group (staged from `--cached`, changed from worktree, untracked by line count); verify the status snapshot with stats and a run in a real repo
+- [x] 6.4 Keep the trailing slash of untracked directory entries in cwd-relative paths; verify `relative("src/", "src/") == "../src/"`
+- [x] 6.5 Show a `Connecting…` live line after 300 ms with no progress, replaced by the first progress event; verify with a slow server hook that the line appears and an up-to-date push under 300 ms draws no live line
+- [x] 6.6 Print `Total +X -Y` (sum of shown stats) after the status groups, omitted when clean; verify the status snapshot

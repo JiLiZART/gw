@@ -1,5 +1,5 @@
 use gw_parse::*;
-use gw_render::{refs::*, remote_box::render_box, status::render_status, style::visible_width};
+use gw_render::{refs::*, remote_box::render_box, status::{LineStats, render_status}, style::visible_width};
 
 fn fx(name: &str) -> String {
     let p = format!("{}/../gw-parse/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"));
@@ -72,6 +72,16 @@ fn box_long_url_80_cols() {
 }
 
 #[test]
+fn untrusted_text_is_inert() {
+    let b = render_box(&lines(&["hi \x1b[2Jhttps://x.y/\x07\x1b]8;;evil"]), &[], 80, false);
+    assert_aligned(&b);
+    assert!(!gw_render::style::strip_escapes(&b).contains('\x1b') && !b.contains('\x07'), "{b:?}");
+    let st = parse_status_v2(b"# branch.head m\0? a\x1b[31mb\0");
+    let s = render_status(&st, "", &LineStats::default(), false);
+    assert!(s.contains("? a\\x1b[31mb") && !s.contains('\x1b'), "{s:?}");
+}
+
+#[test]
 fn box_empty() {
     assert_eq!(render_box(&lines(&["", ""]), &[], 80, true), "");
 }
@@ -112,8 +122,13 @@ fn status_views() {
     let mut out = String::new();
     for (n, prefix) in [("status-mixed", ""), ("status-mixed", "sub/"), ("status-clean", ""), ("status-detached", ""), ("status-conflict", "")] {
         out += &format!("== {n} prefix={prefix:?}\n");
-        out += &render_status(&parse_status_v2(fx(&format!("{n}.z")).as_bytes()), prefix, false);
+        out += &render_status(&parse_status_v2(fx(&format!("{n}.z")).as_bytes()), prefix, &LineStats::default(), false);
     }
+    // numstat: plain, binary, and rename (-z form); untracked counted by caller.
+    let staged = parse_numstat_z(b"1\t0\tadded.txt\0-\t-\tf1.txt\x000\t0\t\0f6.txt\0renamed.txt\0");
+    let stats = LineStats { staged, unstaged: parse_numstat_z(b"12\t3\tf1.txt\x001\t0\tf2.txt\0"), untracked: [("n.txt".to_string(), Some((1, 0)))].into() };
+    out += "== status-mixed with stats\n";
+    out += &render_status(&parse_status_v2(fx("status-mixed.z").as_bytes()), "", &stats, false);
     assert!(!out.contains("(use \"git"));
     insta::assert_snapshot!(out);
 }

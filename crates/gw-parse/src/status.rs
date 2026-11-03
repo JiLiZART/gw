@@ -21,6 +21,28 @@ pub struct Entry {
     pub orig: Option<String>,
 }
 
+/// Per-file line counts keyed by repo-relative path; `None` means binary.
+pub type Numstat = std::collections::HashMap<String, Option<(u64, u64)>>;
+
+/// `git diff [--cached] --numstat -z`: `added\tdeleted\tpath\0`, renames as `added\tdeleted\t\0src\0dst\0`.
+pub fn parse_numstat_z(bytes: &[u8]) -> Numstat {
+    let text = String::from_utf8_lossy(bytes);
+    let mut recs = text.split('\0');
+    let mut out = Numstat::new();
+    while let Some(rec) = recs.next() {
+        let mut f = rec.splitn(3, '\t');
+        let (Some(a), Some(d), Some(p)) = (f.next(), f.next(), f.next()) else { continue };
+        let path = if p.is_empty() {
+            recs.next();
+            recs.next().unwrap_or("")
+        } else {
+            p
+        };
+        out.insert(path.to_string(), a.parse().ok().zip(d.parse().ok()));
+    }
+    out
+}
+
 pub fn parse_status_v2(bytes: &[u8]) -> Status {
     let text = String::from_utf8_lossy(bytes);
     let mut recs = text.split('\0');
