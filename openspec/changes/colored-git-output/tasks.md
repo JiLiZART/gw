@@ -40,3 +40,5 @@
 - [x] 6.4 Keep the trailing slash of untracked directory entries in cwd-relative paths; verify `relative("src/", "src/") == "../src/"`
 - [x] 6.5 Show a `Connecting…` live line after 300 ms with no progress, replaced by the first progress event; verify with a slow server hook that the line appears and an up-to-date push under 300 ms draws no live line
 - [x] 6.6 Print `Total +X -Y` (sum of shown stats) after the status groups, omitted when clean; verify the status snapshot
+- [x] 6.7 Use fixed 256-color bar shades (fill 28 + bold white text, empty 237 + light gray text); verify bar tests
+- [x] 6.8 Add `Animator` (eased fill, stage queue, 120 ms hold) and use it in the event loop, finishing easing for at most 1 s after success and skipping it after failure; verify unit tests for queueing/easing and a pty run of a small push showing several stages

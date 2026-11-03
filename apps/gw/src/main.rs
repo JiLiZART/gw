@@ -12,7 +12,7 @@ use std::{
 use gw_parse::{Event, Progress, RefUpdate, Splitter, classify, is_pack_stats, parse_fetch_porcelain, parse_numstat_z, parse_push_porcelain, parse_status_v2};
 use gw_render::{
     ThrobberState,
-    bar::ProgressLine,
+    bar::{Animator, ProgressLine},
     refs::{all_up_to_date, render_pull_summary, render_refs, render_up_to_date},
     remote_box::render_box,
     status::{LineStats, relative, render_status},
@@ -22,6 +22,10 @@ use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, la
 
 const FORMATTED: [&str; 5] = ["push", "pull", "fetch", "clone", "status"];
 const TICK: Duration = Duration::from_millis(80);
+/// Redraw interval while easing the bar.
+const FRAME: Duration = Duration::from_millis(30);
+/// Longest the bar keeps easing after git exits successfully.
+const SETTLE_MAX: Duration = Duration::from_secs(1);
 /// No progress for this long: show `Connecting…` so slow handshakes are not a blank wait.
 const CONNECT_DELAY: Duration = Duration::from_millis(300);
 
@@ -90,10 +94,10 @@ fn term_width() -> usize {
 
 type Live = Terminal<CrosstermBackend<io::Stdout>>;
 
-fn draw(term: &mut Live, p: &Progress, th: &ThrobberState, done: Option<bool>, color: bool) {
+fn draw(term: &mut Live, p: &Progress, fill: Option<u8>, th: &ThrobberState, done: Option<bool>, color: bool) {
     let _ = term.draw(|f| {
         let a = f.area();
-        f.render_widget(ProgressLine { progress: p, throbber: th, done, color }, a);
+        f.render_widget(ProgressLine { progress: p, fill, throbber: th, done, color }, a);
         // Keep the cursor visible (parked at line end) so an interrupted run never leaves it hidden.
         f.set_cursor_position(Position::new(a.x + a.width.saturating_sub(1), a.y));
     });
@@ -141,7 +145,7 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
 
     let color = !no_color_env();
     let mut th = ThrobberState::default();
-    let mut progress: Option<Progress> = None;
+    let mut anim = Animator::new(Instant::now());
     let mut term: Option<Live> = None;
     let mut term_tried = false;
     // True once git sent real progress; a `Connecting…`-only line is cleared at the end.
@@ -154,11 +158,11 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
     let mut refs: Vec<RefUpdate> = Vec::new();
 
     loop {
-        match rx.recv_timeout(TICK) {
+        match rx.recv_timeout(FRAME) {
             Ok((false, line)) => stdout_lines.push(line),
             Ok((true, line)) => match classify(&line) {
                 Event::Progress(p) => {
-                    progress = Some(p);
+                    anim.push(p, Instant::now());
                     real_progress = true;
                     if !term_tried {
                         term_tried = true;
@@ -179,23 +183,40 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         // Prompts go to /dev/tty, unseen by gw; one appearing after the delay may be overdrawn (accepted risk).
         if !term_tried && started.elapsed() >= CONNECT_DELAY {
             term_tried = true;
-            progress = Some(Progress { label: "Connecting…".into(), ..Default::default() });
+            anim.push(Progress { label: "Connecting…".into(), ..Default::default() }, Instant::now());
             term = start_live();
         }
         if last_tick.elapsed() >= TICK {
             th.calc_next();
             last_tick = Instant::now();
         }
-        if let (Some(t), Some(p)) = (term.as_mut(), progress.as_ref()) {
-            draw(t, p, &th, None, color);
+        anim.tick(Instant::now());
+        if let (Some(t), Some((p, fill))) = (term.as_mut(), anim.current()) {
+            draw(t, p, Some(fill), &th, None, color);
         }
     }
     let code = exit_code(child.wait());
 
+    // Let fast stages play out (bounded); a failure shows its real state at once.
+    if code == 0 && real_progress && term.is_some() {
+        let deadline = Instant::now() + SETTLE_MAX;
+        while !anim.settled() && Instant::now() < deadline {
+            thread::sleep(FRAME);
+            if last_tick.elapsed() >= TICK {
+                th.calc_next();
+                last_tick = Instant::now();
+            }
+            anim.tick(Instant::now());
+            if let (Some(t), Some((p, fill))) = (term.as_mut(), anim.current()) {
+                draw(t, p, Some(fill), &th, None, color);
+            }
+        }
+    }
+
     let mut out = io::stdout().lock();
-    if let (Some(mut t), Some(p)) = (term.take(), progress.as_ref()) {
+    if let (Some(mut t), Some(p)) = (term.take(), anim.latest()) {
         if real_progress {
-            draw(&mut t, p, &th, Some(code == 0), color);
+            draw(&mut t, p, None, &th, Some(code == 0), color);
             drop(t);
             let _ = write!(out, "\r\n");
         } else {

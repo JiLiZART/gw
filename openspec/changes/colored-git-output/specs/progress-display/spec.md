@@ -9,14 +9,14 @@ While a wrapped network command (`push`, `pull`, `fetch`, `clone`) runs on a TTY
 
 #### Scenario: Progress during push
 - **WHEN** git reports `Writing objects:  44% (4/9)`
-- **THEN** the live line shows the label "Writing objects", the count `4/9`, `44%`, and a bar filled to 44% of its width
+- **THEN** the live line shows the label "Writing objects", the count `4/9`, `44%`, and a bar that fills to 44% of its width (eased, see Smooth fill)
 
 #### Scenario: Carriage-return updates
 - **WHEN** git emits several progress updates for one stage separated by `\r`
 - **THEN** the same live line is updated in place, with no extra lines printed
 
 ### Requirement: Filled bar styling
-The filled portion of the bar SHALL be drawn with a green background and the unfilled portion with a dim background; the label SHALL be left-aligned and `cur/total pct%` right-aligned inside the bar, remaining readable over both portions.
+The filled portion of the bar SHALL be drawn with a fixed dark green background (256-color, not the theme's ANSI green) with bold white text, and the unfilled portion with a fixed charcoal background with light gray text; the label SHALL be left-aligned and `cur/total pct%` right-aligned inside the bar, remaining readable over both portions.
 
 #### Scenario: Label over partially filled bar
 - **WHEN** the bar is 50% filled and the label spans the fill edge
@@ -65,3 +65,14 @@ When no progress has arrived within 300 ms of starting git, the system SHALL sho
 #### Scenario: Fast up-to-date push
 - **WHEN** git prints "Everything up-to-date" and exits within 300 ms
 - **THEN** no progress line is printed
+
+### Requirement: Smooth fill
+The displayed fill SHALL ease toward git's reported percentage at a fixed rate (0 to 100% in about 250 ms), so fast stages remain visible. Each stage SHALL stay on screen until its fill reaches the reported percentage and for at least 120 ms; later stages wait in order. The counters show git's real values. After git exits successfully, the display SHALL finish easing for at most 1 second before the final frame. After a failure, the final frame SHALL appear immediately with the last reported state.
+
+#### Scenario: Instant small push
+- **WHEN** git reports Compressing, Writing, and remote Resolving deltas all at 100% within 10 ms
+- **THEN** each stage is shown in order with its bar visibly filling, and the final line appears within 1 second after git exits
+
+#### Scenario: Failure skips easing
+- **WHEN** git exits non-zero while easing is in progress
+- **THEN** the final frame shows the red failure mark and git's last reported percentage immediately
