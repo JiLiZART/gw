@@ -482,7 +482,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "gw"
+name = "git-gw"
 version = "0.1.0"
 dependencies = [
  "gw-parse",

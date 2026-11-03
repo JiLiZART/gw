@@ -1,8 +1,13 @@
 [package]
 name = "gw-render"
+description = "Terminal rendering for git-gw: progress bar, remote box, ref list, status (internal crate, no stable API)"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
 
 [dependencies]
 gw-parse.workspace = true

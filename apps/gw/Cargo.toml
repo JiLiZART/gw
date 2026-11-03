@@ -1,8 +1,20 @@
 [package]
-name = "gw"
+name = "git-gw"
+description = "gw: runs git push/pull/fetch/clone/status with a live progress bar, boxed server messages and colored ref lists"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+keywords = ["git", "cli", "progress", "terminal", "status"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "gw"
+path = "src/main.rs"
 
 [dependencies]
 gw-parse.workspace = true

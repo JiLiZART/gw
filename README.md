@@ -12,7 +12,24 @@ Requires `git` ≥ 2.41 on `PATH`.
 ## Install
 
 ```sh
-cargo install --path apps/gw
+cargo install git-gw --locked
+```
+
+The package is `git-gw` (the name `gw` is taken on crates.io); the installed command is `gw`.
+Requires Rust 1.88 or newer.
+
+From source:
+
+```sh
+git clone https://github.com/JiLiZART/gw.git
+cd gw
+cargo install --path apps/gw --locked
+```
+
+If you installed an earlier build from source, remove it first, or cargo refuses because both provide `gw`:
+
+```sh
+cargo uninstall gw
 ```
 
 ## Usage

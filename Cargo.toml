@@ -5,11 +5,16 @@ members = ["apps/*", "crates/*"]
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.88"
 license = "MIT"
+authors = ["Nikolay Kostyurin"]
+repository = "https://github.com/JiLiZART/gw"
+homepage = "https://github.com/JiLiZART/gw"
 
 [workspace.dependencies]
-gw-parse = { path = "crates/gw-parse" }
-gw-render = { path = "crates/gw-render" }
+# Exact pins keep the three published crates in lockstep (see RELEASING.md).
+gw-parse = { path = "crates/gw-parse", version = "=0.1.0" }
+gw-render = { path = "crates/gw-render", version = "=0.1.0" }
 ratatui = "0.30"
 throbber-widgets-tui = "0.11"
 unicode-width = "0.2"
