@@ -1,8 +1,13 @@
 //! Pure parsers for git's output. No IO, no terminal.
 
+mod log;
 mod refs;
 mod status;
 
+pub use log::{
+    BRANCH_FORMAT, Branch, Commit, LOG_FORMAT, LogRow, STASH_FORMAT, Stash, US, parse_branches, parse_graph_line,
+    parse_name_status_z, parse_shortlog, parse_stash_list,
+};
 pub use refs::{RefKind, RefUpdate, parse_fetch_porcelain, parse_human_ref_line, parse_push_porcelain};
 pub use status::{Entry, Numstat, Status, parse_numstat_z, parse_status_v2};
 

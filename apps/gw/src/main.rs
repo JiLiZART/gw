@@ -20,7 +20,10 @@ use gw_render::{
 };
 use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, layout::Position};
 
-const FORMATTED: [&str; 5] = ["push", "pull", "fetch", "clone", "status"];
+mod log;
+mod views;
+
+const FORMATTED: [&str; 9] = ["push", "pull", "fetch", "clone", "status", "log", "branch", "commit", "stash"];
 const TICK: Duration = Duration::from_millis(80);
 /// Redraw interval while easing the bar.
 const FRAME: Duration = Duration::from_millis(30);
@@ -32,15 +35,20 @@ const CONNECT_DELAY: Duration = Duration::from_millis(300);
 fn main() {
     let args: Vec<OsString> = std::env::args_os().skip(1).collect();
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw <push|pull|fetch|clone|status> [git args...]\nAny other subcommand runs plain git.");
+        eprintln!("usage: gw <push|pull|fetch|clone|status|log|branch|commit|stash list> [git args...]\nAny other subcommand runs plain git.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
         passthrough(&args)
-    } else if cmd == "status" {
-        status(&args[1..])
     } else {
-        network(&cmd, &args[1..])
+        match cmd.as_str() {
+            "status" => status(&args[1..]),
+            "log" => log::run(&args[1..]),
+            "branch" => views::branch(&args[1..]),
+            "commit" => views::commit(&args[1..]),
+            "stash" => views::stash(&args[1..]),
+            _ => network(&cmd, &args[1..]),
+        }
     };
     exit(code)
 }

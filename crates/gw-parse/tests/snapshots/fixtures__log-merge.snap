@@ -1,0 +1,112 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: rows
+---
+[
+    LogRow {
+        graph: "*",
+        commit: Some(
+            Commit {
+                hash: "3c5ecf293ad91699087068355a630c7b72faca48",
+                short: "3c5ecf2",
+                time: 1793268000,
+                author: "Nikolay",
+                refs: [
+                    "HEAD -> main",
+                    "tag: v0.1.0",
+                ],
+                subject: "Merge branch 'feat'",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|\\",
+        commit: None,
+    },
+    LogRow {
+        graph: "| *",
+        commit: Some(
+            Commit {
+                hash: "708b13e5656ec7778874ef032fa53b09d089e051",
+                short: "708b13e",
+                time: 1792058400,
+                author: "Alice",
+                refs: [
+                    "feat",
+                ],
+                subject: "wip: forms 2",
+            },
+        ),
+    },
+    LogRow {
+        graph: "| *",
+        commit: Some(
+            Commit {
+                hash: "f058efb055356047e63c1b4bfed0ccb054d1616c",
+                short: "f058efb",
+                time: 1791972000,
+                author: "Alice",
+                refs: [],
+                subject: "feat: forms",
+            },
+        ),
+    },
+    LogRow {
+        graph: "* |",
+        commit: Some(
+            Commit {
+                hash: "01beb2dddc5ebcf72addb47f070a0d89e1f4a0b5",
+                short: "01beb2d",
+                time: 1792144800,
+                author: "Nikolay",
+                refs: [],
+                subject: "fix: main bug",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|/",
+        commit: None,
+    },
+    LogRow {
+        graph: "*",
+        commit: Some(
+            Commit {
+                hash: "cf2c083fb4f41964106261cf7e4f4f85d234aa9f",
+                short: "cf2c083",
+                time: 1791885600,
+                author: "Nikolay",
+                refs: [
+                    "origin/main",
+                ],
+                subject: "docs: readme",
+            },
+        ),
+    },
+    LogRow {
+        graph: "*",
+        commit: Some(
+            Commit {
+                hash: "a1bc23a135cb06c3264837ccef323b0a171a83ef",
+                short: "a1bc23a",
+                time: 1791799200,
+                author: "Alice",
+                refs: [],
+                subject: "fix: typo",
+            },
+        ),
+    },
+    LogRow {
+        graph: "*",
+        commit: Some(
+            Commit {
+                hash: "389c790a1dab90ab81bbaaff3484b4c1dd79fb76",
+                short: "389c790",
+                time: 1791712800,
+                author: "Nikolay",
+                refs: [],
+                subject: "feat: initial",
+            },
+        ),
+    },
+]

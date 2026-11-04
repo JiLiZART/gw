@@ -1,0 +1,10 @@
+---
+source: crates/gw-render/tests/browser.rs
+expression: "out.join(\"\\n\")"
+---
+list:     j/k Move  Tab Files  / Search  a All  b Branch  d Date  u Author  x Clear  Space Actions  q Quit
+sidebar:  j/k Move  Enter Diff  Tab Commits  Space Actions  q Quit
+diff:     j/k Scroll  PgUp/PgDn Page  g/G Top/End  Esc Back
+actions:  Esc Close
+date:     Enter Apply  Tab Field  Esc Cancel
+narrow:   j/k Move  Tab Files  / Search  a All

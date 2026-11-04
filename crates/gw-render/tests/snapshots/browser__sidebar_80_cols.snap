@@ -1,0 +1,14 @@
+---
+source: crates/gw-render/tests/browser.rs
+expression: screen(&a)
+---
+"main │ current branch │ 3 commits                                               "
+"┌ Files (4) ───────────────────────────────────────────────────────────────────┐"
+"│M src/main.rs                                                           +12 -3│"
+"│A docs/very/long/path/to/some/file.md                                   +40 -0│"
+"│R old.rs -> new.rs                                                       +0 -0│"
+"│M logo.png                                                                 bin│"
+"│Total +52 -3                                                                  │"
+"└──────────────────────────────────────────────────────────────────────────────┘"
+"                                                                                "
+" j/k Move  Enter Diff  Tab Commits  Space Actions  q Quit                       "

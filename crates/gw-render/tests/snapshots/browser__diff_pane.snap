@@ -1,0 +1,14 @@
+---
+source: crates/gw-render/tests/browser.rs
+expression: t.backend().to_string()
+---
+"main │ current branch │ 3 commits                                               "
+"┌ src/main.rs @ cf2c083 ───────────────────────────────────────────────────────┐"
+"│diff --git a/x b/x                                                            │"
+"│@@ -1,2 +1,2 @@                                                               │"
+"│ keep                                                                         │"
+"│-old    line                                                                  │"
+"│+new line \x1b[31m                                                            │"
+"└──────────────────────────────────────────────────────────────────────────────┘"
+"                                                                                "
+" j/k Scroll  PgUp/PgDn Page  g/G Top/End  Esc Back                              "

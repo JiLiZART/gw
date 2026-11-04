@@ -80,3 +80,18 @@ fn status_fixtures() {
         insta::assert_debug_snapshot!(n, parse_status_v2(&fx(&format!("{n}.z"))));
     }
 }
+
+#[test]
+fn graph_fixtures() {
+    for n in ["log-linear", "log-merge", "log-octopus", "log-all"] {
+        let text = String::from_utf8(fx(&format!("{n}.txt"))).unwrap();
+        let rows: Vec<_> = text.lines().map(parse_graph_line).collect();
+        insta::assert_debug_snapshot!(n, rows);
+    }
+}
+
+#[test]
+fn branch_stash_shortlog() {
+    let s = |n: &str| String::from_utf8(fx(n)).unwrap();
+    insta::assert_debug_snapshot!((parse_branches(&s("branches.txt")), parse_stash_list(&s("stash-list.txt")), parse_shortlog(&s("shortlog.txt"))));
+}

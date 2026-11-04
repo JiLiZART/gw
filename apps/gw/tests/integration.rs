@@ -135,3 +135,56 @@ fn network_and_status_commands() {
     assert_eq!(code, 1, "{out}");
     assert!(out.contains("✗ rejected"), "{out}");
 }
+
+#[test]
+fn log_branch_commit_stash() {
+    let tmp = TempDir(std::env::temp_dir().join(format!("gw-it2-{}", std::process::id())));
+    let root = &tmp.0;
+    let _ = std::fs::remove_dir_all(root);
+    std::fs::create_dir_all(root).unwrap();
+    git(root, &["init", "-q", "-b", "main", "w"]);
+    let w = root.join("w");
+    std::fs::write(w.join("a.txt"), "1\n").unwrap();
+    git(&w, &["add", "."]);
+    git(&w, &["commit", "-qm", "init"]);
+
+    // gw log piped: identical to git log
+    let piped = git_env(Command::new(GW).args(["log", "--format=%H %s"]).current_dir(&w)).output().unwrap();
+    let plain = git_env(Command::new("git").args(["log", "--format=%H %s"]).current_dir(&w)).output().unwrap();
+    assert_eq!(piped.stdout, plain.stdout);
+    let piped = git_env(Command::new(GW).arg("log").current_dir(&w)).output().unwrap();
+    let plain = git_env(Command::new("git").arg("log").current_dir(&w)).output().unwrap();
+    assert_eq!(piped.stdout, plain.stdout, "non-TTY gw log is plain git log");
+
+    // gw commit -m: summary, exit 0, no SGR under NO_COLOR
+    std::fs::write(w.join("a.txt"), "1\n2\n").unwrap();
+    std::fs::write(w.join("b.txt"), "b\n").unwrap();
+    git(&w, &["add", "."]);
+    let (code, out) = gw(&w, &["commit", "-m", "feat-two"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("main  feat-two") && out.contains("2 files  +2 -0"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
+
+    // nothing to commit: git's exit code, no summary
+    let (code, out) = gw(&w, &["commit", "-m", "empty"], true);
+    assert_eq!(code, 1, "{out}");
+    assert!(!out.contains('✓'), "{out}");
+
+    // gw branch
+    git(&w, &["branch", "side"]);
+    let (code, out) = gw(&w, &["branch"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("* main"), "current branch marked: {out}");
+    assert!(out.contains("side") && out.contains("no upstream"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
+
+    // gw stash list
+    std::fs::write(w.join("a.txt"), "changed\n").unwrap();
+    git(&w, &["stash", "push", "-q", "-m", "try-it"]);
+    let (code, out) = gw(&w, &["stash", "list"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("main  try-it  1 file +1 -2"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
+    let (code, _) = gw(&w, &["stash", "pop"], true);
+    assert_eq!(code, 0);
+}

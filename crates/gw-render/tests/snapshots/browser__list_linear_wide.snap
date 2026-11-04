@@ -1,0 +1,16 @@
+---
+source: crates/gw-render/tests/browser.rs
+expression: "screen(&app(\"log-linear.txt\", 120, 12))"
+---
+"main │ current branch │ 3 commits                                                                                       "
+"┌ Commits ───────────────────────────────────────────────────────────────────┐┌ Files (4) ─────────────────────────────┐"
+"│● cf2c083  21d Nikolay        (@main) docs: readme                          ││M src/main.rs                     +12 -3│"
+"│● a1bc23a  22d Alice          fix: typo                                     ││A …very/long/path/to/some/file.md +40 -0│"
+"│● 389c790  23d Nikolay        feat: initial                                 ││R old.rs -> new.rs                 +0 -0│"
+"│                                                                            ││M logo.png                           bin│"
+"│                                                                            ││                                        │"
+"│                                                                            ││                                        │"
+"│                                                                            ││Total +52 -3                            │"
+"└────────────────────────────────────────────────────────────────────────────┘└────────────────────────────────────────┘"
+"                                                                                                                        "
+" j/k Move  Tab Files  / Search  a All  b Branch  d Date  u Author  x Clear  Space Actions  q Quit                       "

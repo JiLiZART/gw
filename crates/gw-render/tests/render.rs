@@ -132,3 +132,21 @@ fn status_views() {
     assert!(!out.contains("(use \"git"));
     insta::assert_snapshot!(out);
 }
+
+#[test]
+fn static_views() {
+    use gw_render::views::*;
+    let branches = parse_branches(&fx("branches.txt"));
+    let stashes: Vec<_> = parse_stash_list(&fx("stash-list.txt")).into_iter().zip([(1, 1, 0), (2, 3, 1)]).map(|(s, (f, a, d))| (s, f, a, d)).collect();
+    let out = format!(
+        "{}\n{}\n{}\n{}",
+        render_branches(&branches, 100, false),
+        render_commit_summary("a1b2c3d", "main", "fix: x", 2, 10, 3, false),
+        render_stash_list(&stashes, false),
+        render_stash_list(&[], false)
+    );
+    assert!(!out.contains('\x1b'), "escape in branch subject is sanitized");
+    insta::assert_snapshot!(out);
+    let colored = render_branches(&branches, 100, true);
+    assert!(colored.contains("\x1b[31mgone"), "gone upstream in red");
+}

@@ -1,0 +1,154 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: rows
+---
+[
+    LogRow {
+        graph: "*---.",
+        commit: Some(
+            Commit {
+                hash: "23f03af07509b24ecf5893a8f3fb06ddbfb92f07",
+                short: "23f03af",
+                time: 1793268000,
+                author: "Nikolay",
+                refs: [
+                    "HEAD -> main",
+                ],
+                subject: "Merge o1 o2 o3",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|\\ \\ \\",
+        commit: None,
+    },
+    LogRow {
+        graph: "| | | *",
+        commit: Some(
+            Commit {
+                hash: "d934f2967395e3058349b6f666d53ba84ce1a04f",
+                short: "d934f29",
+                time: 1792404000,
+                author: "Nikolay",
+                refs: [
+                    "o3",
+                ],
+                subject: "o3",
+            },
+        ),
+    },
+    LogRow {
+        graph: "| |_|/",
+        commit: None,
+    },
+    LogRow {
+        graph: "|/| |",
+        commit: None,
+    },
+    LogRow {
+        graph: "| | *",
+        commit: Some(
+            Commit {
+                hash: "edadf45bc4fdaf29565c16e587af3632a4ba124b",
+                short: "edadf45",
+                time: 1792317600,
+                author: "Nikolay",
+                refs: [
+                    "o2",
+                ],
+                subject: "o2",
+            },
+        ),
+    },
+    LogRow {
+        graph: "| |/",
+        commit: None,
+    },
+    LogRow {
+        graph: "|/|",
+        commit: None,
+    },
+    LogRow {
+        graph: "| *",
+        commit: Some(
+            Commit {
+                hash: "58441fccc536fc4d678e8aebb31c709a32c0fe22",
+                short: "58441fc",
+                time: 1792231200,
+                author: "Nikolay",
+                refs: [
+                    "o1",
+                ],
+                subject: "o1",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|/",
+        commit: None,
+    },
+    LogRow {
+        graph: "*",
+        commit: Some(
+            Commit {
+                hash: "3c5ecf293ad91699087068355a630c7b72faca48",
+                short: "3c5ecf2",
+                time: 1793268000,
+                author: "Nikolay",
+                refs: [
+                    "tag: v0.1.0",
+                ],
+                subject: "Merge branch 'feat'",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|\\",
+        commit: None,
+    },
+    LogRow {
+        graph: "| *",
+        commit: Some(
+            Commit {
+                hash: "708b13e5656ec7778874ef032fa53b09d089e051",
+                short: "708b13e",
+                time: 1792058400,
+                author: "Alice",
+                refs: [
+                    "feat",
+                ],
+                subject: "wip: forms 2",
+            },
+        ),
+    },
+    LogRow {
+        graph: "| *",
+        commit: Some(
+            Commit {
+                hash: "f058efb055356047e63c1b4bfed0ccb054d1616c",
+                short: "f058efb",
+                time: 1791972000,
+                author: "Alice",
+                refs: [],
+                subject: "feat: forms",
+            },
+        ),
+    },
+    LogRow {
+        graph: "* |",
+        commit: Some(
+            Commit {
+                hash: "01beb2dddc5ebcf72addb47f070a0d89e1f4a0b5",
+                short: "01beb2d",
+                time: 1792144800,
+                author: "Nikolay",
+                refs: [],
+                subject: "fix: main bug",
+            },
+        ),
+    },
+    LogRow {
+        graph: "|/",
+        commit: None,
+    },
+]

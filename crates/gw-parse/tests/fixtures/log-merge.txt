@@ -1,0 +1,9 @@
+*   3c5ecf293ad91699087068355a630c7b72faca483c5ecf21793268000NikolayHEAD -> main, tag: v0.1.0Merge branch 'feat'
+|\  
+| * 708b13e5656ec7778874ef032fa53b09d089e051708b13e1792058400Alicefeatwip: forms 2
+| * f058efb055356047e63c1b4bfed0ccb054d1616cf058efb1791972000Alicefeat: forms
+* | 01beb2dddc5ebcf72addb47f070a0d89e1f4a0b501beb2d1792144800Nikolayfix: main bug
+|/  
+* cf2c083fb4f41964106261cf7e4f4f85d234aa9fcf2c0831791885600Nikolayorigin/maindocs: readme
+* a1bc23a135cb06c3264837ccef323b0a171a83efa1bc23a1791799200Alicefix: typo
+* 389c790a1dab90ab81bbaaff3484b4c1dd79fb76389c7901791712800Nikolayfeat: initial

@@ -1,0 +1,112 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-list.txt\")),\nparse_shortlog(&s(\"shortlog.txt\")))"
+---
+(
+    [
+        Branch {
+            name: "main",
+            current: true,
+            upstream: Some(
+                "origin/main",
+            ),
+            ahead: 8,
+            behind: 0,
+            gone: false,
+            age: "5 days ago",
+            subject: "Merge o1 o2 o3",
+        },
+        Branch {
+            name: "noup",
+            current: false,
+            upstream: None,
+            ahead: 0,
+            behind: 0,
+            gone: false,
+            age: "5 days ago",
+            subject: "Merge o1 o2 o3",
+        },
+        Branch {
+            name: "side",
+            current: false,
+            upstream: None,
+            ahead: 0,
+            behind: 0,
+            gone: false,
+            age: "2 weeks ago",
+            subject: "side: \u{1b}[2J two",
+        },
+        Branch {
+            name: "o3",
+            current: false,
+            upstream: None,
+            ahead: 0,
+            behind: 0,
+            gone: false,
+            age: "2 weeks ago",
+            subject: "o3",
+        },
+        Branch {
+            name: "o2",
+            current: false,
+            upstream: None,
+            ahead: 0,
+            behind: 0,
+            gone: false,
+            age: "2 weeks ago",
+            subject: "o2",
+        },
+        Branch {
+            name: "o1",
+            current: false,
+            upstream: None,
+            ahead: 0,
+            behind: 0,
+            gone: false,
+            age: "3 weeks ago",
+            subject: "o1",
+        },
+        Branch {
+            name: "feat",
+            current: false,
+            upstream: Some(
+                "origin/feat",
+            ),
+            ahead: 0,
+            behind: 0,
+            gone: true,
+            age: "3 weeks ago",
+            subject: "wip: forms 2",
+        },
+    ],
+    [
+        Stash {
+            reference: "stash@{0}",
+            index: 0,
+            age: "6 days ago",
+            branch: Some(
+                "feat",
+            ),
+            message: "try forms",
+        },
+        Stash {
+            reference: "stash@{1}",
+            index: 1,
+            age: "6 days ago",
+            branch: Some(
+                "main",
+            ),
+            message: "23f03af Merge o1 o2 o3",
+        },
+    ],
+    [
+        (
+            8,
+            "Nikolay <nikolay@x.io>",
+        ),
+        (
+            3,
+            "Alice <Alice@x.io>",
+        ),
+    ],
+)
