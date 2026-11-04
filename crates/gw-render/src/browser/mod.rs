@@ -40,6 +40,8 @@ impl Filters {
             Scope::Head if user_rev => {}
             Scope::Head => a.push("HEAD".into()),
             Scope::All => a.push("--all".into()),
+            // A ref name starting with '-' would be parsed as an option: never pass one.
+            Scope::Branch(b) if b.starts_with('-') => a.push("HEAD".into()),
             Scope::Branch(b) => a.push(b.clone()),
         }
         if let Some(s) = &self.since {
@@ -892,6 +894,8 @@ mod tests {
         let f = Filters { since: Some("2 weeks ago".into()), author: Some("x".into()), ..Filters::new(vec!["--".into(), "src/".into()]) };
         assert_eq!(f.git_args(), vec!["HEAD", "--since=2 weeks ago", "--author=x", "--", "src/"]);
         assert_eq!(Filters::new(vec!["main..feat".into()]).git_args(), vec!["main..feat"], "user revision replaces HEAD");
+        let evil = Filters { scope: Scope::Branch("--output=/tmp/x".into()), ..Filters::new(vec![]) };
+        assert_eq!(evil.git_args(), vec!["HEAD"], "option-like ref is never passed to git");
     }
 
     #[test]

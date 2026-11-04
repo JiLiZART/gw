@@ -237,7 +237,8 @@ fn handle(effect: Effect, app: &mut App, loader: &mut Loader, term: &mut Default
         }
         Effect::LoadBranches => {
             let out = git(&["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"]).unwrap_or_default();
-            app.open_branches(out.lines().filter(|l| !l.ends_with("/HEAD") && *l != "origin").map(str::to_string).collect());
+            // Names starting with '-' (possible via update-ref or a hostile remote) would act as git options.
+            app.open_branches(out.lines().filter(|l| !l.ends_with("/HEAD") && *l != "origin" && !l.starts_with('-')).map(str::to_string).collect());
         }
         Effect::LoadAuthors => {
             let scope = Filters { author: None, since: None, until: None, ..app.filters.clone() };
