@@ -309,13 +309,13 @@ impl App {
         } else {
             self.refilter();
         }
-        if let Some(h) = self.reselect.clone() {
-            if let Some(p) = self.view.iter().position(|&i| self.rows[i].commit.as_ref().is_some_and(|c| c.hash == h)) {
-                self.sel = p;
-                self.reselect = None;
-                self.ensure_visible();
-                return;
-            }
+        if let Some(h) = self.reselect.clone()
+            && let Some(p) = self.view.iter().position(|&i| self.rows[i].commit.as_ref().is_some_and(|c| c.hash == h))
+        {
+            self.sel = p;
+            self.reselect = None;
+            self.ensure_visible();
+            return;
         }
         if !self.is_commit(self.sel) {
             self.move_by(1);
@@ -515,17 +515,19 @@ impl App {
         if self.focus == Focus::Sidebar {
             let n = self.files.as_ref().map_or(0, |f| f.1.len());
             let page = self.page();
-            let step = |s: &mut usize, d: isize| *s = (*s as isize + d).clamp(0, n.saturating_sub(1) as isize) as usize;
-            let handled = match k.code {
-                KeyCode::Up | KeyCode::Char('k') => Some(step(&mut self.file_sel, -1)),
-                KeyCode::Down | KeyCode::Char('j') => Some(step(&mut self.file_sel, 1)),
-                KeyCode::PageUp => Some(step(&mut self.file_sel, -page)),
-                KeyCode::PageDown => Some(step(&mut self.file_sel, page)),
-                KeyCode::Home | KeyCode::Char('g') => Some(self.file_sel = 0),
-                KeyCode::End | KeyCode::Char('G') => Some(self.file_sel = n.saturating_sub(1)),
+            let sel = self.file_sel;
+            let step = |d: isize| (sel as isize + d).clamp(0, n.saturating_sub(1) as isize) as usize;
+            let target = match k.code {
+                KeyCode::Up | KeyCode::Char('k') => Some(step(-1)),
+                KeyCode::Down | KeyCode::Char('j') => Some(step(1)),
+                KeyCode::PageUp => Some(step(-page)),
+                KeyCode::PageDown => Some(step(page)),
+                KeyCode::Home | KeyCode::Char('g') => Some(0),
+                KeyCode::End | KeyCode::Char('G') => Some(n.saturating_sub(1)),
                 _ => None,
             };
-            if handled.is_some() {
+            if let Some(t) = target {
+                self.file_sel = t;
                 let h = self.body_height().saturating_sub(1).max(1);
                 if self.file_sel < self.file_scroll {
                     self.file_scroll = self.file_sel;

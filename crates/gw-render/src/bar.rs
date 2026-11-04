@@ -69,12 +69,13 @@ impl Animator {
         let dt = now.saturating_duration_since(self.last).as_secs_f32();
         self.last = now;
         self.fill = (self.fill + RATE * dt).min(self.target());
-        if self.fill >= self.target() && now.saturating_duration_since(self.since) >= HOLD {
-            if let Some(next) = self.queue.pop_front() {
-                self.shown = Some(next);
-                self.fill = 0.0;
-                self.since = now;
-            }
+        if self.fill >= self.target()
+            && now.saturating_duration_since(self.since) >= HOLD
+            && let Some(next) = self.queue.pop_front()
+        {
+            self.shown = Some(next);
+            self.fill = 0.0;
+            self.since = now;
         }
     }
 

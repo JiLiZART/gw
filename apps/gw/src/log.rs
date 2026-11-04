@@ -318,10 +318,10 @@ fn event_loop(term: &mut DefaultTerminal, app: &mut App) -> io::Result<()> {
                 dirty = true;
             } else if sel_changed.elapsed() >= Duration::from_millis(50) {
                 let files = load_files(&sha);
-                if order.len() >= 256 {
-                    if let Some(old) = order.pop_front() {
-                        cache.remove(&old);
-                    }
+                if order.len() >= 256
+                    && let Some(old) = order.pop_front()
+                {
+                    cache.remove(&old);
                 }
                 order.push_back(sha.clone());
                 cache.insert(sha.clone(), files.clone());
