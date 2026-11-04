@@ -3,12 +3,12 @@ source: crates/gw-render/tests/render.rs
 expression: out
 ---
 * main  -> origin/main  ↑8 ↓0  5 days ago   Merge o1 o2 o3
-  noup  no upstream              5 days ago   Merge o1 o2 o3
-  side  no upstream              2 weeks ago  side: \x1b[2J two
-  o3    no upstream              2 weeks ago  o3
-  o2    no upstream              2 weeks ago  o2
-  o1    no upstream              3 weeks ago  o1
-  feat  -> origin/feat  gone     3 weeks ago  wip: forms 2
+  noup  no upstream            5 days ago   Merge o1 o2 o3
+  side  no upstream            2 weeks ago  side: \x1b[2J two
+  o3    no upstream            2 weeks ago  o3
+  o2    no upstream            2 weeks ago  o2
+  o1    no upstream            3 weeks ago  o1
+  feat  -> origin/feat  gone   3 weeks ago  wip: forms 2
 
 ✓ a1b2c3d main  fix: x
 2 files  +10 -3

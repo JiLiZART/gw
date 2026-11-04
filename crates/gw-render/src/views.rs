@@ -41,6 +41,16 @@ pub fn render_branches(branches: &[Branch], width: usize, color: bool) -> String
     };
     let track_w = order.iter().map(|b| track(b).width()).max().unwrap_or(0);
     let age_w = order.iter().map(|b| b.age.width()).max().unwrap_or(0);
+    let state = |b: &Branch| {
+        if b.gone {
+            paint("gone", RED, color)
+        } else if b.upstream.is_some() {
+            counts(b.ahead, b.behind, color)
+        } else {
+            String::new()
+        }
+    };
+    let state_w = order.iter().map(|b| crate::style::visible_width(&state(b))).max().unwrap_or(0);
     let mut out = String::new();
     for b in order {
         let name = sanitize(&b.name);
@@ -51,15 +61,10 @@ pub fn render_branches(branches: &[Branch], width: usize, color: bool) -> String
             Some(u) => format!("-> {}{}", paint(&sanitize(u), UPSTREAM, color), " ".repeat(track_w - t.width())),
             None => paint(&pad(&t, track_w), DIM, color),
         };
-        let state = if b.gone {
-            format!("{}   ", paint("gone", RED, color))
-        } else if b.upstream.is_some() {
-            counts(b.ahead, b.behind, color)
-        } else {
-            " ".repeat(7)
-        };
-        // Visible width so far: mark + space + name + 2 + track + 2 + state(7-ish) + 2 + age + 2
-        let used = 2 + name_w + 2 + track_w + 2 + crate::style::visible_width(&state) + 2 + age_w + 2;
+        let st = state(b);
+        let state = format!("{st}{}", " ".repeat(state_w - crate::style::visible_width(&st)));
+        // Visible width so far: mark + space + name + 2 + track + 2 + state + 2 + age + 2
+        let used = 2 + name_w + 2 + track_w + 2 + state_w + 2 + age_w + 2;
         let subject = truncate(&sanitize(&b.subject), width.saturating_sub(used).max(10));
         out += &format!(
             "{mark} {name_s}  {track_s}  {state}  {}  {subject}\n",
