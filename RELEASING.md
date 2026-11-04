@@ -16,17 +16,13 @@ PRs created by release-plz use `GITHUB_TOKEN`, so CI does not run on them automa
 
 ## One-time setup
 
-1. Publish 0.1.0 by hand (crates.io trusted publishing can't create new crates):
+crates.io trusted publishing can't create new crates, so the first release (0.1.0) uses a token:
 
-   ```sh
-   cargo login
-   cargo publish --workspace
-   git tag v0.1.0 && git push origin v0.1.0
-   ```
-
-2. Build the 0.1.0 binaries and GitHub Release: Actions → **Release** → Run workflow, tag `v0.1.0`.
-3. On crates.io, for each of `gw-parse`, `gw-render`, `git-gw`: Settings → Trusted Publishing → add GitHub, repository `JiLiZART/gw`, workflow `release-plz.yml`.
-4. On GitHub: Settings → Actions → General → Workflow permissions → enable **Allow GitHub Actions to create and approve pull requests**.
+1. Create a crates.io API token (scopes `publish-new`, `publish-update`; crates `git-gw`, `gw-parse`, `gw-render`; short expiry) and add it as the repository secret `CARGO_REGISTRY_TOKEN`.
+2. On GitHub: Settings → Actions → General → Workflow permissions → enable **Allow GitHub Actions to create and approve pull requests**.
+3. Push to `main`. The release job publishes 0.1.0, pushes `v0.1.0`, and starts the dist workflow.
+4. On crates.io, for each of `gw-parse`, `gw-render`, `git-gw`: Settings → Trusted Publishing → add GitHub, repository `JiLiZART/gw`, workflow `release-plz.yml`.
+5. Remove the `CARGO_REGISTRY_TOKEN` line from `.github/workflows/release-plz.yml`, delete the secret, and revoke the token on crates.io.
 
 ## Manual release (fallback)
 
