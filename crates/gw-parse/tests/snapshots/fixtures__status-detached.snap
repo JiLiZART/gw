@@ -16,6 +16,7 @@ Status {
             unmerged: false,
             path: "f3.txt",
             orig: None,
+            submodule: None,
         },
     ],
 }

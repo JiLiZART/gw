@@ -25,6 +25,7 @@ Status {
             unmerged: false,
             path: "added.txt",
             orig: None,
+            submodule: None,
         },
         Entry {
             x: 'M',
@@ -32,6 +33,7 @@ Status {
             unmerged: false,
             path: "f1.txt",
             orig: None,
+            submodule: None,
         },
         Entry {
             x: '.',
@@ -39,6 +41,7 @@ Status {
             unmerged: false,
             path: "f2.txt",
             orig: None,
+            submodule: None,
         },
         Entry {
             x: 'R',
@@ -48,6 +51,7 @@ Status {
             orig: Some(
                 "f6.txt",
             ),
+            submodule: None,
         },
         Entry {
             x: '?',
@@ -55,6 +59,7 @@ Status {
             unmerged: false,
             path: "n.txt",
             orig: None,
+            submodule: None,
         },
     ],
 }

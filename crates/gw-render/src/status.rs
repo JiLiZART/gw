@@ -1,7 +1,7 @@
 //! `gw status` view.
 
-use crate::style::{BRANCH_BOLD, DIM, GREEN, RED, UPSTREAM, YELLOW, paint, sanitize};
-use gw_parse::{Entry, Numstat, Status};
+use crate::style::{BRANCH, BRANCH_BOLD, DIM, GREEN, RED, UPSTREAM, YELLOW, paint, sanitize};
+use gw_parse::{Entry, Numstat, Status, SubmoduleState};
 use unicode_width::UnicodeWidthStr;
 
 /// Rewrites a repo-root relative path to be relative to `prefix` (from `git rev-parse --show-prefix`).
@@ -29,6 +29,38 @@ pub struct LineStats {
     pub staged: Numstat,
     pub unstaged: Numstat,
     pub untracked: Numstat,
+    /// Checked-out commit per submodule path (from `git submodule status`), when known.
+    pub checkouts: std::collections::HashMap<String, String>,
+}
+
+fn short(sha: &str) -> &str {
+    &sha[..sha.len().min(7)]
+}
+
+/// `<recorded> → <current>  <labels>` for a submodule line.
+fn submodule_detail(e: &Entry, sub: &SubmoduleState, checkouts: &std::collections::HashMap<String, String>, color: bool) -> String {
+    // A newly added submodule has no commit in HEAD (all zeros): its recorded commit is the index one.
+    let recorded = if sub.head.bytes().all(|b| b == b'0') { &sub.index } else { &sub.head };
+    let current = if sub.commit_changed { checkouts.get(&e.path).unwrap_or(recorded) } else { &sub.index };
+    let mut s = if current == recorded {
+        paint(short(recorded), DIM, color)
+    } else {
+        format!("{} → {}", paint(short(recorded), DIM, color), paint(short(current), YELLOW, color))
+    };
+    let labels: Vec<String> = [
+        (sub.head != sub.index && recorded == &sub.head, "staged", GREEN),
+        (sub.commit_changed, "new commits", YELLOW),
+        (sub.modified, "modified content", YELLOW),
+        (sub.untracked, "untracked content", DIM),
+    ]
+    .into_iter()
+    .filter(|l| l.0)
+    .map(|(_, t, sgr)| paint(t, sgr, color))
+    .collect();
+    if !labels.is_empty() {
+        s += &format!("  {}", labels.join(", "));
+    }
+    s
 }
 
 /// `+a -d` (GitHub/GitLab style), `bin` for binary files.
@@ -70,15 +102,18 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
         None => rel(&e.path),
     };
     let untracked = |e: &Entry| e.x == '?';
-    let groups: [(&str, &str, Vec<(char, String, Option<Option<(u64, u64)>>)>); 4] = [
-        ("Conflicts", RED, st.entries.iter().filter(|e| e.unmerged).map(|e| ('U', rel(&e.path), None)).collect()),
+    let file = |e: &&Entry| !e.unmerged && !untracked(e) && e.submodule.is_none();
+    // (code, path, stats, submodule detail)
+    type Line = (char, String, Option<Option<(u64, u64)>>, String);
+    let groups: [(&str, &str, Vec<Line>); 5] = [
+        ("Conflicts", RED, st.entries.iter().filter(|e| e.unmerged).map(|e| ('U', rel(&e.path), None, String::new())).collect()),
         (
             "Staged",
             GREEN,
             st.entries
                 .iter()
-                .filter(|e| !e.unmerged && !untracked(e) && e.x != '.')
-                .map(|e| (e.x, name(e), stats.staged.get(&e.path).copied()))
+                .filter(|e| file(e) && e.x != '.')
+                .map(|e| (e.x, name(e), stats.staged.get(&e.path).copied(), String::new()))
                 .collect(),
         ),
         (
@@ -86,11 +121,27 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
             YELLOW,
             st.entries
                 .iter()
-                .filter(|e| !e.unmerged && !untracked(e) && e.y != '.')
-                .map(|e| (e.y, rel(&e.path), stats.unstaged.get(&e.path).copied()))
+                .filter(|e| file(e) && e.y != '.')
+                .map(|e| (e.y, rel(&e.path), stats.unstaged.get(&e.path).copied(), String::new()))
                 .collect(),
         ),
-        ("Untracked", DIM, st.entries.iter().filter(|e| untracked(e)).map(|e| ('?', rel(&e.path), stats.untracked.get(&e.path).copied())).collect()),
+        (
+            "Submodules",
+            BRANCH,
+            st.entries
+                .iter()
+                .filter_map(|e| {
+                    let sub = e.submodule.as_ref().filter(|_| !e.unmerged)?;
+                    let code = if e.x == 'A' { 'A' } else { 'M' };
+                    Some((code, name(e), None, submodule_detail(e, sub, &stats.checkouts, color)))
+                })
+                .collect(),
+        ),
+        (
+            "Untracked",
+            DIM,
+            st.entries.iter().filter(|e| untracked(e)).map(|e| ('?', rel(&e.path), stats.untracked.get(&e.path).copied(), String::new())).collect(),
+        ),
     ];
     if groups.iter().all(|g| g.2.is_empty()) {
         out += &paint("clean", DIM, color);
@@ -99,14 +150,14 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
     }
     for (title, sgr, files) in groups.iter().filter(|g| !g.2.is_empty()) {
         out += &format!("{}\n", paint(&format!("{title} ({})", files.len()), sgr, color));
-        let width = files.iter().filter(|f| f.2.is_some()).map(|f| f.1.width()).max().unwrap_or(0);
-        for (code, path, n) in files {
+        let width = files.iter().filter(|f| f.2.is_some() || !f.3.is_empty()).map(|f| f.1.width()).max().unwrap_or(0);
+        for (code, path, n, detail) in files {
             let code = paint(&code.to_string(), sgr, color);
-            let stat = stat(*n, color);
-            if stat.is_empty() {
+            let tail = if detail.is_empty() { stat(*n, color) } else { detail.clone() };
+            if tail.is_empty() {
                 out += &format!("  {code} {path}\n");
             } else {
-                out += &format!("  {code} {path}{}  {stat}\n", " ".repeat(width.saturating_sub(path.width())));
+                out += &format!("  {code} {path}{}  {tail}\n", " ".repeat(width.saturating_sub(path.width())));
             }
         }
     }

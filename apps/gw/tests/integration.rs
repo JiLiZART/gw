@@ -15,6 +15,10 @@ fn git_env(c: &mut Command) -> &mut Command {
         .env("GIT_AUTHOR_EMAIL", "t@e.x")
         .env("GIT_COMMITTER_NAME", "T")
         .env("GIT_COMMITTER_EMAIL", "t@e.x")
+        // Local submodule URLs are file transport, blocked by default since git 2.38.
+        .env("GIT_CONFIG_COUNT", "1")
+        .env("GIT_CONFIG_KEY_0", "protocol.file.allow")
+        .env("GIT_CONFIG_VALUE_0", "always")
 }
 
 fn git(dir: &Path, args: &[&str]) {
@@ -187,4 +191,63 @@ fn log_branch_commit_stash() {
     assert!(!has_sgr(&out), "{out:?}");
     let (code, _) = gw(&w, &["stash", "pop"], true);
     assert_eq!(code, 0);
+}
+
+#[test]
+fn submodules() {
+    let tmp = TempDir(std::env::temp_dir().join(format!("gw-it3-{}", std::process::id())));
+    let root = &tmp.0;
+    let _ = std::fs::remove_dir_all(root);
+    std::fs::create_dir_all(root).unwrap();
+    git(root, &["init", "-q", "--bare", "-b", "main", "lib.git"]);
+    git(root, &["init", "-q", "--bare", "-b", "main", "app.git"]);
+    git(root, &["clone", "-q", "lib.git", "libw"]);
+    let libw = root.join("libw");
+    std::fs::write(libw.join("a"), "1\n").unwrap();
+    git(&libw, &["add", "."]);
+    git(&libw, &["commit", "-qm", "l1"]);
+    git(&libw, &["push", "-q", "origin", "main"]);
+    git(root, &["clone", "-q", "app.git", "w"]);
+    let w = root.join("w");
+    std::fs::write(w.join("x"), "1\n").unwrap();
+    git(&w, &["add", "."]);
+    git(&w, &["commit", "-qm", "a1"]);
+    git(&w, &["submodule", "add", "-q", "../lib.git", "lib"]);
+    git(&w, &["commit", "-qm", "sub"]);
+    git(&w, &["push", "-q", "origin", "main"]);
+
+    // recursive clone: Submodules section, no registration noise
+    let (code, out) = gw(root, &["clone", "--recurse-submodules", "app.git", "o"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("Submodules") && out.contains("lib  checked out "), "{out}");
+    assert!(!out.contains("registered for path"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
+    let o = root.join("o");
+
+    // upstream bumps the submodule
+    std::fs::write(libw.join("a"), "1\n2\n").unwrap();
+    git(&libw, &["commit", "-qam", "l2"]);
+    git(&libw, &["push", "-q"]);
+    git(&w, &["submodule", "update", "-q", "--remote", "lib"]);
+    std::fs::write(w.join("x"), "1\n2\n").unwrap();
+    git(&w, &["commit", "-qam", "a2"]);
+    git(&w, &["push", "-q"]);
+    let lib_sha = String::from_utf8(git_env(Command::new("git").args(["-C", "lib", "rev-parse", "--short=7", "HEAD"]).current_dir(&w)).output().unwrap().stdout).unwrap();
+
+    let (code, out) = gw(&o, &["pull", "--recurse-submodules"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("-> submodule lib"), "{out}");
+    let app_header = out.find("/app\r").or_else(|| out.find("/app\n")).expect(&out);
+    assert!(app_header < out.find("-> submodule lib").unwrap(), "{out}");
+    assert!(out.contains(&format!("lib  checked out {}", lib_sha.trim())), "{out}");
+    assert!(!out.contains("Fetching submodule") && !out.contains("Submodule path"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
+
+    // status: modified content inside the submodule, no line stats
+    std::fs::write(o.join("lib/a"), "changed\n").unwrap();
+    let (code, out) = gw(&o, &["status"], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("Submodules (1)") && out.contains("modified content"), "{out}");
+    assert!(!out.contains("+0 -0") && !out.contains("Total"), "{out}");
+    assert!(!has_sgr(&out), "{out:?}");
 }

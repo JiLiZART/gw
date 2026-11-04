@@ -18,6 +18,7 @@ Status {
             unmerged: true,
             path: "conf.txt",
             orig: None,
+            submodule: None,
         },
     ],
 }

@@ -19,6 +19,21 @@ pub struct Entry {
     pub path: String,
     /// Source path of a rename/copy.
     pub orig: Option<String>,
+    /// Set for a submodule (porcelain v2 `S<c><m><u>`), except in conflicts.
+    pub submodule: Option<SubmoduleState>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SubmoduleState {
+    /// Checked-out commit differs from the index (`C`).
+    pub commit_changed: bool,
+    /// Tracked files inside are modified (`M`).
+    pub modified: bool,
+    /// Untracked files inside (`U`).
+    pub untracked: bool,
+    /// Commit recorded in HEAD (`hH`) and in the index (`hI`).
+    pub head: String,
+    pub index: String,
 }
 
 /// Per-file line counts keyed by repo-relative path; `None` means binary.
@@ -69,21 +84,32 @@ pub fn parse_status_v2(bytes: &[u8]) -> Status {
         };
         // Path is the last field and may contain spaces, so take it with splitn.
         let path_after = |n: usize| rec.splitn(n + 1, ' ').nth(n).unwrap_or("").to_string();
+        // `S<c><m><u>` in field 2, hH/hI in fields 6/7 (same layout for `1` and `2` records).
+        let sub = || {
+            let f = fields.get(2)?.strip_prefix('S')?.as_bytes();
+            Some(SubmoduleState {
+                commit_changed: f.first() == Some(&b'C'),
+                modified: f.get(1) == Some(&b'M'),
+                untracked: f.get(2) == Some(&b'U'),
+                head: fields.get(6)?.to_string(),
+                index: fields.get(7)?.to_string(),
+            })
+        };
         let entry = match fields.first() {
             Some(&"1") => {
                 let (x, y) = xy(fields[1]);
-                Entry { x, y, unmerged: false, path: path_after(8), orig: None }
+                Entry { x, y, unmerged: false, path: path_after(8), orig: None, submodule: sub() }
             }
             Some(&"2") => {
                 let (x, y) = xy(fields[1]);
                 let orig = recs.next().map(str::to_string);
-                Entry { x, y, unmerged: false, path: path_after(9), orig }
+                Entry { x, y, unmerged: false, path: path_after(9), orig, submodule: sub() }
             }
             Some(&"u") => {
                 let (x, y) = xy(fields[1]);
-                Entry { x, y, unmerged: true, path: path_after(10), orig: None }
+                Entry { x, y, unmerged: true, path: path_after(10), orig: None, submodule: None }
             }
-            Some(&"?") => Entry { x: '?', y: '?', unmerged: false, path: path_after(1), orig: None },
+            Some(&"?") => Entry { x: '?', y: '?', unmerged: false, path: path_after(1), orig: None, submodule: None },
             _ => continue,
         };
         st.entries.push(entry);

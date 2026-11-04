@@ -9,11 +9,14 @@ use std::{
     time::{Duration, Instant},
 };
 
-use gw_parse::{Event, Progress, RefUpdate, Splitter, classify, is_pack_stats, parse_fetch_porcelain, parse_numstat_z, parse_push_porcelain, parse_status_v2};
+use gw_parse::{
+    Event, Progress, PullLine, RefUpdate, Splitter, classify, classify_pull_line, is_pack_stats, parse_fetch_porcelain, parse_numstat_z,
+    parse_push_porcelain, parse_status_v2, parse_submodule_status,
+};
 use gw_render::{
     ThrobberState,
     bar::{Animator, ProgressLine},
-    refs::{all_up_to_date, render_pull_summary, render_refs, render_up_to_date},
+    refs::{RefGroup, all_up_to_date, render_pull_summary, render_ref_groups, render_up_to_date},
     remote_box::render_box,
     status::{LineStats, relative, render_status},
     style::no_color_env,
@@ -113,7 +116,12 @@ fn draw(term: &mut Live, p: &Progress, fill: Option<u8>, th: &ThrobberState, don
 
 fn network(cmd: &str, rest: &[OsString]) -> i32 {
     let mut git_args: Vec<OsString> = vec![cmd.into(), "--progress".into()];
-    if cmd == "push" || cmd == "fetch" {
+    // git rejects `fetch --porcelain --recurse-submodules`; then the human stderr ref lines are parsed instead.
+    let recurse = rest.iter().any(|a| {
+        let a = a.to_string_lossy();
+        a == "--recurse-submodules" || a.strip_prefix("--recurse-submodules=").is_some_and(|v| v != "no")
+    });
+    if cmd == "push" || (cmd == "fetch" && !recurse) {
         git_args.push("--porcelain".into());
     }
     git_args.extend(rest.iter().cloned());
@@ -162,8 +170,11 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
     let start_live = || Terminal::with_options(CrosstermBackend::new(io::stdout()), TerminalOptions { viewport: Viewport::Inline(1) }).ok();
     let mut last_tick = Instant::now();
     let (mut remote, mut others, mut stdout_lines) = (Vec::new(), Vec::new(), Vec::new());
-    let mut target: Option<String> = None;
-    let mut refs: Vec<RefUpdate> = Vec::new();
+    // One group per fetched repository; `Fetching submodule <p>` labels the next `From`.
+    let mut groups: Vec<RefGroup> = Vec::new();
+    let mut pending_sub: Option<String> = None;
+    // Recursive clone: after `registered for path`, its `Cloning into`/`done.` lines are submodule noise.
+    let mut sub_clone = false;
 
     loop {
         match rx.recv_timeout(FRAME) {
@@ -178,10 +189,13 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
                     }
                 }
                 Event::Remote(r) => remote.push(r),
-                Event::Target(t) => target = Some(t),
-                Event::RefUpdate(r) => refs.push(r),
+                Event::Target(t) => groups.push(RefGroup { submodule: pending_sub.take(), target: Some(t), refs: vec![] }),
+                Event::RefUpdate(r) => add_ref(&mut groups, r),
+                Event::SubmoduleFetch(p) => pending_sub = Some(p),
                 Event::UpToDate => {}
                 Event::Other(l) if is_pack_stats(&l) => {}
+                Event::Other(l) if classify_pull_line(&l) == PullLine::SubmoduleNoise => sub_clone = true,
+                Event::Other(l) if sub_clone && (l.starts_with("Cloning into ") || l == "done.") => {}
                 Event::Other(l) => others.push(l),
             },
             Err(mpsc::RecvTimeoutError::Timeout) => {}
@@ -230,6 +244,9 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         } else {
             // Only `Connecting…` was shown: erase it so e.g. "Everything up-to-date" stands alone.
             let _ = t.clear();
+            drop(t);
+            // The cursor is parked at the line end (see `draw`): return to column 1.
+            let _ = write!(out, "\r");
         }
     }
 
@@ -237,16 +254,17 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         "push" => {
             for e in parse_push_porcelain(&stdout_lines.join("\n")) {
                 match e {
-                    Event::Target(t) => target = Some(t),
-                    Event::RefUpdate(r) => refs.push(r),
+                    Event::Target(t) => groups.push(RefGroup { target: Some(t), ..Default::default() }),
+                    Event::RefUpdate(r) => add_ref(&mut groups, r),
                     _ => {}
                 }
             }
         }
-        "fetch" => refs.extend(parse_fetch_porcelain(&stdout_lines.join("\n"))),
+        "fetch" => parse_fetch_porcelain(&stdout_lines.join("\n")).into_iter().for_each(|r| add_ref(&mut groups, r)),
         _ => {}
     }
 
+    let refs: Vec<RefUpdate> = groups.iter().flat_map(|g| g.refs.iter().cloned()).collect();
     let mut branches: Vec<String> = Vec::new();
     for r in &refs {
         branches.extend([r.src.clone(), r.dst.clone()]);
@@ -264,13 +282,11 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         "pull" if nothing => {}
         _ if refs.is_empty() => {}
         _ => {
-            let _ = write!(out, "{}", render_refs(target.as_deref(), &refs, color));
+            let _ = write!(out, "{}", render_ref_groups(&groups, color));
         }
     }
-    if cmd == "pull" {
+    if cmd == "pull" || cmd == "clone" {
         let _ = write!(out, "{}", render_pull_summary(&stdout_lines, color));
-    } else if cmd == "clone" {
-        others.extend(stdout_lines);
     }
     let _ = out.flush();
     drop(out);
@@ -280,6 +296,14 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         let _ = writeln!(err, "{l}");
     }
     code
+}
+
+/// Appends to the last repository's group (a target-less one if none yet).
+fn add_ref(groups: &mut Vec<RefGroup>, r: RefUpdate) {
+    if groups.is_empty() {
+        groups.push(RefGroup::default());
+    }
+    groups.last_mut().unwrap().refs.push(r);
 }
 
 fn status(rest: &[OsString]) -> i32 {
@@ -319,6 +343,20 @@ fn status(rest: &[OsString]) -> i32 {
     let mut stats = LineStats { staged: numstat(true), unstaged: numstat(false), ..Default::default() };
     for e in st.entries.iter().filter(|e| e.x == '?' && !e.path.ends_with('/')) {
         stats.untracked.insert(e.path.clone(), count_lines(&relative(&e.path, &prefix)));
+    }
+    // Checked-out commits are only needed when a submodule moved off its recorded commit.
+    let moved: Vec<&str> = st.entries.iter().filter(|e| e.submodule.as_ref().is_some_and(|s| s.commit_changed)).map(|e| e.path.as_str()).collect();
+    if !moved.is_empty()
+        && let Ok(top) = Command::new("git").args(["rev-parse", "--show-toplevel"]).output()
+        && let Ok(o) = Command::new("git")
+            .arg("-C")
+            .arg(String::from_utf8_lossy(&top.stdout).trim())
+            .args(["submodule", "status", "--"])
+            .args(&moved)
+            .stderr(Stdio::null())
+            .output()
+    {
+        stats.checkouts = parse_submodule_status(&String::from_utf8_lossy(&o.stdout));
     }
     print!("{}", render_status(&st, &prefix, &stats, !no_color_env()));
     0

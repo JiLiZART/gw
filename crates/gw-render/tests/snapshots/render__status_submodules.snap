@@ -1,0 +1,11 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: "show(&render_status(&st, \"\", &stats, true))"
+---
+␛[1;36mmain␛[0m -> ␛[35morigin/main␛[0m  ␛[2m↑0␛[0m ␛[2m↓0␛[0m
+␛[33mChanged (1)␛[0m
+  ␛[33mM␛[0m x  ␛[32m+1␛[0m ␛[2m-0␛[0m
+␛[36mSubmodules (2)␛[0m
+  ␛[36mM␛[0m doc  ␛[2mbcfd07d␛[0m → ␛[33m82aa575␛[0m  ␛[33mnew commits␛[0m, ␛[2muntracked content␛[0m
+  ␛[36mM␛[0m lib  ␛[2m5d71523␛[0m → ␛[33m26bb4d4␛[0m  ␛[32mstaged␛[0m, ␛[33mmodified content␛[0m
+Total ␛[32m+1␛[0m ␛[2m-0␛[0m

@@ -1,0 +1,10 @@
+Updating aae6093..80cba0e
+Fast-forward
+ lib | 2 +-
+ new | 1 +
+ x   | 1 +
+ y   | 1 -
+ 4 files changed, 3 insertions(+), 2 deletions(-)
+ create mode 100644 new
+ delete mode 100644 y
+Submodule path 'lib': checked out '5d71523495dab9473e220eaecd57f5ade04445a5'

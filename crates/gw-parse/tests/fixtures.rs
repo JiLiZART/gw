@@ -26,10 +26,12 @@ fn classify_clone() {
     // Only the distinct (label, pct) transitions and non-progress lines, to keep the snapshot readable.
     let mut out: Vec<Event> = Vec::new();
     for e in events("clone.stderr") {
-        if let (Event::Progress(p), Some(Event::Progress(last))) = (&e, out.last()) {
-            if p.label == last.label && p.tail.is_empty() && p.pct.map(|x| x % 25 != 0).unwrap_or(false) {
-                continue;
-            }
+        if let (Event::Progress(p), Some(Event::Progress(last))) = (&e, out.last())
+            && p.label == last.label
+            && p.tail.is_empty()
+            && p.pct.map(|x| x % 25 != 0).unwrap_or(false)
+        {
+            continue;
         }
         out.push(e);
     }
@@ -94,4 +96,41 @@ fn graph_fixtures() {
 fn branch_stash_shortlog() {
     let s = |n: &str| String::from_utf8(fx(n)).unwrap();
     insta::assert_debug_snapshot!((parse_branches(&s("branches.txt")), parse_stash_list(&s("stash-list.txt")), parse_shortlog(&s("shortlog.txt"))));
+}
+
+#[test]
+fn pull_stdout_lines() {
+    let mut all = Vec::new();
+    for n in ["pull-submodules.stdout", "pull-merge.stdout", "pull-conflict.stdout", "clone-submodules.stdout", "pull-ff.stdout"] {
+        for l in String::from_utf8(fx(n)).unwrap().lines() {
+            let c = classify_pull_line(l);
+            if c == PullLine::Other {
+                assert!(l.starts_with("Auto-merging "), "{n}: unclassified {l:?}");
+            }
+            all.push((l.to_string(), c));
+        }
+    }
+    insta::assert_debug_snapshot!(all);
+}
+
+#[test]
+fn submodule_fetch_events() {
+    let ev = events("pull-submodules.stderr");
+    let subs: Vec<_> = ev.iter().filter_map(|e| if let Event::SubmoduleFetch(p) = e { Some(p.as_str()) } else { None }).collect();
+    assert_eq!(subs, ["doc", "lib"]);
+    assert_eq!(ev.iter().filter(|e| matches!(e, Event::Target(_))).count(), 2);
+}
+
+#[test]
+fn status_submodules() {
+    let st = parse_status_v2(&fx("status-submodules.z"));
+    let sub = |p: &str| st.entries.iter().find(|e| e.path == p).unwrap().submodule.clone();
+    let doc = sub("doc").unwrap();
+    assert!(doc.commit_changed && !doc.modified && doc.untracked);
+    let lib = sub("lib").unwrap();
+    assert!(!lib.commit_changed && lib.modified && lib.head != lib.index);
+    assert!(sub("x").is_none());
+    let cur = parse_submodule_status(&String::from_utf8(fx("submodule-status.txt")).unwrap());
+    assert_eq!(cur.get("doc").map(|s| &s[..7]), Some("82aa575"));
+    assert!(!cur.contains_key("gone"));
 }

@@ -1,0 +1,10 @@
+remote: Enumerating objects: 6, done.        
+remote: Counting objects:  16% (1/6)        remote: Counting objects:  33% (2/6)        remote: Counting objects:  50% (3/6)        remote: Counting objects:  66% (4/6)        remote: Counting objects:  83% (5/6)        remote: Counting objects: 100% (6/6)        remote: Counting objects: 100% (6/6), done.        
+remote: Compressing objects:  50% (1/2)        remote: Compressing objects: 100% (2/2)        remote: Compressing objects: 100% (2/2), done.        
+remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)        
+From /tmp/fx/app
+   aae6093..80cba0e  main       -> origin/main
+Fetching submodule doc
+Fetching submodule lib
+From /tmp/fx/lib
+   bcfd07d..5d71523  main       -> origin/main

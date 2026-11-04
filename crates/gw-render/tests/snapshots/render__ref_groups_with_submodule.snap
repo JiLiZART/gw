@@ -1,0 +1,8 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: "show(&render_ref_groups(&groups, true))"
+---
+␛[1m->␛[0m /tmp/fx/app
+  ␛[32m✓␛[0m ␛[2maae6093␛[0m..␛[1m80cba0e␛[0m  ␛[36mmain␛[0m -> ␛[36morigin/main␛[0m
+␛[1m->␛[0m ␛[2msubmodule␛[0m ␛[36mlib␛[0m  /tmp/fx/lib
+  ␛[32m✓␛[0m ␛[2mbcfd07d␛[0m..␛[1m5d71523␛[0m  ␛[36mmain␛[0m -> ␛[36morigin/main␛[0m

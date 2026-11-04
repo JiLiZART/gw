@@ -1,0 +1,216 @@
+---
+source: crates/gw-parse/tests/fixtures.rs
+expression: all
+---
+[
+    (
+        "Updating aae6093..80cba0e",
+        Updating {
+            old: "aae6093",
+            new: "80cba0e",
+        },
+    ),
+    (
+        "Fast-forward",
+        Result(
+            FastForward,
+        ),
+    ),
+    (
+        " lib | 2 +-",
+        Diffstat {
+            path: " lib",
+            count: "2",
+            plus: 1,
+            minus: 1,
+        },
+    ),
+    (
+        " new | 1 +",
+        Diffstat {
+            path: " new",
+            count: "1",
+            plus: 1,
+            minus: 0,
+        },
+    ),
+    (
+        " x   | 1 +",
+        Diffstat {
+            path: " x  ",
+            count: "1",
+            plus: 1,
+            minus: 0,
+        },
+    ),
+    (
+        " y   | 1 -",
+        Diffstat {
+            path: " y  ",
+            count: "1",
+            plus: 0,
+            minus: 1,
+        },
+    ),
+    (
+        " 4 files changed, 3 insertions(+), 2 deletions(-)",
+        Summary {
+            files: " 4 files changed",
+            ins: Some(
+                "3 insertions(+)",
+            ),
+            del: Some(
+                "2 deletions(-)",
+            ),
+        },
+    ),
+    (
+        " create mode 100644 new",
+        Mode {
+            verb: "create mode",
+            mode: "100644",
+            rest: "new",
+        },
+    ),
+    (
+        " delete mode 100644 y",
+        Mode {
+            verb: "delete mode",
+            mode: "100644",
+            rest: "y",
+        },
+    ),
+    (
+        "Submodule path 'lib': checked out '5d71523495dab9473e220eaecd57f5ade04445a5'",
+        Submodule {
+            path: "lib",
+            verb: "checked out",
+            sha: "5d71523495dab9473e220eaecd57f5ade04445a5",
+        },
+    ),
+    (
+        "Merge made by the 'ort' strategy.",
+        Result(
+            Merge,
+        ),
+    ),
+    (
+        " up | 1 +",
+        Diffstat {
+            path: " up",
+            count: "1",
+            plus: 1,
+            minus: 0,
+        },
+    ),
+    (
+        " 1 file changed, 1 insertion(+)",
+        Summary {
+            files: " 1 file changed",
+            ins: Some(
+                "1 insertion(+)",
+            ),
+            del: None,
+        },
+    ),
+    (
+        " create mode 100644 up",
+        Mode {
+            verb: "create mode",
+            mode: "100644",
+            rest: "up",
+        },
+    ),
+    (
+        "Auto-merging new",
+        Other,
+    ),
+    (
+        "CONFLICT (content): Merge conflict in new",
+        Result(
+            Conflict,
+        ),
+    ),
+    (
+        "Automatic merge failed; fix conflicts and then commit the result.",
+        Result(
+            Failed,
+        ),
+    ),
+    (
+        "Submodule path 'doc': checked out 'bcfd07dff6075608b9a5a99f3d239b26de50de15'",
+        Submodule {
+            path: "doc",
+            verb: "checked out",
+            sha: "bcfd07dff6075608b9a5a99f3d239b26de50de15",
+        },
+    ),
+    (
+        "Submodule path 'lib': checked out 'bcfd07dff6075608b9a5a99f3d239b26de50de15'",
+        Submodule {
+            path: "lib",
+            verb: "checked out",
+            sha: "bcfd07dff6075608b9a5a99f3d239b26de50de15",
+        },
+    ),
+    (
+        "Updating 41c93ad..1045c5e",
+        Updating {
+            old: "41c93ad",
+            new: "1045c5e",
+        },
+    ),
+    (
+        "Fast-forward",
+        Result(
+            FastForward,
+        ),
+    ),
+    (
+        " f3.txt | 1 +",
+        Diffstat {
+            path: " f3.txt",
+            count: "1",
+            plus: 1,
+            minus: 0,
+        },
+    ),
+    (
+        " f4.txt | 1 +",
+        Diffstat {
+            path: " f4.txt",
+            count: "1",
+            plus: 1,
+            minus: 0,
+        },
+    ),
+    (
+        " f5.txt | 2 --",
+        Diffstat {
+            path: " f5.txt",
+            count: "2",
+            plus: 0,
+            minus: 2,
+        },
+    ),
+    (
+        " 3 files changed, 2 insertions(+), 2 deletions(-)",
+        Summary {
+            files: " 3 files changed",
+            ins: Some(
+                "2 insertions(+)",
+            ),
+            del: Some(
+                "2 deletions(-)",
+            ),
+        },
+    ),
+    (
+        " delete mode 100644 f5.txt",
+        Mode {
+            verb: "delete mode",
+            mode: "100644",
+            rest: "f5.txt",
+        },
+    ),
+]

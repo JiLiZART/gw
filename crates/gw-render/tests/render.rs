@@ -126,7 +126,7 @@ fn status_views() {
     }
     // numstat: plain, binary, and rename (-z form); untracked counted by caller.
     let staged = parse_numstat_z(b"1\t0\tadded.txt\0-\t-\tf1.txt\x000\t0\t\0f6.txt\0renamed.txt\0");
-    let stats = LineStats { staged, unstaged: parse_numstat_z(b"12\t3\tf1.txt\x001\t0\tf2.txt\0"), untracked: [("n.txt".to_string(), Some((1, 0)))].into() };
+    let stats = LineStats { staged, unstaged: parse_numstat_z(b"12\t3\tf1.txt\x001\t0\tf2.txt\0"), untracked: [("n.txt".to_string(), Some((1, 0)))].into(), ..Default::default() };
     out += "== status-mixed with stats\n";
     out += &render_status(&parse_status_v2(fx("status-mixed.z").as_bytes()), "", &stats, false);
     assert!(!out.contains("(use \"git"));
@@ -149,4 +149,104 @@ fn static_views() {
     insta::assert_snapshot!(out);
     let colored = render_branches(&branches, 100, true);
     assert!(colored.contains("\x1b[31mgone"), "gone upstream in red");
+}
+
+fn plain(s: &str) -> String {
+    let mut out = String::new();
+    let mut it = s.split('\x1b');
+    out += it.next().unwrap_or("");
+    for t in it {
+        // drop `[...m`
+        let end = t.find('m').map_or(0, |i| i + 1);
+        out += &t[end..];
+    }
+    out
+}
+
+#[test]
+fn pull_summary_all_lines() {
+    let mut out = String::new();
+    for n in ["pull-submodules.stdout", "pull-merge.stdout", "pull-conflict.stdout", "clone-submodules.stdout"] {
+        let l: Vec<String> = fx(n).lines().map(str::to_string).collect();
+        let colored = render_pull_summary(&l, true);
+        let nc = render_pull_summary(&l, false);
+        assert!(!nc.contains('\x1b'), "{n}");
+        assert_eq!(plain(&colored), nc, "{n}: color changes only styling");
+        // NO_COLOR: git's lines unchanged, except submodule lines which become the section.
+        let kept: Vec<&String> = l.iter().filter(|x| !x.starts_with("Submodule ")).collect();
+        let nc_lines: Vec<&str> = nc.lines().collect();
+        for (a, b) in kept.iter().zip(&nc_lines) {
+            assert_eq!(a.as_str(), *b, "{n}");
+        }
+        out += &format!("== {n}\n{}", show(&colored));
+    }
+    assert!(out.contains("Submodules"));
+    insta::assert_snapshot!(out);
+}
+
+#[test]
+fn pull_submodule_section_plain() {
+    let l: Vec<String> = fx("pull-submodules.stdout").lines().map(str::to_string).collect();
+    let nc = render_pull_summary(&l, false);
+    assert!(nc.ends_with("Submodules\n  lib  checked out 5d71523\n"), "{nc}");
+    assert!(!nc.contains("Submodule path"));
+}
+
+#[test]
+fn ref_groups_with_submodule() {
+    let mut s = Splitter::default();
+    let mut groups: Vec<RefGroup> = Vec::new();
+    let mut pending = None;
+    for l in s.push(fx("pull-submodules.stderr").as_bytes()) {
+        match classify(&l) {
+            Event::SubmoduleFetch(p) => pending = Some(p),
+            Event::Target(t) => groups.push(RefGroup { submodule: pending.take(), target: Some(t), refs: vec![] }),
+            Event::RefUpdate(r) => groups.last_mut().unwrap().refs.push(r),
+            _ => {}
+        }
+    }
+    groups.push(RefGroup { submodule: Some("doc".into()), target: Some("/tmp/fx/doc".into()), refs: vec![] });
+    let out = render_ref_groups(&groups, false);
+    assert_eq!(
+        out,
+        "-> /tmp/fx/app\n  ✓ aae6093..80cba0e  main -> origin/main\n-> submodule lib  /tmp/fx/lib\n  ✓ bcfd07d..5d71523  main -> origin/main\n"
+    );
+    insta::assert_snapshot!(show(&render_ref_groups(&groups, true)));
+}
+
+#[test]
+fn status_submodules() {
+    let st = parse_status_v2(fx("status-submodules.z").as_bytes());
+    let stats = LineStats {
+        unstaged: parse_numstat_z(b"1\t0\tx\0"),
+        checkouts: parse_submodule_status(&fx("submodule-status.txt")),
+        ..Default::default()
+    };
+    let out = render_status(&st, "", &stats, false);
+    assert!(out.contains("Changed (1)\n  M x  +1 -0\n"), "{out}");
+    assert!(out.contains("Submodules (2)\n"), "{out}");
+    assert!(out.contains("  M doc  bcfd07d → 82aa575  new commits, untracked content\n"), "{out}");
+    assert!(out.contains("  M lib  5d71523 → 26bb4d4  staged, modified content\n"), "{out}");
+    assert!(!out.contains("Staged"), "{out}");
+    assert!(out.ends_with("Total +1 -0\n"), "{out}");
+    insta::assert_snapshot!(show(&render_status(&st, "", &stats, true)));
+
+    // Spec scenarios built from porcelain records.
+    let one = |rec: &str, co: &[(&str, &str)]| {
+        let st = parse_status_v2(format!("# branch.head main\0{rec}\0").as_bytes());
+        let stats = LineStats { checkouts: co.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect(), ..Default::default() };
+        render_status(&st, "", &stats, false)
+    };
+    let h = "256f977aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    let n = "5a1436fbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    let out = one(&format!("1 .M SC.. 160000 160000 160000 {h} {h} lib"), &[("lib", n)]);
+    assert!(out.contains("  M lib  256f977 → 5a1436f  new commits\n"), "{out}");
+    assert!(!out.contains("Total"), "only a submodule changed: {out}");
+    let out = one(&format!("1 .M S.M. 160000 160000 160000 {h} {h} lib"), &[]);
+    assert!(out.contains("  M lib  256f977  modified content\n"), "{out}");
+    let out = one(&format!("1 M. S... 160000 160000 160000 {h} {n} lib"), &[]);
+    assert!(out.contains("  M lib  256f977 → 5a1436f  staged\n"), "{out}");
+    // Checkout unknown: recorded commit only.
+    let out = one(&format!("1 .M SC.. 160000 160000 160000 {h} {h} lib"), &[]);
+    assert!(out.contains("  M lib  256f977  new commits\n"), "{out}");
 }

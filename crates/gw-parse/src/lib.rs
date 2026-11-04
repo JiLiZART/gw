@@ -1,6 +1,7 @@
 //! Pure parsers for git's output. No IO, no terminal.
 
 mod log;
+mod pull;
 mod refs;
 mod status;
 
@@ -8,8 +9,9 @@ pub use log::{
     BRANCH_FORMAT, Branch, Commit, LOG_FORMAT, LogRow, STASH_FORMAT, Stash, US, parse_branches, parse_graph_line,
     parse_name_status_z, parse_shortlog, parse_stash_list,
 };
+pub use pull::{PullLine, PullResult, classify_pull_line, parse_submodule_status};
 pub use refs::{RefKind, RefUpdate, parse_fetch_porcelain, parse_human_ref_line, parse_push_porcelain};
-pub use status::{Entry, Numstat, Status, parse_numstat_z, parse_status_v2};
+pub use status::{Entry, SubmoduleState, Numstat, Status, parse_numstat_z, parse_status_v2};
 
 /// One classified line of git output.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,6 +23,8 @@ pub enum Event {
     Target(String),
     RefUpdate(RefUpdate),
     UpToDate,
+    /// `Fetching submodule <path>` (recursive fetch/pull).
+    SubmoduleFetch(String),
     Other(String),
 }
 
@@ -93,6 +97,9 @@ pub fn classify(line: &str) -> Event {
     }
     if let Some(url) = t.strip_prefix("To ").or_else(|| t.strip_prefix("From ")) {
         return Event::Target(url.to_string());
+    }
+    if let Some(p) = t.strip_prefix("Fetching submodule ") {
+        return Event::SubmoduleFetch(p.to_string());
     }
     if t == "Everything up-to-date" {
         return Event::UpToDate;
@@ -178,6 +185,7 @@ mod tests {
         assert!(matches!(classify("Enumerating objects: 8, done."), Event::Progress(_)));
         assert!(matches!(classify("remote: Processing changes: refs: 1, done"), Event::Remote(_)));
         assert!(matches!(classify("error: failed to push some refs to 'x'"), Event::Other(_)));
+        assert_eq!(classify("Fetching submodule lib/x"), Event::SubmoduleFetch("lib/x".into()));
         assert!(is_pack_stats("remote: Total 6 (delta 3), reused 0 (delta 0)"));
     }
 }

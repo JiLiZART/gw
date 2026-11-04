@@ -1,0 +1,29 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: out
+---
+== pull-submodules.stdout
+Updating ␛[2maae6093␛[0m..␛[1m80cba0e␛[0m
+␛[32mFast-forward␛[0m
+ lib | ␛[2m2␛[0m ␛[32m+␛[0m␛[31m-␛[0m
+ new | ␛[2m1␛[0m ␛[32m+␛[0m
+ x   | ␛[2m1␛[0m ␛[32m+␛[0m
+ y   | ␛[2m1␛[0m ␛[31m-␛[0m
+ 4 files changed, ␛[32m3 insertions(+)␛[0m, ␛[31m2 deletions(-)␛[0m
+ ␛[32mcreate mode␛[0m ␛[2m100644␛[0m new
+ ␛[31mdelete mode␛[0m ␛[2m100644␛[0m y
+␛[36mSubmodules␛[0m
+  ␛[36mlib␛[0m  ␛[32mchecked out␛[0m ␛[33m5d71523␛[0m
+== pull-merge.stdout
+␛[32mMerge made by the 'ort' strategy.␛[0m
+ up | ␛[2m1␛[0m ␛[32m+␛[0m
+ 1 file changed, ␛[32m1 insertion(+)␛[0m
+ ␛[32mcreate mode␛[0m ␛[2m100644␛[0m up
+== pull-conflict.stdout
+Auto-merging new
+␛[31mCONFLICT (content): Merge conflict in new␛[0m
+␛[31mAutomatic merge failed; fix conflicts and then commit the result.␛[0m
+== clone-submodules.stdout
+␛[36mSubmodules␛[0m
+  ␛[36mdoc␛[0m  ␛[32mchecked out␛[0m ␛[33mbcfd07d␛[0m
+  ␛[36mlib␛[0m  ␛[32mchecked out␛[0m ␛[33mbcfd07d␛[0m
