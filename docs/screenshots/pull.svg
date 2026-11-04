@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="788" height="358" viewBox="0 0 788 358">
+<style>text{font-family:'SF Mono',Menlo,Consolas,'DejaVu Sans Mono','Liberation Mono',monospace;font-size:14px;white-space:pre}.b{font-weight:700}</style>
+<rect width="100%" height="100%" rx="10" fill="#0d1117"/>
+<rect x="0.5" y="0.5" width="787" height="357" rx="10" fill="none" stroke="#30363d"/>
+<circle cx="18" cy="17" r="6" fill="#ff5f57"/>
+<circle cx="38" cy="17" r="6" fill="#febc2e"/>
+<circle cx="58" cy="17" r="6" fill="#28c840"/>
+<text x="394" y="22" fill="#8b949e" text-anchor="middle" style="font-size:12px">~/acme/shop</text>
+<text x="16.0" y="48.2" fill="#3fb950" class="b">$ </text>
+<text x="32.8" y="48.2" fill="#c9d1d9">gw pull</text>
+<text x="16.0" y="67.2" fill="#c9d1d9" class="b" textLength="16.8" lengthAdjust="spacingAndGlyphs">-&gt;</text>
+<text x="41.2" y="67.2" fill="#c9d1d9" textLength="201.6" lengthAdjust="spacingAndGlyphs">git@gitlab.com:acme/shop</text>
+<text x="32.8" y="86.2" fill="#3fb950" textLength="8.4" lengthAdjust="spacingAndGlyphs">✓</text>
+<text x="49.6" y="86.2" fill="#c9d1d9" fill-opacity="0.55" textLength="58.8" lengthAdjust="spacingAndGlyphs">6879d7b</text>
+<text x="108.4" y="86.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">..</text>
+<text x="125.2" y="86.2" fill="#c9d1d9" class="b" textLength="58.8" lengthAdjust="spacingAndGlyphs">548844c</text>
+<text x="200.8" y="86.2" fill="#39c5cf" textLength="33.6" lengthAdjust="spacingAndGlyphs">main</text>
+<text x="242.8" y="86.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">-&gt;</text>
+<text x="268.0" y="86.2" fill="#39c5cf" textLength="92.4" lengthAdjust="spacingAndGlyphs">origin/main</text>
+<text x="16.0" y="105.2" fill="#c9d1d9" class="b" textLength="16.8" lengthAdjust="spacingAndGlyphs">-&gt;</text>
+<text x="41.2" y="105.2" fill="#c9d1d9" fill-opacity="0.55" textLength="75.6" lengthAdjust="spacingAndGlyphs">submodule</text>
+<text x="125.2" y="105.2" fill="#39c5cf" textLength="50.4" lengthAdjust="spacingAndGlyphs">ui-kit</text>
+<text x="192.4" y="105.2" fill="#c9d1d9" textLength="218.4" lengthAdjust="spacingAndGlyphs">git@gitlab.com:acme/ui-kit</text>
+<text x="32.8" y="124.2" fill="#3fb950" textLength="8.4" lengthAdjust="spacingAndGlyphs">✓</text>
+<text x="49.6" y="124.2" fill="#c9d1d9" fill-opacity="0.55" textLength="58.8" lengthAdjust="spacingAndGlyphs">c7f1931</text>
+<text x="108.4" y="124.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">..</text>
+<text x="125.2" y="124.2" fill="#c9d1d9" class="b" textLength="58.8" lengthAdjust="spacingAndGlyphs">db0d316</text>
+<text x="200.8" y="124.2" fill="#39c5cf" textLength="33.6" lengthAdjust="spacingAndGlyphs">main</text>
+<text x="242.8" y="124.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">-&gt;</text>
+<text x="268.0" y="124.2" fill="#39c5cf" textLength="92.4" lengthAdjust="spacingAndGlyphs">origin/main</text>
+<text x="16.0" y="143.2" fill="#c9d1d9" textLength="67.2" lengthAdjust="spacingAndGlyphs">Updating</text>
+<text x="91.6" y="143.2" fill="#c9d1d9" fill-opacity="0.55" textLength="58.8" lengthAdjust="spacingAndGlyphs">6879d7b</text>
+<text x="150.4" y="143.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">..</text>
+<text x="167.2" y="143.2" fill="#c9d1d9" class="b" textLength="58.8" lengthAdjust="spacingAndGlyphs">548844c</text>
+<text x="16.0" y="162.2" fill="#3fb950" textLength="100.8" lengthAdjust="spacingAndGlyphs">Fast-forward</text>
+<text x="24.4" y="181.2" fill="#c9d1d9" textLength="159.6" lengthAdjust="spacingAndGlyphs">docs/CHANGELOG.md |</text>
+<text x="192.4" y="181.2" fill="#c9d1d9" fill-opacity="0.55" textLength="8.4" lengthAdjust="spacingAndGlyphs">2</text>
+<text x="209.2" y="181.2" fill="#ff7b72" textLength="16.8" lengthAdjust="spacingAndGlyphs">--</text>
+<text x="24.4" y="200.2" fill="#c9d1d9" textLength="159.6" lengthAdjust="spacingAndGlyphs">src/cart.ts       |</text>
+<text x="192.4" y="200.2" fill="#c9d1d9" fill-opacity="0.55" textLength="8.4" lengthAdjust="spacingAndGlyphs">2</text>
+<text x="209.2" y="200.2" fill="#3fb950" textLength="16.8" lengthAdjust="spacingAndGlyphs">++</text>
+<text x="24.4" y="219.2" fill="#c9d1d9" textLength="159.6" lengthAdjust="spacingAndGlyphs">src/format.ts     |</text>
+<text x="192.4" y="219.2" fill="#c9d1d9" fill-opacity="0.55" textLength="8.4" lengthAdjust="spacingAndGlyphs">1</text>
+<text x="209.2" y="219.2" fill="#3fb950" textLength="8.4" lengthAdjust="spacingAndGlyphs">+</text>
+<text x="24.4" y="238.2" fill="#c9d1d9" textLength="159.6" lengthAdjust="spacingAndGlyphs">ui-kit            |</text>
+<text x="192.4" y="238.2" fill="#c9d1d9" fill-opacity="0.55" textLength="8.4" lengthAdjust="spacingAndGlyphs">2</text>
+<text x="209.2" y="238.2" fill="#3fb950" textLength="8.4" lengthAdjust="spacingAndGlyphs">+</text>
+<text x="217.6" y="238.2" fill="#ff7b72" textLength="8.4" lengthAdjust="spacingAndGlyphs">-</text>
+<text x="24.4" y="257.2" fill="#c9d1d9" textLength="134.4" lengthAdjust="spacingAndGlyphs">4 files changed,</text>
+<text x="167.2" y="257.2" fill="#3fb950" textLength="126.0" lengthAdjust="spacingAndGlyphs">4 insertions(+)</text>
+<text x="293.2" y="257.2" fill="#c9d1d9" textLength="8.4" lengthAdjust="spacingAndGlyphs">,</text>
+<text x="310.0" y="257.2" fill="#ff7b72" textLength="117.6" lengthAdjust="spacingAndGlyphs">3 deletions(-)</text>
+<text x="24.4" y="276.2" fill="#ff7b72" textLength="92.4" lengthAdjust="spacingAndGlyphs">delete mode</text>
+<text x="125.2" y="276.2" fill="#c9d1d9" fill-opacity="0.55" textLength="50.4" lengthAdjust="spacingAndGlyphs">100644</text>
+<text x="184.0" y="276.2" fill="#c9d1d9" textLength="142.8" lengthAdjust="spacingAndGlyphs">docs/CHANGELOG.md</text>
+<text x="24.4" y="295.2" fill="#3fb950" textLength="92.4" lengthAdjust="spacingAndGlyphs">create mode</text>
+<text x="125.2" y="295.2" fill="#c9d1d9" fill-opacity="0.55" textLength="50.4" lengthAdjust="spacingAndGlyphs">100644</text>
+<text x="184.0" y="295.2" fill="#c9d1d9" textLength="109.2" lengthAdjust="spacingAndGlyphs">src/format.ts</text>
+<text x="16.0" y="314.2" fill="#39c5cf" textLength="84.0" lengthAdjust="spacingAndGlyphs">Submodules</text>
+<text x="32.8" y="333.2" fill="#39c5cf" textLength="50.4" lengthAdjust="spacingAndGlyphs">ui-kit</text>
+<text x="100.0" y="333.2" fill="#3fb950" textLength="92.4" lengthAdjust="spacingAndGlyphs">checked out</text>
+<text x="200.8" y="333.2" fill="#d29922" textLength="58.8" lengthAdjust="spacingAndGlyphs">db0d316</text>
+</svg>

@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1174" height="320" viewBox="0 0 1174 320">
+<style>text{font-family:'SF Mono',Menlo,Consolas,'DejaVu Sans Mono','Liberation Mono',monospace;font-size:14px;white-space:pre}.b{font-weight:700}</style>
+<rect width="100%" height="100%" rx="10" fill="#0d1117"/>
+<rect x="0.5" y="0.5" width="1173" height="319" rx="10" fill="none" stroke="#30363d"/>
+<circle cx="18" cy="17" r="6" fill="#ff5f57"/>
+<circle cx="38" cy="17" r="6" fill="#febc2e"/>
+<circle cx="58" cy="17" r="6" fill="#28c840"/>
+<text x="587" y="22" fill="#8b949e" text-anchor="middle" style="font-size:12px">~/acme/shop — gw log</text>
+<text x="16.0" y="48.2" fill="#3fb950" class="b">$ </text>
+<text x="32.8" y="48.2" fill="#c9d1d9">gw log</text>
+<text x="16.0" y="67.2" fill="#c9d1d9" class="b" textLength="134.4" lengthAdjust="spacingAndGlyphs">feat/checkout-v2</text>
+<line x1="163.0" y1="53.0" x2="163.0" y2="62.5" stroke="#c9d1d9" stroke-width="1.2"/>
+<line x1="163.0" y1="62.5" x2="163.0" y2="72.0" stroke="#c9d1d9" stroke-width="1.2"/>
+<text x="175.6" y="67.2" fill="#c9d1d9" class="b" textLength="100.8" lengthAdjust="spacingAndGlyphs">all branches</text>
+<line x1="289.0" y1="53.0" x2="289.0" y2="62.5" stroke="#c9d1d9" stroke-width="1.2"/>
+<line x1="289.0" y1="62.5" x2="289.0" y2="72.0" stroke="#c9d1d9" stroke-width="1.2"/>
+<text x="301.6" y="67.2" fill="#c9d1d9" class="b" textLength="58.8" lengthAdjust="spacingAndGlyphs">/coupon</text>
+<line x1="373.0" y1="53.0" x2="373.0" y2="62.5" stroke="#c9d1d9" stroke-width="1.2"/>
+<line x1="373.0" y1="62.5" x2="373.0" y2="72.0" stroke="#c9d1d9" stroke-width="1.2"/>
+<text x="385.6" y="67.2" fill="#c9d1d9" class="b" textLength="84.0" lengthAdjust="spacingAndGlyphs">19 commits</text>
+<line x1="20.2" y1="81.5" x2="24.4" y2="81.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="81.5" x2="20.2" y2="91.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="32.8" y="86.2" fill="#5fafff" class="b" textLength="58.8" lengthAdjust="spacingAndGlyphs">Commits</text>
+<line x1="100.0" y1="81.5" x2="755.2" y2="81.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="755.2" y1="81.5" x2="759.4" y2="81.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="81.5" x2="759.4" y2="91.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="81.5" x2="772.0" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="81.5" x2="767.8" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<text x="780.4" y="86.2" fill="#808080" textLength="75.6" lengthAdjust="spacingAndGlyphs">Files (1)</text>
+<line x1="864.4" y1="81.5" x2="1150.0" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1150.0" y1="81.5" x2="1154.2" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="81.5" x2="1154.2" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<rect x="24.4" y="91.0" width="562.8" height="19" fill="#3a3a3a"/>
+<line x1="20.2" y1="91.0" x2="20.2" y2="100.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="100.5" x2="20.2" y2="110.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="24.4" y="105.2" fill="#d7af00" textLength="58.8" lengthAdjust="spacingAndGlyphs">9a43554</text>
+<text x="108.4" y="105.2" fill="#808080" textLength="16.8" lengthAdjust="spacingAndGlyphs">8d</text>
+<text x="133.6" y="105.2" fill="#87afd7" textLength="84.0" lengthAdjust="spacingAndGlyphs">Dana Reyes</text>
+<text x="259.6" y="105.2" fill="#c9d1d9" textLength="159.6" lengthAdjust="spacingAndGlyphs">Merge branch &#x27;feat/</text>
+<text x="419.2" y="105.2" fill="#ffd700" class="b" text-decoration="underline" textLength="50.4" lengthAdjust="spacingAndGlyphs">coupon</text>
+<text x="469.6" y="105.2" fill="#c9d1d9" textLength="117.6" lengthAdjust="spacingAndGlyphs">s&#x27; into &#x27;main&#x27;</text>
+<line x1="759.4" y1="91.0" x2="759.4" y2="100.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="100.5" x2="759.4" y2="110.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="91.0" x2="767.8" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="100.5" x2="767.8" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<text x="772.0" y="105.2" fill="#00cd00" textLength="8.4" lengthAdjust="spacingAndGlyphs">A</text>
+<text x="788.8" y="105.2" fill="#c9d1d9" textLength="117.6" lengthAdjust="spacingAndGlyphs">src/coupons.ts</text>
+<text x="1108.0" y="105.2" fill="#00cd00" textLength="16.8" lengthAdjust="spacingAndGlyphs">+2</text>
+<text x="1133.2" y="105.2" fill="#808080" textLength="16.8" lengthAdjust="spacingAndGlyphs">-0</text>
+<line x1="1154.2" y1="91.0" x2="1154.2" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="100.5" x2="1154.2" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="110.0" x2="20.2" y2="119.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="119.5" x2="20.2" y2="129.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="24.4" y="124.2" fill="#d7af00" textLength="58.8" lengthAdjust="spacingAndGlyphs">176a177</text>
+<text x="100.0" y="124.2" fill="#808080" textLength="25.2" lengthAdjust="spacingAndGlyphs">10d</text>
+<text x="133.6" y="124.2" fill="#87afd7" textLength="84.0" lengthAdjust="spacingAndGlyphs">Priya Nair</text>
+<text x="259.6" y="124.2" fill="#5fd75f" textLength="117.6" lengthAdjust="spacingAndGlyphs">(feat/coupons)</text>
+<text x="385.6" y="124.2" fill="#ffd700" class="b" text-decoration="underline" textLength="50.4" lengthAdjust="spacingAndGlyphs">Coupon</text>
+<text x="436.0" y="124.2" fill="#c9d1d9" textLength="193.2" lengthAdjust="spacingAndGlyphs">s: cap discounts at 50%</text>
+<line x1="759.4" y1="110.0" x2="759.4" y2="119.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="119.5" x2="759.4" y2="129.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="110.0" x2="767.8" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="119.5" x2="767.8" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="110.0" x2="1154.2" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="119.5" x2="1154.2" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="129.0" x2="20.2" y2="138.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="138.5" x2="20.2" y2="148.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="24.4" y="143.2" fill="#d7af00" textLength="58.8" lengthAdjust="spacingAndGlyphs">55feed0</text>
+<text x="100.0" y="143.2" fill="#808080" textLength="25.2" lengthAdjust="spacingAndGlyphs">10d</text>
+<text x="133.6" y="143.2" fill="#87afd7" textLength="84.0" lengthAdjust="spacingAndGlyphs">Priya Nair</text>
+<text x="259.6" y="143.2" fill="#ffd700" class="b" text-decoration="underline" textLength="50.4" lengthAdjust="spacingAndGlyphs">Coupon</text>
+<text x="310.0" y="143.2" fill="#c9d1d9" textLength="193.2" lengthAdjust="spacingAndGlyphs">s: percentage discounts</text>
+<line x1="759.4" y1="129.0" x2="759.4" y2="138.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="138.5" x2="759.4" y2="148.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="129.0" x2="767.8" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="138.5" x2="767.8" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="129.0" x2="1154.2" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="138.5" x2="1154.2" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="148.0" x2="20.2" y2="157.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="157.5" x2="20.2" y2="167.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="24.4" y="162.2" fill="#d7af00" textLength="58.8" lengthAdjust="spacingAndGlyphs">197fb14</text>
+<text x="100.0" y="162.2" fill="#808080" textLength="25.2" lengthAdjust="spacingAndGlyphs">23m</text>
+<text x="133.6" y="162.2" fill="#87afd7" textLength="84.0" lengthAdjust="spacingAndGlyphs">Dana Reyes</text>
+<text x="259.6" y="162.2" fill="#d75f5f" textLength="210.0" lengthAdjust="spacingAndGlyphs">(origin/feat/checkout-v2)</text>
+<text x="478.0" y="162.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">C</text>
+<text x="486.4" y="162.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">heck</text>
+<text x="520.0" y="162.2" fill="#ffd700" class="b" text-decoration="underline" textLength="16.8" lengthAdjust="spacingAndGlyphs">ou</text>
+<text x="536.8" y="162.2" fill="#c9d1d9" textLength="42.0" lengthAdjust="spacingAndGlyphs">t v2:</text>
+<text x="587.2" y="162.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">p</text>
+<text x="595.6" y="162.2" fill="#c9d1d9" textLength="109.2" lengthAdjust="spacingAndGlyphs">ublic entry p</text>
+<text x="704.8" y="162.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">o</text>
+<text x="713.2" y="162.2" fill="#c9d1d9" textLength="8.4" lengthAdjust="spacingAndGlyphs">i</text>
+<text x="721.6" y="162.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">n</text>
+<text x="730.0" y="162.2" fill="#c9d1d9" textLength="8.4" lengthAdjust="spacingAndGlyphs">t</text>
+<line x1="759.4" y1="148.0" x2="759.4" y2="157.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="157.5" x2="759.4" y2="167.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="148.0" x2="767.8" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="157.5" x2="767.8" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="148.0" x2="1154.2" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="157.5" x2="1154.2" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="167.0" x2="20.2" y2="176.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="176.5" x2="20.2" y2="186.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="24.4" y="181.2" fill="#d7af00" textLength="58.8" lengthAdjust="spacingAndGlyphs">0b1f7a9</text>
+<text x="108.4" y="181.2" fill="#808080" textLength="16.8" lengthAdjust="spacingAndGlyphs">1h</text>
+<text x="133.6" y="181.2" fill="#87afd7" textLength="84.0" lengthAdjust="spacingAndGlyphs">Dana Reyes</text>
+<text x="259.6" y="181.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">C</text>
+<text x="268.0" y="181.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">heck</text>
+<text x="301.6" y="181.2" fill="#ffd700" class="b" text-decoration="underline" textLength="16.8" lengthAdjust="spacingAndGlyphs">ou</text>
+<text x="318.4" y="181.2" fill="#c9d1d9" textLength="58.8" lengthAdjust="spacingAndGlyphs">t v2: s</text>
+<text x="377.2" y="181.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">p</text>
+<text x="385.6" y="181.2" fill="#c9d1d9" textLength="50.4" lengthAdjust="spacingAndGlyphs">lit fl</text>
+<text x="436.0" y="181.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">o</text>
+<text x="444.4" y="181.2" fill="#c9d1d9" textLength="25.2" lengthAdjust="spacingAndGlyphs">w i</text>
+<text x="469.6" y="181.2" fill="#ffd700" class="b" text-decoration="underline" textLength="8.4" lengthAdjust="spacingAndGlyphs">n</text>
+<text x="478.0" y="181.2" fill="#c9d1d9" textLength="67.2" lengthAdjust="spacingAndGlyphs">to steps</text>
+<line x1="759.4" y1="167.0" x2="759.4" y2="176.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="176.5" x2="759.4" y2="186.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="167.0" x2="767.8" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="176.5" x2="767.8" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="167.0" x2="1154.2" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="176.5" x2="1154.2" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="186.0" x2="20.2" y2="195.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="195.5" x2="20.2" y2="205.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="186.0" x2="759.4" y2="195.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="195.5" x2="759.4" y2="205.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="186.0" x2="767.8" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="195.5" x2="767.8" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="186.0" x2="1154.2" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="195.5" x2="1154.2" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="205.0" x2="20.2" y2="214.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="214.5" x2="20.2" y2="224.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="205.0" x2="759.4" y2="214.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="214.5" x2="759.4" y2="224.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="205.0" x2="767.8" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="214.5" x2="767.8" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="205.0" x2="1154.2" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="214.5" x2="1154.2" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="224.0" x2="20.2" y2="233.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="233.5" x2="20.2" y2="243.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="224.0" x2="759.4" y2="233.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="233.5" x2="759.4" y2="243.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="224.0" x2="767.8" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="233.5" x2="767.8" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<text x="772.0" y="238.2" fill="#808080" textLength="42.0" lengthAdjust="spacingAndGlyphs">Total</text>
+<text x="822.4" y="238.2" fill="#00cd00" textLength="16.8" lengthAdjust="spacingAndGlyphs">+2</text>
+<text x="847.6" y="238.2" fill="#808080" textLength="16.8" lengthAdjust="spacingAndGlyphs">-0</text>
+<line x1="1154.2" y1="224.0" x2="1154.2" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="233.5" x2="1154.2" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="252.5" x2="24.4" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="20.2" y1="243.0" x2="20.2" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="24.4" y1="252.5" x2="755.2" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="755.2" y1="252.5" x2="759.4" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="759.4" y1="243.0" x2="759.4" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="767.8" y1="252.5" x2="772.0" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="767.8" y1="243.0" x2="767.8" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="772.0" y1="252.5" x2="1150.0" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1150.0" y1="252.5" x2="1154.2" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1154.2" y1="243.0" x2="1154.2" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<text x="16.0" y="276.2" fill="#5fafff" class="b" textLength="8.4" lengthAdjust="spacingAndGlyphs">/</text>
+<text x="24.4" y="276.2" fill="#c9d1d9" textLength="50.4" lengthAdjust="spacingAndGlyphs">coupon</text>
+<text x="74.8" y="276.2" fill="#5fafff" textLength="8.4" lengthAdjust="spacingAndGlyphs">▌</text>
+<rect x="16.0" y="281.0" width="58.8" height="19" fill="#c9d1d9"/>
+<rect x="116.8" y="281.0" width="42.0" height="19" fill="#c9d1d9"/>
+<rect x="209.2" y="281.0" width="33.6" height="19" fill="#c9d1d9"/>
+<text x="24.4" y="295.2" fill="#0d1117" textLength="42.0" lengthAdjust="spacingAndGlyphs">Enter</text>
+<text x="74.8" y="295.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">Keep</text>
+<text x="125.2" y="295.2" fill="#0d1117" textLength="25.2" lengthAdjust="spacingAndGlyphs">Esc</text>
+<text x="158.8" y="295.2" fill="#c9d1d9" textLength="42.0" lengthAdjust="spacingAndGlyphs">Clear</text>
+<text x="217.6" y="295.2" fill="#0d1117" textLength="16.8" lengthAdjust="spacingAndGlyphs">↑↓</text>
+<text x="242.8" y="295.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">Move</text>
+</svg>
