@@ -19,3 +19,8 @@ ratatui = "0.30"
 throbber-widgets-tui = "0.11"
 unicode-width = "0.2"
 insta = "1.49"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

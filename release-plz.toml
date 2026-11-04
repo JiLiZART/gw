@@ -1,0 +1,28 @@
+# release-plz: version bumps, changelog, crates.io publish, and the git tag.
+# The GitHub Release with binaries is created by dist (.github/workflows/release.yml).
+
+[workspace]
+# One tag and one changelog for the whole project, owned by git-gw (below).
+git_tag_enable = false
+git_release_enable = false
+changelog_update = false
+# On 0.x, `feat:` bumps the minor version (0.1.0 -> 0.2.0) instead of the patch.
+features_always_increment_minor = true
+
+[[package]]
+name = "git-gw"
+version_group = "gw"
+git_tag_enable = true
+git_tag_name = "v{{ version }}"
+changelog_update = true
+changelog_path = "CHANGELOG.md"
+# gw-parse and gw-render are internal to git-gw: their commits belong in its changelog.
+changelog_include = ["gw-parse", "gw-render"]
+
+[[package]]
+name = "gw-parse"
+version_group = "gw"
+
+[[package]]
+name = "gw-render"
+version_group = "gw"

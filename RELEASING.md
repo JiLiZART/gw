@@ -3,34 +3,38 @@
 `gw` ships as three crates that always share one version: `gw-parse`, `gw-render`, and `git-gw` (the `gw` binary).
 Publishing is permanent: a version can be yanked, never deleted or re-uploaded.
 
-1. Bump the version in the root `Cargo.toml`: `[workspace.package].version` and the two `=` pins in `[workspace.dependencies]` (`gw-parse`, `gw-render`).
-2. Check everything builds and passes:
+Releases are automated:
+
+1. Write commits in [Conventional Commits](https://www.conventionalcommits.org) style. On `0.x`: `feat:` bumps the minor version, `fix:` (and others) the patch.
+2. Every push to `main` runs release-plz (`.github/workflows/release-plz.yml`), which opens or updates a **`chore: release`** PR with the version bump and `CHANGELOG.md` entries. Edit the changelog in that PR if you want.
+3. Merge the PR. release-plz then:
+   - publishes `gw-parse`, `gw-render`, `git-gw` to crates.io (trusted publishing, no token),
+   - pushes the `v<version>` tag,
+   - starts the dist workflow (`.github/workflows/release.yml`), which builds `gw` for macOS, Linux, and Windows and creates the GitHub Release with the binaries, shell/PowerShell installers, and the changelog section as notes.
+
+PRs created by release-plz use `GITHUB_TOKEN`, so CI does not run on them automatically. Close and reopen the PR, or push to its branch, if you want the checks.
+
+## One-time setup
+
+1. Publish 0.1.0 by hand (crates.io trusted publishing can't create new crates):
 
    ```sh
-   cargo test --workspace
-   cargo +1.88 check --workspace --all-targets
-   ```
-
-3. Commit the bump, then dry-run the publish:
-
-   ```sh
-   cargo publish --workspace --dry-run
-   ```
-
-4. Publish (needs `cargo login` with a crates.io token). Cargo uploads `gw-parse`, `gw-render`, then `git-gw`:
-
-   ```sh
+   cargo login
    cargo publish --workspace
+   git tag v0.1.0 && git push origin v0.1.0
    ```
 
-   If it stops midway, publish the remaining crates one by one in that order with `cargo publish -p <crate>`.
+2. Build the 0.1.0 binaries and GitHub Release: Actions → **Release** → Run workflow, tag `v0.1.0`.
+3. On crates.io, for each of `gw-parse`, `gw-render`, `git-gw`: Settings → Trusted Publishing → add GitHub, repository `JiLiZART/gw`, workflow `release-plz.yml`.
+4. On GitHub: Settings → Actions → General → Workflow permissions → enable **Allow GitHub Actions to create and approve pull requests**.
 
-5. Tag and push the release:
+## Manual release (fallback)
 
-   ```sh
-   git tag v<version>
-   git push origin v<version>
-   ```
+1. Bump `[workspace.package].version` and the two `=` pins in `[workspace.dependencies]` in the root `Cargo.toml`, and add a `CHANGELOG.md` section.
+2. `cargo test --workspace && cargo +1.88 check --workspace --all-targets`
+3. Commit, then `cargo publish --workspace --dry-run` and `cargo publish --workspace`.
+   If it stops midway, publish the rest one by one in order with `cargo publish -p <crate>`.
+4. `git tag v<version> && git push origin v<version>`, then run the **Release** workflow with that tag.
 
 ## Rolling back
 

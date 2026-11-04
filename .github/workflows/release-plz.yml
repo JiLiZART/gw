@@ -1,0 +1,72 @@
+# On every push to main:
+# - release-plz-pr opens/updates the "chore: release" PR (version bump + CHANGELOG.md).
+# - release-plz-release, after that PR is merged, publishes the crates to crates.io
+#   (trusted publishing, no token), pushes the v<version> tag, and starts the dist
+#   workflow that builds binaries and creates the GitHub Release.
+name: Release-plz
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-plz-release:
+    name: Release-plz release
+    if: github.repository_owner == 'JiLiZART'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+      # crates.io trusted publishing
+      id-token: write
+      # start the dist release workflow
+      actions: write
+    steps:
+      - &checkout
+        name: Checkout repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - &install-rust
+        name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - name: Run release-plz
+        id: release-plz
+        uses: release-plz/action@66b324fd6c72d05d2a08568492ecdd62bfb8a62b # v0.5.148
+        with:
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Tags pushed with GITHUB_TOKEN don't trigger tag-push workflows, so dispatch dist directly.
+      - name: Build binaries and create the GitHub Release
+        if: steps.release-plz.outputs.releases_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASES: ${{ steps.release-plz.outputs.releases }}
+        run: |
+          tag=$(jq -r '.[] | select(.package_name == "git-gw") | .tag' <<< "$RELEASES")
+          if [ -n "$tag" ] && [ "$tag" != null ]; then
+            gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag="$tag"
+          fi
+
+  release-plz-pr:
+    name: Release-plz PR
+    if: github.repository_owner == 'JiLiZART'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: release-plz-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - *checkout
+      - *install-rust
+      - name: Run release-plz
+        uses: release-plz/action@66b324fd6c72d05d2a08568492ecdd62bfb8a62b # v0.5.148
+        with:
+          command: release-pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
