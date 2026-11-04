@@ -41,4 +41,4 @@
 
 - [x] 6.1 Extend the integration test: `gw log` passthrough when piped, `gw branch`/`gw commit -m`/`gw stash list` on a pty with exit codes and no SGR under `NO_COLOR`; verify `cargo test --workspace` passes
 - [x] 6.2 README: `gw log` keys (navigation, Tab, Enter/Esc, filters, Space actions), new commands, alias examples (`git config --global alias.l '!gw log'`); verify the commands match the implementation
-- [ ] 6.3 After `colored-git-output` is archived, extend its `passthrough` dispatch requirement with log/branch/commit/stash (via `/opsx:update`); verify `openspec validate` passes
+- [x] 6.3 After `colored-git-output` is archived, extend its `passthrough` dispatch requirement with log/branch/commit/stash (via `/opsx:update`); verify `openspec validate` passes

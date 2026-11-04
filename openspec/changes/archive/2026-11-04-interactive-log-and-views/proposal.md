@@ -30,7 +30,7 @@
 - `stash-view`: the `gw stash list` overview.
 
 ### Modified Capabilities
-<!-- none in openspec/specs yet. Note: the unarchived change `colored-git-output` defines the `passthrough` capability, whose dispatch requirement lists only push/pull/fetch/clone/status. Once that change is archived, its dispatch list must be extended with log/branch/commit/stash (see tasks). -->
+- `passthrough`: the dispatch requirement now includes `log`, `branch`, `commit`, and `stash`, each with its own plain-git fallback; the "unknown subcommand" example moves from `gw log` to `gw diff`.
 
 ## Impact
 
