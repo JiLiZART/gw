@@ -20,6 +20,6 @@
 
 ## 4. Publish (maintainer)
 
-- [ ] 4.1 Maintainer: recheck that `git-gw`, `gw-parse`, and `gw-render` are still free on crates.io, run `cargo login` if needed, then run `cargo publish --workspace`; verify all three crates show version 0.1.0 on crates.io
-- [ ] 4.2 Tag the release `v0.1.0` and push the tag; verify the tag is on GitHub
-- [ ] 4.3 In a clean environment (e.g. a fresh `CARGO_HOME` directory), run `cargo install git-gw --locked`; verify `gw` installs and `gw` with no arguments prints its usage
+- [x] 4.1 Maintainer: recheck that `git-gw`, `gw-parse`, and `gw-render` are still free on crates.io, run `cargo login` if needed, then run `cargo publish --workspace`; verify all three crates show version 0.1.0 on crates.io
+- [x] 4.2 Tag the release `v0.1.0` and push the tag; verify the tag is on GitHub
+- [x] 4.3 In a clean environment (e.g. a fresh `CARGO_HOME` directory), run `cargo install git-gw --locked`; verify `gw` installs and `gw` with no arguments prints its usage
