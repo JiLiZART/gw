@@ -1,0 +1,7 @@
+error: Could not read 8c5725b00a8758262725312576401e87ef9fb4d2
+warning: refname 'x' is ambiguous.
+hint: Recursive merging with submodules currently only supports trivial cases.
+hint:  - go to submodule (packages/@dev-kit), and either merge commit 8d606a23
+hint:
+fatal: stopped
+Recorded preimage for 'f'

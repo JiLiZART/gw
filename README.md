@@ -31,6 +31,7 @@ The progress is one animated line (spinner, stage, `cur/total`, percent) that se
 
 - **One header per repository.** A recursive fetch puts the superproject's updates and each submodule's updates (`-> submodule ui-kit`) under their own headers, never mixed together.
 - **A colored summary.** `Updating old..new`, the fast-forward, merge, or rebase result, conflicts in red, diffstat bars, the insertions and deletions totals, and `create mode`/`delete mode` lines.
+- **`gw merge` gets the same summary**: `Auto-merging` dimmed, conflicts and failed submodule merges in red, `error:`/`warning:` prefixes colored, and `hint:` lines dimmed.
 - **A Submodules section.** It lists each checked-out submodule with its new commit, instead of git's `Submodule path '…': checked out '<40-char sha>'`.
 
 ### `gw status`: grouped, counted, no hints
@@ -68,7 +69,7 @@ The progress is one animated line (spinner, stage, `cur/total`, percent) that se
 
 - **Same arguments, same exit code.** `gw` passes your arguments to git untouched and exits with git's code (`128 + signal` if git was killed, 127 if git is missing).
 - **Pipes and scripts get plain git.** When stdout is not a terminal (pipes, CI, `$(...)`), `gw` behaves exactly like `git`.
-- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw branch <anything>`, and every `gw stash` form except `list` run plain git.
+- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>`, and every `gw stash` form except `list` run plain git.
 - **Anything else is plain git.** `gw diff`, `gw rebase`, `gw show`, … just run git.
 - **Untrusted text is inert.** Control characters in file names, branch names, and server messages are shown as `\xNN`, so a hostile remote or file name can't inject terminal escape sequences.
 - **`NO_COLOR` is respected.** Colors turn off, the layout stays the same, the bar uses `#` and `.`, and links stay clickable.
@@ -102,6 +103,7 @@ gw push [git push args...]
 gw pull [git pull args...]
 gw fetch [git fetch args...]
 gw clone [git clone args...]
+gw merge [git merge args...]
 gw status [pathspec...]
 gw log [revisions] [-- paths]
 gw branch

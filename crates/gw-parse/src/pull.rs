@@ -29,6 +29,8 @@ pub enum PullLine {
     Mode { verb: String, mode: String, rest: String },
     /// `Submodule path '<path>': <verb> '<sha>'`
     Submodule { path: String, verb: String, sha: String },
+    /// Merge's per-path work: `Auto-merging <path>`, `Removing <path>`.
+    Action { verb: String, path: String },
     /// Clone's `Submodule '<name>' (<url>) registered for path '<path>'`.
     SubmoduleNoise,
     Other,
@@ -48,7 +50,7 @@ pub fn classify_pull_line(line: &str) -> PullLine {
         l if l.starts_with("Merge made by ") => Some(PullResult::Merge),
         l if l.starts_with("Successfully rebased and updated ") => Some(PullResult::Rebased),
         l if l.starts_with("CONFLICT ") => Some(PullResult::Conflict),
-        l if l.starts_with("Automatic merge failed") => Some(PullResult::Failed),
+        l if l.starts_with("Automatic merge failed") || l.starts_with("Failed to merge submodule ") => Some(PullResult::Failed),
         _ => None,
     };
     if let Some(r) = result {
@@ -60,6 +62,11 @@ pub fn classify_pull_line(line: &str) -> PullLine {
         && let Some(sha) = sha.strip_suffix('\'')
     {
         return PullLine::Submodule { path: path.into(), verb: verb.into(), sha: sha.into() };
+    }
+    for verb in ["Auto-merging", "Removing"] {
+        if let Some(path) = line.strip_prefix(verb).and_then(|r| r.strip_prefix(' ')) {
+            return PullLine::Action { verb: verb.into(), path: path.into() };
+        }
     }
     if line.starts_with("Submodule '") && line.contains(") registered for path '") {
         return PullLine::SubmoduleNoise;
@@ -152,7 +159,9 @@ mod tests {
             classify_pull_line("Submodule path 'a b': merged in '1234567890'"),
             PullLine::Submodule { path: "a b".into(), verb: "merged in".into(), sha: "1234567890".into() }
         );
-        assert_eq!(classify_pull_line("Auto-merging new"), PullLine::Other);
+        assert_eq!(classify_pull_line("Auto-merging new"), PullLine::Action { verb: "Auto-merging".into(), path: "new".into() });
+        assert_eq!(classify_pull_line("Failed to merge submodule a (commits don't follow merge-base)"), PullLine::Result(PullResult::Failed));
+        assert_eq!(classify_pull_line("Already merged"), PullLine::Other);
     }
 
     #[test]

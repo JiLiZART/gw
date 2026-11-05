@@ -166,7 +166,7 @@ fn plain(s: &str) -> String {
 #[test]
 fn pull_summary_all_lines() {
     let mut out = String::new();
-    for n in ["pull-submodules.stdout", "pull-merge.stdout", "pull-conflict.stdout", "clone-submodules.stdout"] {
+    for n in ["pull-submodules.stdout", "pull-merge.stdout", "pull-conflict.stdout", "clone-submodules.stdout", "merge-submodule-conflict.stdout"] {
         let l: Vec<String> = fx(n).lines().map(str::to_string).collect();
         let colored = render_pull_summary(&l, true);
         let nc = render_pull_summary(&l, false);
@@ -182,6 +182,15 @@ fn pull_summary_all_lines() {
     }
     assert!(out.contains("Submodules"));
     insta::assert_snapshot!(out);
+}
+
+#[test]
+fn stderr_messages() {
+    let l: Vec<String> = fx("merge-submodule-conflict.stderr").lines().map(str::to_string).collect();
+    let colored = render_messages(&l, true);
+    assert_eq!(render_messages(&l, false), l.iter().map(|x| format!("{x}\n")).collect::<String>());
+    assert_eq!(plain(&colored), render_messages(&l, false));
+    insta::assert_snapshot!(show(&colored));
 }
 
 #[test]

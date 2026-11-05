@@ -1,0 +1,11 @@
+---
+source: crates/gw-render/tests/render.rs
+expression: show(&colored)
+---
+␛[31merror:␛[0m Could not read 8c5725b00a8758262725312576401e87ef9fb4d2
+␛[33mwarning:␛[0m refname 'x' is ambiguous.
+␛[2mhint: Recursive merging with submodules currently only supports trivial cases.␛[0m
+␛[2mhint:  - go to submodule (packages/@dev-kit), and either merge commit 8d606a23␛[0m
+␛[2mhint:␛[0m
+␛[31mfatal:␛[0m stopped
+Recorded preimage for 'f'

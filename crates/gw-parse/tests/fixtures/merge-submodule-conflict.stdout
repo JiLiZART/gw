@@ -1,0 +1,6 @@
+Auto-merging .deploy/Dockerfile
+Removing old.txt
+Failed to merge submodule packages/@dev-kit (commits don't follow merge-base)
+CONFLICT (submodule): Merge conflict in packages/@dev-kit
+Auto-merging yarn.lock
+Automatic merge failed; fix conflicts and then commit the result.

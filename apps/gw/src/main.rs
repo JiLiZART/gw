@@ -16,7 +16,7 @@ use gw_parse::{
 use gw_render::{
     ThrobberState,
     bar::{Animator, ProgressLine},
-    refs::{RefGroup, all_up_to_date, render_pull_summary, render_ref_groups, render_up_to_date},
+    refs::{RefGroup, all_up_to_date, render_messages, render_pull_summary, render_ref_groups, render_up_to_date},
     remote_box::render_box,
     status::{LineStats, relative, render_status},
     style::no_color_env,
@@ -26,7 +26,7 @@ use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, la
 mod log;
 mod views;
 
-const FORMATTED: [&str; 9] = ["push", "pull", "fetch", "clone", "status", "log", "branch", "commit", "stash"];
+const FORMATTED: [&str; 10] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash"];
 const TICK: Duration = Duration::from_millis(80);
 /// Redraw interval while easing the bar.
 const FRAME: Duration = Duration::from_millis(30);
@@ -38,7 +38,7 @@ const CONNECT_DELAY: Duration = Duration::from_millis(300);
 fn main() {
     let args: Vec<OsString> = std::env::args_os().skip(1).collect();
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw <push|pull|fetch|clone|status|log|branch|commit|stash list> [git args...]\nAny other subcommand runs plain git.");
+        eprintln!("usage: gw <push|pull|fetch|clone|merge|status|log|branch|commit|stash list> [git args...]\nAny other subcommand runs plain git.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
@@ -50,6 +50,8 @@ fn main() {
             "branch" => views::branch(&args[1..]),
             "commit" => views::commit(&args[1..]),
             "stash" => views::stash(&args[1..]),
+            // These open an editor or print nothing worth formatting.
+            "merge" if args[1..].iter().any(|a| matches!(a.to_str(), Some("-e" | "--edit" | "--continue" | "--abort" | "--quit"))) => passthrough(&args),
             _ => network(&cmd, &args[1..]),
         }
     };
@@ -203,7 +205,7 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         }
         // Delayed start: fast commands (up-to-date push) never draw a live line.
         // Prompts go to /dev/tty, unseen by gw; one appearing after the delay may be overdrawn (accepted risk).
-        if !term_tried && started.elapsed() >= CONNECT_DELAY {
+        if !term_tried && cmd != "merge" && started.elapsed() >= CONNECT_DELAY {
             term_tried = true;
             anim.push(Progress { label: "Connecting…".into(), ..Default::default() }, Instant::now());
             term = start_live();
@@ -285,16 +287,13 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
             let _ = write!(out, "{}", render_ref_groups(&groups, color));
         }
     }
-    if cmd == "pull" || cmd == "clone" {
+    if matches!(cmd, "pull" | "clone" | "merge") {
         let _ = write!(out, "{}", render_pull_summary(&stdout_lines, color));
     }
     let _ = out.flush();
     drop(out);
 
-    let mut err = io::stderr().lock();
-    for l in others {
-        let _ = writeln!(err, "{l}");
-    }
+    let _ = write!(io::stderr().lock(), "{}", render_messages(&others, color));
     code
 }
 

@@ -142,6 +142,9 @@ pub fn render_pull_summary(lines: &[String], color: bool) -> String {
                 let mode = if mode.is_empty() { String::new() } else { format!("{} ", p(&mode, DIM)) };
                 format!(" {} {mode}{}", p(&verb, sgr), sanitize(&rest))
             }
+            PullLine::Action { verb, path } => {
+                format!("{} {}", p(&verb, if verb == "Removing" { RED } else { DIM }), sanitize(&path))
+            }
             PullLine::Other => sanitize(line),
         };
         out += &l;
@@ -159,6 +162,23 @@ pub fn render_pull_summary(lines: &[String], color: bool) -> String {
                 paint(short(&sha), YELLOW, color)
             );
         }
+    }
+    out
+}
+
+/// git's leftover stderr lines: `error:`/`fatal:` prefix red, `warning:` yellow, `hint:` lines dim.
+pub fn render_messages(lines: &[String], color: bool) -> String {
+    let mut out = String::new();
+    for line in lines {
+        let l = sanitize(line);
+        let prefix = ["error:", "fatal:", "warning:", "hint:"].into_iter().find(|p| l.starts_with(p));
+        out += &match prefix {
+            _ if !color => l,
+            Some("hint:") => paint(&l, DIM, color),
+            Some(p) => format!("{}{}", paint(p, if p == "warning:" { YELLOW } else { RED }, color), &l[p.len()..]),
+            None => l,
+        };
+        out.push('\n');
     }
     out
 }

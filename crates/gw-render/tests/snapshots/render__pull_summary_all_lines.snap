@@ -20,10 +20,17 @@ Updating ␛[2maae6093␛[0m..␛[1m80cba0e␛[0m
  1 file changed, ␛[32m1 insertion(+)␛[0m
  ␛[32mcreate mode␛[0m ␛[2m100644␛[0m up
 == pull-conflict.stdout
-Auto-merging new
+␛[2mAuto-merging␛[0m new
 ␛[31mCONFLICT (content): Merge conflict in new␛[0m
 ␛[31mAutomatic merge failed; fix conflicts and then commit the result.␛[0m
 == clone-submodules.stdout
 ␛[36mSubmodules␛[0m
   ␛[36mdoc␛[0m  ␛[32mchecked out␛[0m ␛[33mbcfd07d␛[0m
   ␛[36mlib␛[0m  ␛[32mchecked out␛[0m ␛[33mbcfd07d␛[0m
+== merge-submodule-conflict.stdout
+␛[2mAuto-merging␛[0m .deploy/Dockerfile
+␛[31mRemoving␛[0m old.txt
+␛[31mFailed to merge submodule packages/@dev-kit (commits don't follow merge-base)␛[0m
+␛[31mCONFLICT (submodule): Merge conflict in packages/@dev-kit␛[0m
+␛[2mAuto-merging␛[0m yarn.lock
+␛[31mAutomatic merge failed; fix conflicts and then commit the result.␛[0m
