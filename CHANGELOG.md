@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/JiLiZART/gw/compare/v0.2.0...v0.3.0) - 2026-11-06
+
+### Added
+
+- *(status)* interactive staging with gw status -i
+- *(progress)* stage name before the bar, counters inside it
+
+### Other
+
+- screenshots for gw status -i, gw merge, and the new progress line
+
 ## [0.2.0](https://github.com/JiLiZART/gw/compare/v0.1.0...v0.2.0) - 2026-11-05
 
 ### Added
