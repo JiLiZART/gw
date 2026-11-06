@@ -1,0 +1,18 @@
+---
+source: crates/gw-render/src/stage/view.rs
+expression: t
+---
+┌ main -> origin/main ───────┐┌─ a.rs +3 -1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│Staged (2)                  ││diff --git a/a.rs b/a.rs                                                                                              │
+│ M a.rs                     ││@@ -1 +1 @@                                                                                                           │
+│ R old.rs -> new.rs         ││-old                                                                                                                  │
+│Changed (2)                 ││+new                                                                                                                  │
+│ M a.rs                     ││                                                                                                                      │
+│ D gone.rs                  ││                                                                                                                      │
+│Untracked (1)               ││                                                                                                                      │
+│ ? n.txt                    ││                                                                                                                      │
+│                            ││                                                                                                                      │
+│                            ││                                                                                                                      │
+└────────────────────────────┘└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ Space Stage/Unstage  a Stage all  u Unstage all  r Revert  c Commit  Tab Diff  ^R Reload  q Quit

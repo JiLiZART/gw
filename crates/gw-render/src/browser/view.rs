@@ -20,12 +20,12 @@ const LANES: [Color; 6] = [
     Color::Indexed(37),
     Color::Indexed(167),
 ];
-const SEL_BG: Color = Color::Indexed(237);
+pub(crate) const SEL_BG: Color = Color::Indexed(237);
 const SEL_BG_DIM: Color = Color::Indexed(235);
-const FOCUS: Color = Color::Indexed(75);
-const DIM: Style = Style::new().fg(Color::Indexed(244));
+pub(crate) const FOCUS: Color = Color::Indexed(75);
+pub(crate) const DIM: Style = Style::new().fg(Color::Indexed(244));
 
-fn fg(c: Color) -> Style {
+pub(crate) fn fg(c: Color) -> Style {
     Style::new().fg(c)
 }
 
@@ -117,7 +117,7 @@ fn commit_line(app: &App, pos: usize, width: usize) -> Line<'static> {
     Line::from(spans)
 }
 
-fn pane_block(title: String, focused: bool) -> Block<'static> {
+pub(crate) fn pane_block(title: String, focused: bool) -> Block<'static> {
     let st = if focused { fg(FOCUS).add_modifier(Modifier::BOLD) } else { DIM };
     Block::new().borders(Borders::ALL).border_style(st).title(Span::styled(title, st))
 }
@@ -227,29 +227,37 @@ fn draw_diff(f: &mut Frame, app: &App, area: Rect) {
         .iter()
         .skip(d.scroll)
         .take(inner.height as usize)
-        .map(|l| {
-            let text = sanitize(&l.replace('\t', "    "));
-            let st = if l.starts_with("+++") || l.starts_with("---") || l.starts_with("diff ") || l.starts_with("index ") {
-                DIM.add_modifier(Modifier::BOLD)
-            } else if l.starts_with('+') {
-                fg(Color::Green)
-            } else if l.starts_with('-') {
-                fg(Color::Red)
-            } else if l.starts_with("@@") {
-                fg(Color::Indexed(73))
-            } else {
-                Style::new()
-            };
-            Line::styled(text, st)
-        })
+        .map(|l| diff_line(l))
         .collect();
     f.render_widget(Paragraph::new(lines), inner);
 }
 
+/// One diff line, sanitized and colored: added green, removed red, hunk headers teal, file headers dim.
+pub(crate) fn diff_line(l: &str) -> Line<'static> {
+    let text = sanitize(&l.replace('\t', "    "));
+    let st = if l.starts_with("+++") || l.starts_with("---") || l.starts_with("diff ") || l.starts_with("index ") {
+        DIM.add_modifier(Modifier::BOLD)
+    } else if l.starts_with('+') {
+        fg(Color::Green)
+    } else if l.starts_with('-') {
+        fg(Color::Red)
+    } else if l.starts_with("@@") {
+        fg(Color::Indexed(73))
+    } else {
+        Style::new()
+    };
+    Line::styled(text, st)
+}
+
 fn draw_hotkeys(f: &mut Frame, app: &App, area: Rect) {
+    draw_keys(f, &app.hotkeys(), area);
+}
+
+/// Key chips in reverse video with labels; keys that don't fit are dropped from the right.
+pub(crate) fn draw_keys(f: &mut Frame, keys: &[(&str, &str)], area: Rect) {
     let mut spans = Vec::new();
     let mut used = 0;
-    for (k, label) in app.hotkeys() {
+    for &(k, label) in keys {
         let w = k.width() + label.width() + 3;
         if used + w > area.width as usize {
             break; // drop the rest from the right
@@ -297,7 +305,7 @@ fn draw_panel(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Paragraph::new(Line::from(spans)), inner);
 }
 
-fn centered(area: Rect, w: u16, h: u16) -> Rect {
+pub(crate) fn centered(area: Rect, w: u16, h: u16) -> Rect {
     let w = w.min(area.width.saturating_sub(2));
     let h = h.min(area.height.saturating_sub(2));
     Rect { x: area.x + (area.width - w) / 2, y: area.y + (area.height - h) / 2, width: w, height: h }
@@ -312,7 +320,7 @@ fn input_line(label: &str, value: &str, active: bool) -> Line<'static> {
     Line::from(spans)
 }
 
-fn draw_modal(f: &mut Frame, title: &str, lines: Vec<Line<'static>>, area: Rect, danger: bool) {
+pub(crate) fn draw_modal(f: &mut Frame, title: &str, lines: Vec<Line<'static>>, area: Rect, danger: bool) {
     let h = lines.len() as u16 + 2;
     let w = lines.iter().map(|l| l.width() as u16).max().unwrap_or(20).max(title.width() as u16 + 4).clamp(40, 80) + 2;
     let r = centered(area, w, h);

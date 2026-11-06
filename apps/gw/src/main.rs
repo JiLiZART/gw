@@ -11,7 +11,7 @@ use std::{
 
 use gw_parse::{
     Event, Progress, PullLine, RefUpdate, Splitter, classify, classify_pull_line, is_pack_stats, parse_fetch_porcelain, parse_numstat_z,
-    parse_push_porcelain, parse_status_v2, parse_submodule_status,
+    parse_push_porcelain, parse_status_v2, parse_submodule_status, Status,
 };
 use gw_render::{
     ThrobberState,
@@ -24,6 +24,8 @@ use gw_render::{
 use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, layout::Position};
 
 mod log;
+mod stage;
+mod term;
 mod views;
 
 const FORMATTED: [&str; 10] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash"];
@@ -42,6 +44,8 @@ fn main() {
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
+        // `-i` is gw's own `status` flag: git doesn't know it.
+        let args: Vec<OsString> = if cmd == "status" { args.into_iter().filter(|a| !is_interactive(a)).collect() } else { args };
         passthrough(&args)
     } else {
         match cmd.as_str() {
@@ -305,12 +309,24 @@ fn add_ref(groups: &mut Vec<RefGroup>, r: RefUpdate) {
     groups.last_mut().unwrap().refs.push(r);
 }
 
+fn is_interactive(a: &OsString) -> bool {
+    matches!(a.to_str(), Some("-i" | "--interactive"))
+}
+
 fn status(rest: &[OsString]) -> i32 {
-    let format_flag = rest.iter().any(|a| {
+    let format_flag = rest.iter().find(|a| {
         let a = a.to_string_lossy();
         matches!(a.as_ref(), "-s" | "--short" | "--long" | "-z" | "--null") || a.starts_with("--porcelain")
     });
-    if format_flag {
+    if rest.iter().any(is_interactive) {
+        if let Some(f) = format_flag {
+            eprintln!("gw: status -i cannot be combined with {}", f.to_string_lossy());
+            return 129;
+        }
+        let rest: Vec<OsString> = rest.iter().filter(|a| !is_interactive(a)).cloned().collect();
+        return stage::run(&rest);
+    }
+    if format_flag.is_some() {
         let mut args: Vec<OsString> = vec!["status".into()];
         args.extend(rest.iter().cloned());
         return passthrough(&args);
@@ -331,6 +347,13 @@ fn status(rest: &[OsString]) -> i32 {
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
         .unwrap_or_default();
     let st = parse_status_v2(&out.stdout);
+    let stats = load_stats(&st, &prefix);
+    print!("{}", render_status(&st, &prefix, &stats, !no_color_env()));
+    0
+}
+
+/// Line counts for every group and checked-out submodule commits, for `gw status` and `gw status -i`.
+fn load_stats(st: &Status, prefix: &str) -> LineStats {
     let numstat = |cached: bool| {
         let mut c = Command::new("git");
         c.args(["diff", "--numstat", "-z", "--no-ext-diff", "--no-textconv"]);
@@ -341,7 +364,7 @@ fn status(rest: &[OsString]) -> i32 {
     };
     let mut stats = LineStats { staged: numstat(true), unstaged: numstat(false), ..Default::default() };
     for e in st.entries.iter().filter(|e| e.x == '?' && !e.path.ends_with('/')) {
-        stats.untracked.insert(e.path.clone(), count_lines(&relative(&e.path, &prefix)));
+        stats.untracked.insert(e.path.clone(), count_lines(&relative(&e.path, prefix)));
     }
     // Checked-out commits are only needed when a submodule moved off its recorded commit.
     let moved: Vec<&str> = st.entries.iter().filter(|e| e.submodule.as_ref().is_some_and(|s| s.commit_changed)).map(|e| e.path.as_str()).collect();
@@ -357,8 +380,7 @@ fn status(rest: &[OsString]) -> i32 {
     {
         stats.checkouts = parse_submodule_status(&String::from_utf8_lossy(&o.stdout));
     }
-    print!("{}", render_status(&st, &prefix, &stats, !no_color_env()));
-    0
+    stats
 }
 
 /// New-file line count for an untracked file; `None` (shown as `bin`) when it contains NUL.

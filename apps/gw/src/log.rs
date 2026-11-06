@@ -17,12 +17,10 @@ use ratatui::{
     DefaultTerminal,
     crossterm::{
         event::{self, Event, KeyEventKind},
-        execute,
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
     },
 };
 
-use crate::passthrough;
+use crate::{passthrough, term::run_on_terminal};
 
 /// Flags that ask for git's own output format: run plain `git log`.
 const FORMAT_FLAGS: [&str; 10] = ["--oneline", "--format", "--pretty", "-p", "--patch", "--stat", "--graph", "--name-only", "--name-status", "-u"];
@@ -172,37 +170,6 @@ pub fn osc52(text: &str) -> String {
 
 /// Leaves the TUI, runs git on the real terminal (editors, conflicts work), waits for Enter, comes back.
 /// stderr is also captured (tee) so a failure can be summarized in the status line.
-fn run_on_terminal(term: &mut DefaultTerminal, args: &[String]) -> (bool, String) {
-    let _ = disable_raw_mode();
-    let _ = execute!(io::stdout(), LeaveAlternateScreen);
-    println!("\n$ git {}", args.join(" "));
-    let child = Command::new("git").args(args).stdin(Stdio::inherit()).stdout(Stdio::inherit()).stderr(Stdio::piped()).spawn();
-    let (ok, first_err) = match child {
-        Ok(mut c) => {
-            let mut err = c.stderr.take().unwrap();
-            let tee = thread::spawn(move || {
-                let mut all = Vec::new();
-                let mut buf = [0u8; 4096];
-                while let Ok(n @ 1..) = err.read(&mut buf) {
-                    let _ = io::stderr().write_all(&buf[..n]);
-                    all.extend_from_slice(&buf[..n]);
-                }
-                String::from_utf8_lossy(&all).lines().find(|l| !l.trim().is_empty()).unwrap_or("").to_string()
-            });
-            let ok = c.wait().is_ok_and(|s| s.success());
-            (ok, tee.join().unwrap_or_default())
-        }
-        Err(e) => (false, e.to_string()),
-    };
-    print!("\nPress Enter to return to gw log ");
-    let _ = io::stdout().flush();
-    let _ = io::stdin().lock().read_line(&mut String::new());
-    let _ = enable_raw_mode();
-    let _ = execute!(io::stdout(), EnterAlternateScreen);
-    let _ = term.clear();
-    (ok, first_err)
-}
-
 fn action_message(action: &Action, ok: bool, err: String) -> String {
     let verb = match action {
         Action::CherryPick(_) => "cherry-pick",
@@ -263,7 +230,7 @@ fn handle(effect: Effect, app: &mut App, loader: &mut Loader, term: &mut Default
         Effect::Run(action) => {
             let args = action.git_args();
             let (ok, err) = if action.needs_terminal() {
-                run_on_terminal(term, &args)
+                run_on_terminal(term, &args, "gw log")
             } else {
                 match Command::new("git").args(&args).output() {
                     Ok(o) => (o.status.success(), String::from_utf8_lossy(&o.stderr).lines().next().unwrap_or("").to_string()),

@@ -160,6 +160,21 @@ fn log_branch_commit_stash() {
     let plain = git_env(Command::new("git").arg("log").current_dir(&w)).output().unwrap();
     assert_eq!(piped.stdout, plain.stdout, "non-TTY gw log is plain git log");
 
+    // gw status -i piped: `-i` dropped, identical to git status
+    std::fs::write(w.join("a.txt"), "1\nx\n").unwrap();
+    for args in [&["status", "-i"][..], &["status", "--interactive", "-s"]] {
+        let piped = git_env(Command::new(GW).args(args).current_dir(&w)).output().unwrap();
+        let rest: Vec<&str> = args.iter().copied().filter(|a| !matches!(*a, "-i" | "--interactive")).collect();
+        let plain = git_env(Command::new("git").args(&rest).current_dir(&w)).output().unwrap();
+        assert!(piped.status.success(), "{args:?}: {}", String::from_utf8_lossy(&piped.stderr));
+        assert_eq!(piped.stdout, plain.stdout, "{args:?}");
+    }
+    // On a terminal, -i with a format flag is a usage error.
+    let (code, out) = gw(&w, &["status", "-i", "-s"], true);
+    assert_eq!(code, 129, "{out}");
+    assert!(out.contains("status -i cannot be combined with -s"), "{out}");
+    git(&w, &["checkout", "--", "a.txt"]);
+
     // gw commit -m: summary, exit 0, no SGR under NO_COLOR
     std::fs::write(w.join("a.txt"), "1\n2\n").unwrap();
     std::fs::write(w.join("b.txt"), "b\n").unwrap();

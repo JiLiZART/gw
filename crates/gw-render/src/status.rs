@@ -76,6 +76,69 @@ fn stat(n: Option<Option<(u64, u64)>>, color: bool) -> String {
     }
 }
 
+/// A `gw status` group, in display order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Group {
+    Conflicts,
+    Staged,
+    Changed,
+    Submodules,
+    Untracked,
+}
+
+impl Group {
+    pub fn title(self) -> &'static str {
+        match self {
+            Group::Conflicts => "Conflicts",
+            Group::Staged => "Staged",
+            Group::Changed => "Changed",
+            Group::Submodules => "Submodules",
+            Group::Untracked => "Untracked",
+        }
+    }
+
+    pub fn sgr(self) -> &'static str {
+        match self {
+            Group::Conflicts => RED,
+            Group::Staged => GREEN,
+            Group::Changed => YELLOW,
+            Group::Submodules => BRANCH,
+            Group::Untracked => DIM,
+        }
+    }
+
+    /// The one-letter change code shown for `e` in this group.
+    pub fn code(self, e: &Entry) -> char {
+        match self {
+            Group::Conflicts => 'U',
+            Group::Staged => e.x,
+            Group::Changed => e.y,
+            Group::Submodules if e.x == 'A' => 'A',
+            Group::Submodules => 'M',
+            Group::Untracked => '?',
+        }
+    }
+
+    /// Renames show `old -> new` in these groups.
+    pub fn shows_orig(self) -> bool {
+        matches!(self, Group::Staged | Group::Submodules)
+    }
+}
+
+/// Entries per group, all five groups in display order (some may be empty).
+/// A file staged and changed again appears in both Staged and Changed.
+pub fn groups(st: &Status) -> Vec<(Group, Vec<&Entry>)> {
+    let file = |e: &&Entry| !e.unmerged && e.x != '?' && e.submodule.is_none();
+    let pick = |f: &dyn Fn(&&Entry) -> bool| st.entries.iter().filter(|e| f(e)).collect::<Vec<_>>();
+    vec![
+        (Group::Conflicts, pick(&|e| e.unmerged)),
+        (Group::Staged, pick(&|e| file(e) && e.x != '.')),
+        (Group::Changed, pick(&|e| file(e) && e.y != '.')),
+        (Group::Submodules, pick(&|e| e.submodule.is_some() && !e.unmerged)),
+        (Group::Untracked, pick(&|e| e.x == '?')),
+    ]
+}
+
 pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) -> String {
     let mut out = match (&st.head, &st.oid) {
         (Some(h), _) => paint(&sanitize(h), BRANCH_BOLD, color),
@@ -101,48 +164,31 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
         Some(o) => format!("{} -> {}", rel(o), rel(&e.path)),
         None => rel(&e.path),
     };
-    let untracked = |e: &Entry| e.x == '?';
-    let file = |e: &&Entry| !e.unmerged && !untracked(e) && e.submodule.is_none();
     // (code, path, stats, submodule detail)
     type Line = (char, String, Option<Option<(u64, u64)>>, String);
-    let groups: [(&str, &str, Vec<Line>); 5] = [
-        ("Conflicts", RED, st.entries.iter().filter(|e| e.unmerged).map(|e| ('U', rel(&e.path), None, String::new())).collect()),
-        (
-            "Staged",
-            GREEN,
-            st.entries
-                .iter()
-                .filter(|e| file(e) && e.x != '.')
-                .map(|e| (e.x, name(e), stats.staged.get(&e.path).copied(), String::new()))
-                .collect(),
-        ),
-        (
-            "Changed",
-            YELLOW,
-            st.entries
-                .iter()
-                .filter(|e| file(e) && e.y != '.')
-                .map(|e| (e.y, rel(&e.path), stats.unstaged.get(&e.path).copied(), String::new()))
-                .collect(),
-        ),
-        (
-            "Submodules",
-            BRANCH,
-            st.entries
-                .iter()
-                .filter_map(|e| {
-                    let sub = e.submodule.as_ref().filter(|_| !e.unmerged)?;
-                    let code = if e.x == 'A' { 'A' } else { 'M' };
-                    Some((code, name(e), None, submodule_detail(e, sub, &stats.checkouts, color)))
+    let groups: Vec<(&str, &str, Vec<Line>)> = groups(st)
+        .into_iter()
+        .map(|(g, entries)| {
+            let lines = entries
+                .into_iter()
+                .map(|e| {
+                    let path = if g.shows_orig() { name(e) } else { rel(&e.path) };
+                    let n = match g {
+                        Group::Staged => stats.staged.get(&e.path).copied(),
+                        Group::Changed => stats.unstaged.get(&e.path).copied(),
+                        Group::Untracked => stats.untracked.get(&e.path).copied(),
+                        _ => None,
+                    };
+                    let detail = match (g, &e.submodule) {
+                        (Group::Submodules, Some(sub)) => submodule_detail(e, sub, &stats.checkouts, color),
+                        _ => String::new(),
+                    };
+                    (g.code(e), path, n, detail)
                 })
-                .collect(),
-        ),
-        (
-            "Untracked",
-            DIM,
-            st.entries.iter().filter(|e| untracked(e)).map(|e| ('?', rel(&e.path), stats.untracked.get(&e.path).copied(), String::new())).collect(),
-        ),
-    ];
+                .collect();
+            (g.title(), g.sgr(), lines)
+        })
+        .collect();
     if groups.iter().all(|g| g.2.is_empty()) {
         out += &paint("clean", DIM, color);
         out.push('\n');

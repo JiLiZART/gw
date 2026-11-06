@@ -1,0 +1,28 @@
+---
+source: crates/gw-render/src/stage/view.rs
+expression: t
+---
+┌ main -> origin/main ─┐┌─ tmp/ ───────────────────────────────────────────────────────────────────────────────────────┐
+│Untracked (1)         ││diff --git a/a.rs b/a.rs                                                                      │
+│ ? tmp/               ││@@ -1 +1 @@   ┌ Revert tmp/? ──────────────────────────┐                                      │
+│                      ││-old          │Delete 25 untracked files:              │                                      │
+│                      ││+new          │  tmp/f0                                │                                      │
+│                      ││              │  tmp/f1                                │                                      │
+│                      ││              │  tmp/f2                                │                                      │
+│                      ││              │  tmp/f3                                │                                      │
+│                      ││              │  tmp/f4                                │                                      │
+│                      ││              │  tmp/f5                                │                                      │
+│                      ││              │  tmp/f6                                │                                      │
+│                      ││              │  tmp/f7                                │                                      │
+│                      ││              │  tmp/f8                                │                                      │
+│                      ││              │  tmp/f9                                │                                      │
+│                      ││              │  … and 15 more                         │                                      │
+│                      ││              │                                        │                                      │
+│                      ││              │This can't be undone.                   │                                      │
+│                      ││              │ y  revert   any other key: cancel      │                                      │
+│                      ││              └────────────────────────────────────────┘                                      │
+│                      ││                                                                                              │
+│                      ││                                                                                              │
+└──────────────────────┘└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ y Revert  any key Cancel
