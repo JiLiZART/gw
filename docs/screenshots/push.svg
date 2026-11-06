@@ -5,13 +5,12 @@
 <circle cx="18" cy="17" r="6" fill="#ff5f57"/>
 <circle cx="38" cy="17" r="6" fill="#febc2e"/>
 <circle cx="58" cy="17" r="6" fill="#28c840"/>
-<text x="453" y="22" fill="#8b949e" text-anchor="middle" style="font-size:12px">~/acme/shop</text>
 <text x="16.0" y="48.2" fill="#3fb950" class="b">$ </text>
 <text x="32.8" y="48.2" fill="#c9d1d9">gw push -u origin feat/checkout-v2</text>
-<rect x="41.2" y="53.0" width="840.0" height="19" fill="#008700"/>
+<rect x="209.2" y="53.0" width="672.0" height="19" fill="#008700"/>
 <text x="16.0" y="67.2" fill="#00cd00" textLength="8.4" lengthAdjust="spacingAndGlyphs">✔</text>
-<text x="32.8" y="67.2" fill="#c9d1d9" textLength="8.4" lengthAdjust="spacingAndGlyphs">[</text>
-<text x="49.6" y="67.2" fill="#ffffff" class="b" textLength="823.2" lengthAdjust="spacingAndGlyphs">Writing objects                                                                         74/74 100%</text>
+<text x="32.8" y="67.2" fill="#c9d1d9" textLength="176.4" lengthAdjust="spacingAndGlyphs">Writing objects     [</text>
+<text x="788.8" y="67.2" fill="#ffffff" class="b" textLength="84.0" lengthAdjust="spacingAndGlyphs">80/80 100%</text>
 <text x="881.2" y="67.2" fill="#c9d1d9" textLength="8.4" lengthAdjust="spacingAndGlyphs">]</text>
 <line x1="20.2" y1="81.5" x2="24.4" y2="81.5" stroke="#c9d1d9" stroke-width="1.2" stroke-opacity="0.55"/>
 <line x1="20.2" y1="81.5" x2="20.2" y2="91.0" stroke="#c9d1d9" stroke-width="1.2" stroke-opacity="0.55"/>

@@ -21,7 +21,7 @@ With gw:
 
 ![gw push: one progress bar, the merge request link in a box, a colored ref line](docs/screenshots/push.svg)
 
-The progress is one animated line (spinner, stage, `cur/total`, percent) that settles into a `✔` when the push succeeds. The `remote:` lines turn into a titled box (**Merge request**, **Pull request**, or **remote**) with the URL as a clickable link. The ref update is one colored line under the target.
+The progress is one animated line: a spinner, the stage name, then a bar with `cur/total` and the percent inside. It settles into a `✔` when the push succeeds. The `remote:` lines turn into a titled box (**Merge request**, **Pull request**, or **remote**) with the URL as a clickable link. The ref update is one colored line under the target.
 
 ## What you get
 
@@ -31,8 +31,15 @@ The progress is one animated line (spinner, stage, `cur/total`, percent) that se
 
 - **One header per repository.** A recursive fetch puts the superproject's updates and each submodule's updates (`-> submodule ui-kit`) under their own headers, never mixed together.
 - **A colored summary.** `Updating old..new`, the fast-forward, merge, or rebase result, conflicts in red, diffstat bars, the insertions and deletions totals, and `create mode`/`delete mode` lines.
-- **`gw merge` gets the same summary**: `Auto-merging` dimmed, conflicts and failed submodule merges in red, `error:`/`warning:` prefixes colored, and `hint:` lines dimmed.
 - **A Submodules section.** It lists each checked-out submodule with its new commit, instead of git's `Submodule path '…': checked out '<40-char sha>'`.
+
+### `gw merge`: conflicts you can't miss
+
+![gw merge: Auto-merging dimmed, conflicts and the failed submodule merge in red, hint lines dimmed](docs/screenshots/merge.svg)
+
+- **Auto-merging lines are dimmed**, so the conflicts stand out in red: `CONFLICT …`, `Failed to merge submodule …`, `Automatic merge failed…`.
+- **A clean merge or fast-forward** gets the same colored summary and diffstat as `gw pull`.
+- **git's messages:** `error:` and `fatal:` in red, `warning:` in yellow, the `hint:` block dimmed. This applies to `push`, `pull`, `fetch`, and `clone` too.
 
 ### `gw status`: grouped, counted, no hints
 
@@ -42,6 +49,16 @@ The progress is one animated line (spinner, stage, `cur/total`, percent) that se
 - **The groups** are Conflicts, Staged, Changed, Submodules, and Untracked. Each file gets GitHub-style `+N -M` counts, and a **Total** line sums them.
 - **Submodules** show the recorded and checked-out commits (`db0d316 → 9c75318`) and what's going on inside: `staged`, `new commits`, `modified content`, `untracked content`.
 - **No `(use "git add <file>..." …)` advice lines.**
+
+### `gw status -i`: stage, unstage, and revert by file
+
+![gw status -i: status groups on the left, the selected file's diff on the right, key bar](docs/screenshots/status-interactive.svg)
+
+- **The same groups as `gw status`** on the left, the selected file's diff on the right: the staged diff for a Staged entry, the unstaged one for a Changed entry, the whole file for an untracked one.
+- **One key per action:** `Space` stages or unstages the file, `a` stages everything, `u` unstages everything, `c` hands the terminal to `git commit` and comes back.
+- **`r` reverts the file** to its last committed state (an untracked file is deleted). It always asks first and lists what will be lost; conflicts and submodules are never reverted from here.
+
+![gw status -i revert confirmation: Revert src/cart.ts? This can't be undone.](docs/screenshots/status-interactive-revert.svg)
 
 ### `gw log`: a commit browser in your terminal
 
@@ -105,6 +122,7 @@ gw fetch [git fetch args...]
 gw clone [git clone args...]
 gw merge [git merge args...]
 gw status [pathspec...]
+gw status -i [pathspec...]
 gw log [revisions] [-- paths]
 gw branch
 gw commit [git commit args...]
@@ -128,6 +146,19 @@ git p origin feat    # runs: gw push origin feat
 ```
 
 Alias names can't shadow built-in commands: git ignores an alias named `push`, `pull`, `status`, and so on.
+
+### `gw status -i` keys
+
+| Keys | Action |
+|---|---|
+| `j`/`k`, `↑`/`↓`, `PgUp`/`PgDn`, `g`/`G` | Move between files (or scroll the diff) |
+| `Tab` | Switch between the file list and the diff |
+| `Space` | Stage the file, or unstage it if it is staged (on a conflict: mark resolved) |
+| `a` / `u` | Stage all / unstage all |
+| `r` | Revert the file, after a `y` confirmation |
+| `c` | Commit with git's editor |
+| `Ctrl-R` | Reload |
+| `q`, `Esc` | Quit |
 
 ### `gw log` keys
 
