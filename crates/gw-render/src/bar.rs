@@ -1,4 +1,4 @@
-//! Live progress line: `{spinner} [<label> … <cur>/<total> <pct>%]`.
+//! Live progress line: `{spinner} <label> [<bar> <cur>/<total> <pct>%]`.
 
 use std::{
     collections::VecDeque,
@@ -95,6 +95,9 @@ impl Animator {
     }
 }
 
+/// Label column width: git's longest common stage, `Compressing objects`.
+const LABEL_W: usize = 19;
+
 pub struct ProgressLine<'a> {
     pub progress: &'a Progress,
     /// Bar fill percentage; `None` uses `progress.pct`.
@@ -121,12 +124,21 @@ impl Widget for ProgressLine<'_> {
             }
         };
         buf.set_string(area.x, y, &mark, mark_style);
-        buf.set_string(area.x + 2, y, "[", Style::default());
+
+        let p = self.progress;
+        // Label before the bar, padded to a fixed column so the bar doesn't jump between stages.
+        let mut bar_x = area.x + 2;
+        if area.width >= 40 && !p.label.is_empty() {
+            let max = (area.width / 2) as usize;
+            let label: String = p.label.chars().take(max).collect();
+            buf.set_string(bar_x, y, &label, Style::default());
+            bar_x += label.chars().count().max(LABEL_W).min(max) as u16 + 1;
+        }
+        buf.set_string(bar_x, y, "[", Style::default());
         buf.set_string(area.x + area.width - 1, y, "]", Style::default());
 
-        let x0 = area.x + 3;
-        let w = (area.width - 4) as usize;
-        let p = self.progress;
+        let x0 = bar_x + 1;
+        let w = (area.x + area.width - 1).saturating_sub(x0) as usize;
         let fill = self.fill.or(p.pct).map_or(0, |pct| w * pct.min(100) as usize / 100);
         let right = match (p.cur, p.total, p.pct) {
             (Some(c), Some(t), Some(pct)) if area.width >= 40 => format!("{c}/{t} {pct}%"),
@@ -134,16 +146,10 @@ impl Widget for ProgressLine<'_> {
             (Some(c), _, None) if area.width >= 40 => c.to_string(),
             _ => String::new(),
         };
-        let label = if area.width >= 40 { p.label.as_str() } else { "" };
 
-        // Text cells over the bar: label left, counters right, one space padding each side.
+        // Counters over the right end of the bar, one space padding after.
         let mut text: Vec<Option<char>> = vec![None; w];
         let right_start = w.saturating_sub(right.chars().count() + 1);
-        for (i, c) in label.chars().enumerate() {
-            if 1 + i + 1 < right_start {
-                text[1 + i] = Some(c);
-            }
-        }
         for (i, c) in right.chars().enumerate() {
             if right_start + i < w {
                 text[right_start + i] = Some(c);
@@ -217,6 +223,8 @@ mod tests {
         assert!(a.settled());
     }
 
+    // Width 60: label at x 2..21, `[` at 22, bar cells x 23..59 (36 wide), `]` at 59.
+
     #[test]
     fn fill_override() {
         let p = stage("Writing objects", 100);
@@ -224,36 +232,49 @@ mod tests {
         let th = ThrobberState::default();
         t.draw(|f| f.render_widget(ProgressLine { progress: &p, fill: Some(50), throbber: &th, done: None, color: true }, f.area())).unwrap();
         let b = t.backend().buffer();
-        assert_eq!(bg(b, 30), Some(FILL_BG));
-        assert_eq!(bg(b, 31), Some(EMPTY_BG));
+        assert_eq!(bg(b, 40), Some(FILL_BG));
+        assert_eq!(bg(b, 41), Some(EMPTY_BG));
         assert!(line(b).contains("100%"), "counters show git's real value");
     }
 
     #[test]
     fn zero_percent() {
         let b = draw(60, Some(0), 0, None, true);
-        assert!(line(&b).contains("[ Writing objects"));
+        assert!(line(&b).contains(" Writing objects     [ "), "{}", line(&b));
         assert!(line(&b).ends_with("0/9 0% ]"));
-        assert_eq!(bg(&b, 3), Some(EMPTY_BG));
+        assert_eq!(bg(&b, 23), Some(EMPTY_BG));
+        assert_ne!(bg(&b, 3), Some(EMPTY_BG), "label has no bar background");
     }
 
     #[test]
     fn forty_four_percent() {
         let b = draw(60, Some(44), 4, None, true);
-        // inner width 56 -> 24 filled cells: x 3..27 green, 27.. dark
-        assert_eq!(bg(&b, 26), Some(FILL_BG));
-        assert_eq!(bg(&b, 27), Some(EMPTY_BG));
-        assert_eq!(b[(5, 0)].style().fg, Some(Color::Indexed(231)), "label readable on green");
+        // 36 * 44% -> 15 filled cells: x 23..38 green, 38.. dark
+        assert_eq!(bg(&b, 37), Some(FILL_BG));
+        assert_eq!(bg(&b, 38), Some(EMPTY_BG));
         assert!(line(&b).contains("4/9 44%"));
         let plain = line(&draw(60, Some(44), 4, None, false));
-        assert!(plain.contains("[#Writing objects########."), "{plain}");
-        assert!(plain.contains("....4/9 44%.]"), "{plain}");
+        assert!(plain.contains(" Writing objects     [###############....."), "{plain}");
+        assert!(plain.ends_with("....4/9 44%.]"), "{plain}");
+    }
+
+    #[test]
+    fn label_column_is_fixed() {
+        let bracket = |label: &str| {
+            let p = stage(label, 10);
+            let mut t = Terminal::new(TestBackend::new(60, 1)).unwrap();
+            let th = ThrobberState::default();
+            t.draw(|f| f.render_widget(ProgressLine { progress: &p, fill: None, throbber: &th, done: None, color: false }, f.area())).unwrap();
+            line(t.backend().buffer()).find('[').unwrap()
+        };
+        assert_eq!(bracket("Counting objects"), bracket("Compressing objects"));
+        assert!(bracket("Checking connectivity of a long name") > bracket("Counting objects"), "long labels push the bar");
     }
 
     #[test]
     fn full_success() {
         let b = draw(60, Some(100), 9, Some(true), true);
-        assert!(line(&b).starts_with("✔ [ Writing objects"));
+        assert!(line(&b).starts_with("✔ Writing objects     ["), "{}", line(&b));
         assert!(line(&b).ends_with("9/9 100% ]"));
         assert_eq!(b[(0, 0)].style().fg, Some(Color::Green));
         assert_eq!(bg(&b, 58), Some(FILL_BG));
@@ -264,8 +285,8 @@ mod tests {
         let b = draw(60, Some(44), 4, Some(false), true);
         assert!(line(&b).starts_with("✘"));
         assert_eq!(b[(0, 0)].style().fg, Some(Color::Red));
-        assert_eq!(bg(&b, 26), Some(FILL_BG));
-        assert_eq!(bg(&b, 27), Some(EMPTY_BG));
+        assert_eq!(bg(&b, 37), Some(FILL_BG));
+        assert_eq!(bg(&b, 38), Some(EMPTY_BG));
     }
 
     #[test]
