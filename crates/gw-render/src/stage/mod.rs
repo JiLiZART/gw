@@ -1,4 +1,4 @@
-//! `gw status -i`: pure state + key handling for the interactive staging view.
+//! `gw status -i` and `gw add`: pure state + key handling for the interactive staging view.
 //! Git work is requested through [`Effect`]s; the binary runs them and feeds results back.
 
 pub mod view;
@@ -15,6 +15,35 @@ pub struct Item {
     pub entry: Entry,
     /// `+N -M` for the diff title; `Some(None)` binary, `None` unknown.
     pub stat: Option<Option<(u64, u64)>>,
+    /// Checkbox state in `gw add` (one row per path); `None` in `gw status -i`.
+    pub check: Option<Check>,
+}
+
+/// `[x]` staged, `[~]` staged and changed again, `[ ]` nothing staged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Check {
+    On,
+    Partial,
+    Off,
+}
+
+impl Check {
+    pub fn mark(self) -> &'static str {
+        match self {
+            Check::On => "[x]",
+            Check::Partial => "[~]",
+            Check::Off => "[ ]",
+        }
+    }
+}
+
+/// Which screen the stage view serves.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    /// `gw status -i`: grouped list, revert and commit.
+    Status,
+    /// `gw add`: one checkbox row per path, stage/unstage only.
+    Add,
 }
 
 impl Item {
@@ -39,8 +68,40 @@ pub fn items(st: &Status, stats: &LineStats) -> Vec<Item> {
                     Group::Untracked => stats.untracked.get(&e.path).copied(),
                     _ => None,
                 };
-                Item { group, entry: e.clone(), stat }
+                Item { group, entry: e.clone(), stat, check: None }
             })
+        })
+        .collect()
+}
+
+/// One row per path, sorted by path, for the `gw add` checklist and the new-stash picker.
+pub fn add_items(st: &Status, stats: &LineStats) -> Vec<Item> {
+    let mut entries: Vec<&Entry> = st.entries.iter().collect();
+    entries.sort_by(|a, b| a.path.cmp(&b.path));
+    entries
+        .into_iter()
+        .map(|e| {
+            let staged = !e.unmerged && !matches!(e.x, '.' | '?');
+            let unstaged = e.unmerged || e.x == '?' || e.y != '.';
+            let (group, check) = match () {
+                _ if e.unmerged => (Group::Conflicts, Check::Off),
+                _ if e.x == '?' => (Group::Untracked, Check::Off),
+                _ if e.submodule.is_some() => (Group::Submodules, if !staged { Check::Off } else if unstaged { Check::Partial } else { Check::On }),
+                _ if staged && unstaged => (Group::Changed, Check::Partial),
+                _ if staged => (Group::Staged, Check::On),
+                _ => (Group::Changed, Check::Off),
+            };
+            let stat = match group {
+                Group::Staged => stats.staged.get(&e.path).copied(),
+                Group::Untracked => stats.untracked.get(&e.path).copied(),
+                Group::Changed => match (stats.staged.get(&e.path).copied(), stats.unstaged.get(&e.path).copied()) {
+                    (Some(Some((a1, d1))), Some(Some((a2, d2)))) => Some(Some((a1 + a2, d1 + d2))),
+                    (Some(None), _) | (_, Some(None)) => Some(None),
+                    (s, None) | (None, s) => s,
+                },
+                _ => None,
+            };
+            Item { group, entry: e.clone(), stat, check: Some(check) }
         })
         .collect()
 }
@@ -82,6 +143,7 @@ pub enum Row {
 
 pub struct App {
     pub items: Vec<Item>,
+    pub mode: Mode,
     pub sel: usize,
     /// First visible list row.
     pub scroll: usize,
@@ -110,6 +172,7 @@ impl App {
     pub fn new(items: Vec<Item>, prefix: String, head: String) -> Self {
         App {
             items,
+            mode: Mode::Status,
             sel: 0,
             scroll: 0,
             focus: Focus::List,
@@ -142,6 +205,9 @@ impl App {
     }
 
     pub fn rows(&self) -> Vec<Row> {
+        if self.mode == Mode::Add {
+            return (0..self.items.len()).map(Row::Item).collect();
+        }
         let mut rows = Vec::new();
         let mut i = 0;
         while i < self.items.len() {
@@ -258,6 +324,18 @@ impl App {
             }
             return Effect::None;
         }
+        if self.mode == Mode::Add {
+            return match k.code {
+                KeyCode::Char('a') => Effect::StageAll,
+                KeyCode::Char('u') => Effect::UnstageAll,
+                KeyCode::Char(' ') => match self.selected() {
+                    Some(it) if it.check == Some(Check::On) => Effect::Unstage(it.clone()),
+                    Some(it) => Effect::Stage(it.clone()),
+                    None => Effect::None,
+                },
+                _ => Effect::None,
+            };
+        }
         match k.code {
             KeyCode::Char('a') => Effect::StageAll,
             KeyCode::Char('u') => Effect::UnstageAll,
@@ -291,6 +369,9 @@ impl App {
         match (&self.overlay, self.focus) {
             (Overlay::Confirm { .. }, _) => vec![("y", "Revert"), ("any key", "Cancel")],
             (Overlay::None, Focus::Diff) => vec![("j/k", "Scroll"), ("PgUp/PgDn", "Page"), ("Tab", "Files"), ("Esc", "Back"), ("q", "Quit")],
+            (Overlay::None, Focus::List) if self.mode == Mode::Add => {
+                vec![("Space", "Toggle"), ("a", "Stage all"), ("u", "Unstage all"), ("Tab", "Diff"), ("^R", "Reload"), ("q", "Quit")]
+            }
             (Overlay::None, Focus::List) => vec![
                 ("Space", "Stage/Unstage"),
                 ("a", "Stage all"),
@@ -447,6 +528,41 @@ mod tests {
         assert_eq!(sel(&a), (Group::Staged, "a.rs"));
         a.replace_items(vec![]);
         assert!(a.selected().is_none());
+    }
+
+    fn add_app(entries: Vec<Entry>) -> App {
+        let mut a = App::new(add_items(&st(entries), &LineStats::default()), String::new(), "main".into());
+        a.mode = Mode::Add;
+        a.resize(100, 30);
+        a
+    }
+
+    #[test]
+    fn add_rows_one_per_path() {
+        let a = add_app(vec![e('?', '?', "n.txt"), e('.', 'M', "c.rs"), e('M', 'M', "b.rs"), e('M', '.', "a.rs")]);
+        let rows: Vec<_> = a.items.iter().map(|i| (i.entry.path.as_str(), i.check.unwrap())).collect();
+        assert_eq!(rows, vec![("a.rs", Check::On), ("b.rs", Check::Partial), ("c.rs", Check::Off), ("n.txt", Check::Off)]);
+        assert_eq!(a.rows(), (0..4).map(Row::Item).collect::<Vec<_>>(), "no headers");
+    }
+
+    #[test]
+    fn add_mode_keys() {
+        let mut a = add_app(vec![e('M', '.', "a.rs"), e('M', 'M', "b.rs"), e('?', '?', "n.txt")]);
+        assert!(matches!(a.key(ch(' ')), Effect::Unstage(it) if it.entry.path == "a.rs"));
+        a.key(ch('j'));
+        assert!(matches!(a.key(ch(' ')), Effect::Stage(it) if it.entry.path == "b.rs"), "partial stages the rest");
+        a.key(ch('j'));
+        assert!(matches!(a.key(ch(' ')), Effect::Stage(it) if it.entry.path == "n.txt"));
+        assert_eq!(a.key(ch('a')), Effect::StageAll);
+        assert_eq!(a.key(ch('u')), Effect::UnstageAll);
+        assert_eq!(a.key(ch('r')), Effect::None, "no revert in add");
+        assert_eq!(a.key(ch('c')), Effect::None, "no commit in add");
+        let keys: Vec<_> = a.hotkeys().iter().map(|k| k.0).collect();
+        assert!(!keys.contains(&"r") && !keys.contains(&"c") && keys.contains(&"Space"), "{keys:?}");
+        // Staging b.rs keeps it selected (same path, new group).
+        a.key(ch('k'));
+        a.replace_items(add_items(&st(vec![e('M', '.', "a.rs"), e('M', '.', "b.rs"), e('?', '?', "n.txt")]), &LineStats::default()));
+        assert_eq!(a.selected().unwrap().entry.path, "b.rs");
     }
 
     #[test]

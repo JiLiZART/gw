@@ -1,0 +1,16 @@
+---
+source: crates/gw-render/src/stash/view.rs
+expression: t
+---
+┌ Stashes ─────────────┐┌ stash@{0} ───────────┐┌─ a.rs +2 -1 ─────────────────────────────────────────────────────────┐
+│ 0 wip parser  main  2││ M a.rs               ││@@ -1 +1 @@                                                           │
+│ 1 try forms  main  2 ││ ? n.txt      ┌ Drop stash@{0}? ───────────────────────┐                                      │
+│                      ││              │Delete stash 0: wip parser              │                                      │
+│                      ││              │                                        │                                      │
+│                      ││              │This can't be undone.                   │                                      │
+│                      ││              │ y  drop   any other key: cancel        │                                      │
+│                      ││              └────────────────────────────────────────┘                                      │
+│                      ││                      ││                                                                      │
+└──────────────────────┘└──────────────────────┘└──────────────────────────────────────────────────────────────────────┘
+stash@{0} on main 2 hours ago: wip parser
+ y Drop  any key Cancel

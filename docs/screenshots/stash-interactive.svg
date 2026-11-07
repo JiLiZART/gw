@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1124" height="358" viewBox="0 0 1124 358">
+<style>text{font-family:'SF Mono',Menlo,Consolas,'DejaVu Sans Mono','Liberation Mono',monospace;font-size:14px;white-space:pre}.b{font-weight:700}</style>
+<rect width="100%" height="100%" rx="10" fill="#0d1117"/>
+<rect x="0.5" y="0.5" width="1123" height="357" rx="10" fill="none" stroke="#30363d"/>
+<circle cx="18" cy="17" r="6" fill="#ff5f57"/>
+<circle cx="38" cy="17" r="6" fill="#febc2e"/>
+<circle cx="58" cy="17" r="6" fill="#28c840"/>
+<text x="16.0" y="48.2" fill="#3fb950" class="b">$ </text>
+<text x="32.8" y="48.2" fill="#c9d1d9">gw stash -i</text>
+<line x1="20.2" y1="62.5" x2="24.4" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="62.5" x2="20.2" y2="72.0" stroke="#808080" stroke-width="1.2"/>
+<text x="32.8" y="67.2" fill="#808080" textLength="58.8" lengthAdjust="spacingAndGlyphs">Stashes</text>
+<line x1="100.0" y1="62.5" x2="226.0" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="226.0" y1="62.5" x2="230.2" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="62.5" x2="230.2" y2="72.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="62.5" x2="242.8" y2="62.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="62.5" x2="238.6" y2="72.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="251.2" y="67.2" fill="#5fafff" class="b" textLength="75.6" lengthAdjust="spacingAndGlyphs">stash@{0}</text>
+<line x1="335.2" y1="62.5" x2="444.4" y2="62.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="444.4" y1="62.5" x2="448.6" y2="62.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="62.5" x2="448.6" y2="72.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="62.5" x2="461.2" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="62.5" x2="457.0" y2="72.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="461.2" y1="62.5" x2="469.6" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<text x="478.0" y="67.2" fill="#808080" textLength="193.2" lengthAdjust="spacingAndGlyphs">src/checkout/receipt.ts</text>
+<text x="679.6" y="67.2" fill="#00cd00" textLength="16.8" lengthAdjust="spacingAndGlyphs">+3</text>
+<text x="704.8" y="67.2" fill="#cd0000" textLength="16.8" lengthAdjust="spacingAndGlyphs">-0</text>
+<line x1="730.0" y1="62.5" x2="1099.6" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1099.6" y1="62.5" x2="1103.8" y2="62.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="62.5" x2="1103.8" y2="72.0" stroke="#808080" stroke-width="1.2"/>
+<rect x="24.4" y="72.0" width="201.6" height="19" fill="#3a3a3a"/>
+<line x1="20.2" y1="72.0" x2="20.2" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="81.5" x2="20.2" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<text x="32.8" y="86.2" fill="#cdcd00" class="b" textLength="8.4" lengthAdjust="spacingAndGlyphs">0</text>
+<text x="49.6" y="86.2" fill="#c9d1d9" class="b" textLength="176.4" lengthAdjust="spacingAndGlyphs">receipt: draft layout</text>
+<line x1="230.2" y1="72.0" x2="230.2" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="81.5" x2="230.2" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="72.0" x2="238.6" y2="81.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="81.5" x2="238.6" y2="91.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="251.2" y="86.2" fill="#00cd00" textLength="8.4" lengthAdjust="spacingAndGlyphs">M</text>
+<text x="268.0" y="86.2" fill="#c9d1d9" textLength="176.4" lengthAdjust="spacingAndGlyphs">src/checkout/index.ts</text>
+<line x1="448.6" y1="72.0" x2="448.6" y2="81.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="81.5" x2="448.6" y2="91.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="72.0" x2="457.0" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="81.5" x2="457.0" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<text x="461.2" y="86.2" fill="#00cd00" textLength="470.4" lengthAdjust="spacingAndGlyphs">+export const receipt = (id: string) =&gt; `Receipt ${id}`;</text>
+<line x1="1103.8" y1="72.0" x2="1103.8" y2="81.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="81.5" x2="1103.8" y2="91.0" stroke="#808080" stroke-width="1.2"/>
+<rect x="242.8" y="91.0" width="201.6" height="19" fill="#3a3a3a"/>
+<line x1="20.2" y1="91.0" x2="20.2" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="100.5" x2="20.2" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<text x="32.8" y="105.2" fill="#cdcd00" textLength="8.4" lengthAdjust="spacingAndGlyphs">1</text>
+<text x="49.6" y="105.2" fill="#c9d1d9" textLength="176.4" lengthAdjust="spacingAndGlyphs">cart: try bulk discou</text>
+<line x1="230.2" y1="91.0" x2="230.2" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="100.5" x2="230.2" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="91.0" x2="238.6" y2="100.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="100.5" x2="238.6" y2="110.0" stroke="#5fafff" stroke-width="1.2"/>
+<text x="251.2" y="105.2" fill="#808080" class="b" textLength="8.4" lengthAdjust="spacingAndGlyphs">?</text>
+<text x="268.0" y="105.2" fill="#c9d1d9" class="b" textLength="176.4" lengthAdjust="spacingAndGlyphs">…/checkout/receipt.ts</text>
+<line x1="448.6" y1="91.0" x2="448.6" y2="100.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="100.5" x2="448.6" y2="110.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="91.0" x2="457.0" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="100.5" x2="457.0" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<text x="461.2" y="105.2" fill="#00cd00" textLength="344.4" lengthAdjust="spacingAndGlyphs">+export const email = (to: string) =&gt; to;</text>
+<line x1="1103.8" y1="91.0" x2="1103.8" y2="100.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="100.5" x2="1103.8" y2="110.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="110.0" x2="20.2" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="119.5" x2="20.2" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="110.0" x2="230.2" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="119.5" x2="230.2" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="110.0" x2="238.6" y2="119.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="119.5" x2="238.6" y2="129.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="110.0" x2="448.6" y2="119.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="119.5" x2="448.6" y2="129.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="110.0" x2="457.0" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="119.5" x2="457.0" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<text x="461.2" y="124.2" fill="#00cd00" textLength="260.4" lengthAdjust="spacingAndGlyphs">+export const pdf = () =&gt; null;</text>
+<line x1="1103.8" y1="110.0" x2="1103.8" y2="119.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="119.5" x2="1103.8" y2="129.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="129.0" x2="20.2" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="138.5" x2="20.2" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="129.0" x2="230.2" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="138.5" x2="230.2" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="129.0" x2="238.6" y2="138.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="138.5" x2="238.6" y2="148.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="129.0" x2="448.6" y2="138.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="138.5" x2="448.6" y2="148.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="129.0" x2="457.0" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="138.5" x2="457.0" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="129.0" x2="1103.8" y2="138.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="138.5" x2="1103.8" y2="148.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="148.0" x2="20.2" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="157.5" x2="20.2" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="148.0" x2="230.2" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="157.5" x2="230.2" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="148.0" x2="238.6" y2="157.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="157.5" x2="238.6" y2="167.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="148.0" x2="448.6" y2="157.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="157.5" x2="448.6" y2="167.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="148.0" x2="457.0" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="157.5" x2="457.0" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="148.0" x2="1103.8" y2="157.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="157.5" x2="1103.8" y2="167.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="167.0" x2="20.2" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="176.5" x2="20.2" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="167.0" x2="230.2" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="176.5" x2="230.2" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="167.0" x2="238.6" y2="176.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="176.5" x2="238.6" y2="186.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="167.0" x2="448.6" y2="176.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="176.5" x2="448.6" y2="186.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="167.0" x2="457.0" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="176.5" x2="457.0" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="167.0" x2="1103.8" y2="176.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="176.5" x2="1103.8" y2="186.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="186.0" x2="20.2" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="195.5" x2="20.2" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="186.0" x2="230.2" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="195.5" x2="230.2" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="186.0" x2="238.6" y2="195.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="195.5" x2="238.6" y2="205.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="186.0" x2="448.6" y2="195.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="195.5" x2="448.6" y2="205.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="186.0" x2="457.0" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="195.5" x2="457.0" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="186.0" x2="1103.8" y2="195.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="195.5" x2="1103.8" y2="205.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="205.0" x2="20.2" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="214.5" x2="20.2" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="205.0" x2="230.2" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="214.5" x2="230.2" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="205.0" x2="238.6" y2="214.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="214.5" x2="238.6" y2="224.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="205.0" x2="448.6" y2="214.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="214.5" x2="448.6" y2="224.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="205.0" x2="457.0" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="214.5" x2="457.0" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="205.0" x2="1103.8" y2="214.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="214.5" x2="1103.8" y2="224.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="224.0" x2="20.2" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="233.5" x2="20.2" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="224.0" x2="230.2" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="233.5" x2="230.2" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="224.0" x2="238.6" y2="233.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="233.5" x2="238.6" y2="243.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="224.0" x2="448.6" y2="233.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="233.5" x2="448.6" y2="243.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="224.0" x2="457.0" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="233.5" x2="457.0" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="224.0" x2="1103.8" y2="233.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="233.5" x2="1103.8" y2="243.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="243.0" x2="20.2" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="252.5" x2="20.2" y2="262.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="243.0" x2="230.2" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="252.5" x2="230.2" y2="262.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="243.0" x2="238.6" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="252.5" x2="238.6" y2="262.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="243.0" x2="448.6" y2="252.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="252.5" x2="448.6" y2="262.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="243.0" x2="457.0" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="252.5" x2="457.0" y2="262.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="243.0" x2="1103.8" y2="252.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="252.5" x2="1103.8" y2="262.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="262.0" x2="20.2" y2="271.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="271.5" x2="20.2" y2="281.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="262.0" x2="230.2" y2="271.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="271.5" x2="230.2" y2="281.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="262.0" x2="238.6" y2="271.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="271.5" x2="238.6" y2="281.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="262.0" x2="448.6" y2="271.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="271.5" x2="448.6" y2="281.0" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="262.0" x2="457.0" y2="271.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="271.5" x2="457.0" y2="281.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="262.0" x2="1103.8" y2="271.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="271.5" x2="1103.8" y2="281.0" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="290.5" x2="24.4" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="20.2" y1="281.0" x2="20.2" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="24.4" y1="290.5" x2="226.0" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="226.0" y1="290.5" x2="230.2" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="230.2" y1="281.0" x2="230.2" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="238.6" y1="290.5" x2="242.8" y2="290.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="238.6" y1="281.0" x2="238.6" y2="290.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="242.8" y1="290.5" x2="444.4" y2="290.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="444.4" y1="290.5" x2="448.6" y2="290.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="448.6" y1="281.0" x2="448.6" y2="290.5" stroke="#5fafff" stroke-width="1.2"/>
+<line x1="457.0" y1="290.5" x2="461.2" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="457.0" y1="281.0" x2="457.0" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="461.2" y1="290.5" x2="1099.6" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1099.6" y1="290.5" x2="1103.8" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<line x1="1103.8" y1="281.0" x2="1103.8" y2="290.5" stroke="#808080" stroke-width="1.2"/>
+<text x="16.0" y="314.2" fill="#cdcd00" textLength="75.6" lengthAdjust="spacingAndGlyphs">stash@{0}</text>
+<text x="100.0" y="314.2" fill="#c9d1d9" textLength="16.8" lengthAdjust="spacingAndGlyphs">on</text>
+<text x="125.2" y="314.2" fill="#00cdcd" textLength="134.4" lengthAdjust="spacingAndGlyphs">feat/checkout-v2</text>
+<text x="268.0" y="314.2" fill="#808080" textLength="100.8" lengthAdjust="spacingAndGlyphs">2 hours ago:</text>
+<text x="377.2" y="314.2" fill="#c9d1d9" textLength="176.4" lengthAdjust="spacingAndGlyphs">receipt: draft layout</text>
+<rect x="16.0" y="319.0" width="25.2" height="19" fill="#c9d1d9"/>
+<rect x="91.6" y="319.0" width="25.2" height="19" fill="#c9d1d9"/>
+<rect x="150.4" y="319.0" width="25.2" height="19" fill="#c9d1d9"/>
+<rect x="217.6" y="319.0" width="25.2" height="19" fill="#c9d1d9"/>
+<rect x="276.4" y="319.0" width="42.0" height="19" fill="#c9d1d9"/>
+<rect x="368.8" y="319.0" width="33.6" height="19" fill="#c9d1d9"/>
+<rect x="461.2" y="319.0" width="25.2" height="19" fill="#c9d1d9"/>
+<text x="24.4" y="333.2" fill="#0d1117" textLength="8.4" lengthAdjust="spacingAndGlyphs">a</text>
+<text x="41.2" y="333.2" fill="#c9d1d9" textLength="42.0" lengthAdjust="spacingAndGlyphs">Apply</text>
+<text x="100.0" y="333.2" fill="#0d1117" textLength="8.4" lengthAdjust="spacingAndGlyphs">p</text>
+<text x="116.8" y="333.2" fill="#c9d1d9" textLength="25.2" lengthAdjust="spacingAndGlyphs">Pop</text>
+<text x="158.8" y="333.2" fill="#0d1117" textLength="8.4" lengthAdjust="spacingAndGlyphs">d</text>
+<text x="175.6" y="333.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">Drop</text>
+<text x="226.0" y="333.2" fill="#0d1117" textLength="8.4" lengthAdjust="spacingAndGlyphs">n</text>
+<text x="242.8" y="333.2" fill="#c9d1d9" textLength="25.2" lengthAdjust="spacingAndGlyphs">New</text>
+<text x="284.8" y="333.2" fill="#0d1117" textLength="25.2" lengthAdjust="spacingAndGlyphs">Tab</text>
+<text x="318.4" y="333.2" fill="#c9d1d9" textLength="42.0" lengthAdjust="spacingAndGlyphs">Focus</text>
+<text x="377.2" y="333.2" fill="#0d1117" textLength="16.8" lengthAdjust="spacingAndGlyphs">^R</text>
+<text x="402.4" y="333.2" fill="#c9d1d9" textLength="50.4" lengthAdjust="spacingAndGlyphs">Reload</text>
+<text x="469.6" y="333.2" fill="#0d1117" textLength="8.4" lengthAdjust="spacingAndGlyphs">q</text>
+<text x="486.4" y="333.2" fill="#c9d1d9" textLength="33.6" lengthAdjust="spacingAndGlyphs">Quit</text>
+</svg>

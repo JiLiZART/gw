@@ -83,6 +83,7 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
         Stash {
             reference: "stash@{0}",
             index: 0,
+            oid: "1111111111111111111111111111111111111111",
             age: "6 days ago",
             branch: Some(
                 "feat",
@@ -92,6 +93,7 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
         Stash {
             reference: "stash@{1}",
             index: 1,
+            oid: "2222222222222222222222222222222222222222",
             age: "6 days ago",
             branch: Some(
                 "main",

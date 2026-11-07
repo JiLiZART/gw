@@ -60,6 +60,24 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 ![gw status -i revert confirmation: Revert src/cart.ts? This can't be undone.](docs/screenshots/status-interactive-revert.svg)
 
+### `gw add`: tick the files to stage
+
+![gw add: one checkbox row per changed file on the left, the selected file's diff on the right](docs/screenshots/add-interactive.svg)
+
+- **Bare `gw add` opens a checklist** of every changed and untracked file: `[x]` staged, `[~]` partly staged, `[ ]` not staged.
+- **`Space` stages or unstages the file right away**; `a` stages everything, `u` unstages everything. No more `git add` once per file.
+- The right pane shows the file's whole change (staged part first). `gw add <anything>`, including `gw add -i` and `gw add -p`, is plain `git add`.
+
+### `gw stash -i`: browse, apply, drop, and make stashes
+
+![gw stash -i: stash list, files in the selected stash, and the file's diff](docs/screenshots/stash-interactive.svg)
+
+- **Three panes:** your stashes, the files in the selected one (untracked files included), and the selected file's diff.
+- **`a` applies, `p` pops, `d` drops** the selected stash. Drop always asks first, and nothing happens if the stash list changed under you.
+- **`n` makes a new stash:** untick the files to keep out, press `Enter`, type a message or leave it empty for git's default, `Enter` again.
+
+![gw stash -i new stash: two of three files ticked, message prompt](docs/screenshots/stash-new.svg)
+
 ### `gw log`: a commit browser in your terminal
 
 ![gw log: graph with branches and tags on the left, changed files with line counts on the right, key bar](docs/screenshots/log.svg)
@@ -86,7 +104,7 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 - **Same arguments, same exit code.** `gw` passes your arguments to git untouched and exits with git's code (`128 + signal` if git was killed, 127 if git is missing).
 - **Pipes and scripts get plain git.** When stdout is not a terminal (pipes, CI, `$(...)`), `gw` behaves exactly like `git`.
-- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>`, and every `gw stash` form except `list` run plain git.
+- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
 - **Anything else is plain git.** `gw diff`, `gw rebase`, `gw show`, … just run git.
 - **Untrusted text is inert.** Control characters in file names, branch names, and server messages are shown as `\xNN`, so a hostile remote or file name can't inject terminal escape sequences.
 - **`NO_COLOR` is respected.** Colors turn off, the layout stays the same, the bar uses `#` and `.`, and links stay clickable.
@@ -123,10 +141,12 @@ gw clone [git clone args...]
 gw merge [git merge args...]
 gw status [pathspec...]
 gw status -i [pathspec...]
+gw add
 gw log [revisions] [-- paths]
 gw branch
 gw commit [git commit args...]
 gw stash list
+gw stash -i
 ```
 
 ### Use it from git
@@ -157,6 +177,29 @@ Alias names can't shadow built-in commands: git ignores an alias named `push`, `
 | `a` / `u` | Stage all / unstage all |
 | `r` | Revert the file, after a `y` confirmation |
 | `c` | Commit with git's editor |
+| `Ctrl-R` | Reload |
+| `q`, `Esc` | Quit |
+
+### `gw add` keys
+
+| Keys | Action |
+|---|---|
+| `j`/`k`, `↑`/`↓`, `PgUp`/`PgDn`, `g`/`G` | Move between files (or scroll the diff) |
+| `Tab` | Switch between the file list and the diff |
+| `Space` | Stage the file (`[ ]`, `[~]`), or unstage it (`[x]`) |
+| `a` / `u` | Stage all / unstage all |
+| `Ctrl-R` | Reload |
+| `q`, `Esc` | Quit |
+
+### `gw stash -i` keys
+
+| Keys | Action |
+|---|---|
+| `j`/`k`, `↑`/`↓`, `PgUp`/`PgDn`, `g`/`G` | Move in the focused pane (or scroll the diff) |
+| `Tab` / `Shift-Tab` | Next / previous pane: stashes, files, diff |
+| `a` / `p` | Apply / pop the selected stash |
+| `d` | Drop the selected stash, after a `y` confirmation |
+| `n` | New stash: `Space` toggles a file, `A` toggles all, `Enter` asks for a message, `Enter` stashes, `Esc` goes back |
 | `Ctrl-R` | Reload |
 | `q`, `Esc` | Quit |
 

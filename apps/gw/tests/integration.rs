@@ -173,6 +173,21 @@ fn log_branch_commit_stash() {
     let (code, out) = gw(&w, &["status", "-i", "-s"], true);
     assert_eq!(code, 129, "{out}");
     assert!(out.contains("status -i cannot be combined with -s"), "{out}");
+
+    // gw add / gw stash -i piped: plain git (same output and exit code)
+    for args in [&["add"][..], &["stash", "-i"]] {
+        let piped = git_env(Command::new(GW).args(args).current_dir(&w)).output().unwrap();
+        let plain = git_env(Command::new("git").args(args).current_dir(&w)).output().unwrap();
+        assert_eq!((piped.status.code(), &piped.stdout, &piped.stderr), (plain.status.code(), &plain.stdout, &plain.stderr), "{args:?}");
+    }
+    // gw add with arguments is git's add, also on a terminal
+    let (code, out) = gw(&w, &["add", "-n", "."], true);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("add 'a.txt'"), "{out}");
+    // gw stash -i with another argument is a usage error
+    let (code, out) = gw(&w, &["stash", "-i", "pop"], true);
+    assert_eq!(code, 129, "{out}");
+    assert!(out.contains("stash -i cannot be combined with pop"), "{out}");
     git(&w, &["checkout", "--", "a.txt"]);
 
     // gw commit -m: summary, exit 0, no SGR under NO_COLOR

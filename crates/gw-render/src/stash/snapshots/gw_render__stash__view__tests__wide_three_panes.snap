@@ -1,0 +1,14 @@
+---
+source: crates/gw-render/src/stash/view.rs
+expression: t
+---
+┌ Stashes ───────────────────┐┌ stash@{0} ─────────────────┐┌─ a.rs +2 -1 ───────────────────────────────────────────────────────────────────────────┐
+│ 0 wip parser  main  2 hours││ M a.rs                     ││@@ -1 +1 @@                                                                             │
+│ 1 try forms  main  2 hours ││ ? n.txt                    ││-old                                                                                    │
+│                            ││                            ││+new                                                                                    │
+│                            ││                            ││                                                                                        │
+│                            ││                            ││                                                                                        │
+│                            ││                            ││                                                                                        │
+└────────────────────────────┘└────────────────────────────┘└────────────────────────────────────────────────────────────────────────────────────────┘
+stash@{0} on main 2 hours ago: wip parser
+ a Apply  p Pop  d Drop  n New  Tab Focus  ^R Reload  q Quit

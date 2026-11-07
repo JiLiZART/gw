@@ -1,4 +1,4 @@
-//! `gw branch`, `gw commit`, `gw stash list`: run git, print a compact colored view.
+//! `gw branch`, `gw commit`, `gw stash list` (`gw stash -i` routes to `stash_ui`): run git, print a compact colored view.
 
 use std::{
     ffi::OsString,
@@ -70,6 +70,13 @@ pub fn commit(args: &[OsString]) -> i32 {
 }
 
 pub fn stash(args: &[OsString]) -> i32 {
+    if args.iter().any(crate::is_interactive) {
+        if let Some(other) = args.iter().find(|a| !crate::is_interactive(a)) {
+            eprintln!("gw: stash -i cannot be combined with {}", other.to_string_lossy());
+            return 129;
+        }
+        return crate::stash_ui::run();
+    }
     if args.len() != 1 || args[0] != "list" {
         return passthrough(&with("stash", args));
     }

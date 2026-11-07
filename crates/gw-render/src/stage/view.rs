@@ -8,12 +8,12 @@ use ratatui::{
     widgets::{Paragraph, Wrap},
 };
 
-use super::{App, Focus, NARROW, Overlay, Row};
+use super::{App, Check, Focus, Item, NARROW, Overlay, Row};
 use crate::browser::view::{DIM, SEL_BG, diff_line, draw_keys, draw_modal, fg, pane_block};
 use crate::status::{Group, relative};
 use crate::style::{sanitize, truncate};
 
-fn group_color(g: Group) -> Color {
+pub(crate) fn group_color(g: Group) -> Color {
     match g {
         Group::Conflicts => Color::Red,
         Group::Staged => Color::Green,
@@ -24,7 +24,7 @@ fn group_color(g: Group) -> Color {
 }
 
 /// Keeps the end of `s` (the file name) within `max` columns: `…ckout/money.ts`.
-fn truncate_left(s: &str, max: usize) -> String {
+pub(crate) fn truncate_left(s: &str, max: usize) -> String {
     use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
     if s.width() <= max {
         return s.to_string();
@@ -47,7 +47,7 @@ pub fn list_width(width: u16) -> u16 {
     (width / 5).max(24).min(width)
 }
 
-fn stat_text(stat: Option<Option<(u64, u64)>>) -> Vec<Span<'static>> {
+pub(crate) fn stat_text(stat: Option<Option<(u64, u64)>>) -> Vec<Span<'static>> {
     match stat {
         Some(Some((a, d))) => vec![Span::styled(format!("+{a}"), fg(Color::Green)), Span::raw(" "), Span::styled(format!("-{d}"), fg(Color::Red))],
         Some(None) => vec![Span::styled("bin", DIM)],
@@ -59,12 +59,37 @@ fn display_path(app: &App, path: &str) -> String {
     sanitize(&relative(path, &app.prefix))
 }
 
-fn item_name(app: &App, i: usize) -> String {
-    let it = &app.items[i];
-    match (&it.entry.orig, it.group.shows_orig()) {
-        (Some(o), true) => format!("{} -> {}", display_path(app, o), display_path(app, &it.entry.path)),
-        _ => display_path(app, &it.entry.path),
+/// `old -> new` for renames, cwd-relative and sanitized.
+pub(crate) fn item_name(it: &Item, prefix: &str) -> String {
+    let rel = |p: &str| sanitize(&relative(p, prefix));
+    match (&it.entry.orig, it.group.shows_orig() || it.check.is_some()) {
+        (Some(o), true) => format!("{} -> {}", rel(o), rel(&it.entry.path)),
+        _ => rel(&it.entry.path),
     }
+}
+
+pub(crate) fn sel_style(color: bool) -> Style {
+    if color { Style::new().bg(SEL_BG).add_modifier(Modifier::BOLD) } else { Style::new().add_modifier(Modifier::REVERSED) }
+}
+
+/// One list row: optional checkbox, change code, path (left-truncated to `w`); padded when selected.
+pub(crate) fn item_line(it: &Item, check: Option<Check>, prefix: &str, w: usize, selected: bool, color: bool) -> Line<'static> {
+    let mut spans = Vec::new();
+    if let Some(c) = check {
+        let st = if c == Check::Off { DIM } else { fg(Color::Green) };
+        spans.push(Span::styled(format!(" {}", c.mark()), st));
+    }
+    let lead = spans.iter().map(|s| s.width()).sum::<usize>() + 3;
+    spans.push(Span::styled(format!(" {} ", it.code()), fg(group_color(it.group))));
+    spans.push(Span::raw(truncate_left(&item_name(it, prefix), w.saturating_sub(lead))));
+    let mut l = Line::from(spans);
+    if selected {
+        l = l.style(sel_style(color));
+        // Pad so the highlight spans the pane.
+        let pad = w.saturating_sub(l.width());
+        l.spans.push(Span::raw(" ".repeat(pad)));
+    }
+    l
 }
 
 fn draw_list(f: &mut Frame, app: &App, area: Rect) {
@@ -76,7 +101,6 @@ fn draw_list(f: &mut Frame, app: &App, area: Rect) {
         return;
     }
     let w = inner.width as usize;
-    let sel_style = if app.color { Style::new().bg(SEL_BG).add_modifier(Modifier::BOLD) } else { Style::new().add_modifier(Modifier::REVERSED) };
     let lines: Vec<Line> = app
         .rows()
         .into_iter()
@@ -86,15 +110,7 @@ fn draw_list(f: &mut Frame, app: &App, area: Rect) {
             Row::Header(g, n) => Line::styled(truncate(&format!("{} ({n})", g.title()), w), fg(group_color(g)).add_modifier(Modifier::BOLD)),
             Row::Item(i) => {
                 let it = &app.items[i];
-                let name = truncate_left(&item_name(app, i), w.saturating_sub(3));
-                let mut l = Line::from(vec![Span::styled(format!(" {} ", it.code()), fg(group_color(it.group))), Span::raw(name)]);
-                if i == app.sel {
-                    l = l.style(sel_style);
-                    // Pad so the highlight spans the pane.
-                    let pad = w.saturating_sub(l.width());
-                    l.spans.push(Span::raw(" ".repeat(pad)));
-                }
-                l
+                item_line(it, it.check, &app.prefix, w, i == app.sel, app.color)
             }
         })
         .collect();
@@ -283,6 +299,16 @@ mod tests {
         let mut a = App::new(vec![], String::new(), "main".into());
         let t = text(&render(&mut a, 100, 6));
         assert!(t.contains("nothing to commit,") && t.contains("working tree clean"), "{t}");
+    }
+
+    #[test]
+    fn add_checklist() {
+        let st = Status { entries: vec![e('M', '.', "a.rs"), e('M', 'M', "b.rs"), e('.', 'M', "c.rs"), e('?', '?', "n.txt")], ..Default::default() };
+        let mut a = App::new(crate::stage::add_items(&st, &LineStats::default()), String::new(), "main".into());
+        a.mode = crate::stage::Mode::Add;
+        let t = text(&render(&mut a, 120, 8));
+        assert!(!t.contains("Staged ("), "no headers: {t}");
+        insta::assert_snapshot!(t);
     }
 
     #[test]

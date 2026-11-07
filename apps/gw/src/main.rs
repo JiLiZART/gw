@@ -25,10 +25,11 @@ use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, la
 
 mod log;
 mod stage;
+mod stash_ui;
 mod term;
 mod views;
 
-const FORMATTED: [&str; 10] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash"];
+const FORMATTED: [&str; 11] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash", "add"];
 const TICK: Duration = Duration::from_millis(80);
 /// Redraw interval while easing the bar.
 const FRAME: Duration = Duration::from_millis(30);
@@ -40,7 +41,7 @@ const CONNECT_DELAY: Duration = Duration::from_millis(300);
 fn main() {
     let args: Vec<OsString> = std::env::args_os().skip(1).collect();
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw <push|pull|fetch|clone|merge|status|log|branch|commit|stash list> [git args...]\nAny other subcommand runs plain git.");
+        eprintln!("usage: gw <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add> [git args...]\nAny other subcommand runs plain git.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
@@ -54,6 +55,9 @@ fn main() {
             "branch" => views::branch(&args[1..]),
             "commit" => views::commit(&args[1..]),
             "stash" => views::stash(&args[1..]),
+            // Bare `gw add`: the checklist; any argument is git's own `add`.
+            "add" if args.len() == 1 => stage::run_mode(gw_render::stage::Mode::Add, &[]),
+            "add" => passthrough(&args),
             // These open an editor or print nothing worth formatting.
             "merge" if args[1..].iter().any(|a| matches!(a.to_str(), Some("-e" | "--edit" | "--continue" | "--abort" | "--quit"))) => passthrough(&args),
             _ => network(&cmd, &args[1..]),

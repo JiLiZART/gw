@@ -1,4 +1,4 @@
-//! `gw status -i`: interactive staging. State and drawing live in `gw_render::stage`;
+//! `gw status -i` and `gw add`: interactive staging. State and drawing live in `gw_render::stage`;
 //! this module runs git and owns the terminal.
 
 use std::{
@@ -9,9 +9,9 @@ use std::{
     time::Duration,
 };
 
-use gw_parse::{Entry, parse_status_v2};
+use gw_parse::{Entry, Status, parse_status_v2};
 use gw_render::{
-    stage::{App, Effect, Item, items, view},
+    stage::{App, Effect, Item, Mode, add_items, items, view},
     status::{Group, LineStats, render_status},
     style::no_color_env,
 };
@@ -28,22 +28,22 @@ const MAX_FILE: u64 = 1 << 20;
 const MODAL_FILES: usize = 10;
 
 /// Repository paths and the user's `git status` arguments.
-struct Repo {
-    top: String,
-    prefix: String,
-    args: Vec<OsString>,
+pub(crate) struct Repo {
+    pub top: String,
+    pub prefix: String,
+    pub args: Vec<OsString>,
 }
 
 impl Repo {
     /// `git -C <top> --literal-pathspecs <args>`: paths from porcelain are top-relative and literal.
-    fn git(&self, args: &[&str]) -> Command {
+    pub fn git(&self, args: &[&str]) -> Command {
         let mut c = Command::new("git");
         c.arg("-C").arg(&self.top).arg("--literal-pathspecs").args(args);
         c
     }
 
     /// Runs git quietly; `Err` carries git's first error line.
-    fn run(&self, args: &[&str]) -> Result<(), String> {
+    pub fn run(&self, args: &[&str]) -> Result<(), String> {
         run_quiet(self.git(args))
     }
 
@@ -61,8 +61,8 @@ impl Repo {
         out
     }
 
-    /// `(items, branch line)` from a fresh `git status`.
-    fn load(&self) -> Result<(Vec<Item>, String), String> {
+    /// Fresh `git status` with line stats and the branch line.
+    pub fn status(&self) -> Result<(Status, LineStats, String), String> {
         let out = Command::new("git").args(["status", "--porcelain=v2", "--branch", "-z"]).args(&self.args).output().map_err(|e| e.to_string())?;
         if !out.status.success() {
             return Err(first_line(&out.stderr));
@@ -70,11 +70,29 @@ impl Repo {
         let st = parse_status_v2(&out.stdout);
         let stats = load_stats(&st, &self.prefix);
         let head = render_status(&st, &self.prefix, &LineStats::default(), false).lines().next().unwrap_or_default().to_string();
-        Ok((items(&st, &stats), head))
+        Ok((st, stats, head))
+    }
+
+    /// `(items, branch line)` for the given screen.
+    fn load(&self, mode: Mode) -> Result<(Vec<Item>, String), String> {
+        let (st, stats, head) = self.status()?;
+        Ok((if mode == Mode::Add { add_items(&st, &stats) } else { items(&st, &stats) }, head))
+    }
+
+    /// `git rev-parse --show-toplevel` / `--show-prefix` from the cwd; `Err` is gw's exit code
+    /// after git printed its own error (outside a repository).
+    pub fn open(args: &[OsString]) -> Result<Repo, i32> {
+        let top = match Command::new("git").args(["rev-parse", "--show-toplevel"]).stderr(Stdio::inherit()).output() {
+            Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim_end_matches('\n').to_string(),
+            Ok(o) => return Err(exit_code(Ok(o.status))),
+            Err(e) => return Err(exit_code(Err(e))),
+        };
+        let prefix = Command::new("git").args(["rev-parse", "--show-prefix"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default();
+        Ok(Repo { top, prefix, args: args.to_vec() })
     }
 }
 
-fn run_quiet(mut c: Command) -> Result<(), String> {
+pub(crate) fn run_quiet(mut c: Command) -> Result<(), String> {
     match c.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped()).output() {
         Ok(o) if o.status.success() => Ok(()),
         Ok(o) => Err(first_line(&o.stderr)),
@@ -82,11 +100,11 @@ fn run_quiet(mut c: Command) -> Result<(), String> {
     }
 }
 
-fn first_line(b: &[u8]) -> String {
+pub(crate) fn first_line(b: &[u8]) -> String {
     String::from_utf8_lossy(b).lines().find(|l| !l.trim().is_empty()).unwrap_or("git failed").to_string()
 }
 
-fn out_lines(mut c: Command) -> Vec<String> {
+pub(crate) fn out_lines(mut c: Command) -> Vec<String> {
     c.stderr(Stdio::null()).output().map(|o| String::from_utf8_lossy(&o.stdout).lines().map(str::to_string).collect()).unwrap_or_default()
 }
 
@@ -96,16 +114,21 @@ fn untracked_under(repo: &Repo, path: &str) -> Vec<String> {
     out.map(|o| o.stdout.split(|&b| b == 0).filter(|p| !p.is_empty()).map(|p| String::from_utf8_lossy(p).into_owned()).collect()).unwrap_or_default()
 }
 
+/// File content as added lines; `binary file` when it holds a NUL.
+pub(crate) fn bytes_as_added(bytes: &[u8]) -> Vec<String> {
+    if bytes.contains(&0) {
+        return vec!["binary file".into()];
+    }
+    String::from_utf8_lossy(bytes).lines().map(|l| format!("+{l}")).collect()
+}
+
 /// Whole content of an untracked file as added lines.
 fn file_as_added(full: &Path) -> Vec<String> {
     let Ok(f) = std::fs::File::open(full) else { return vec!["(unreadable)".into()] };
     let mut bytes = Vec::new();
     let _ = f.take(MAX_FILE).read_to_end(&mut bytes);
-    if bytes.contains(&0) {
-        return vec!["binary file".into()];
-    }
-    let mut lines: Vec<String> = String::from_utf8_lossy(&bytes).lines().map(|l| format!("+{l}")).collect();
-    if std::fs::metadata(full).is_ok_and(|m| m.len() > MAX_FILE) {
+    let mut lines = bytes_as_added(&bytes);
+    if !bytes.contains(&0) && std::fs::metadata(full).is_ok_and(|m| m.len() > MAX_FILE) {
         lines.push("… (first 1 MiB shown)".into());
     }
     lines
@@ -121,7 +144,7 @@ fn submodule_labels(e: &Entry) -> Vec<String> {
     if labels.is_empty() { vec![] } else { vec![format!("submodule: {}", labels.join(", ")), String::new()] }
 }
 
-fn load_diff(repo: &Repo, it: &Item) -> Vec<String> {
+pub(crate) fn load_diff(repo: &Repo, it: &Item) -> Vec<String> {
     let e = &it.entry;
     let mut paths = vec![e.path.as_str()];
     let diff = |cached: bool, extra: &[&str], paths: &[&str]| {
@@ -135,6 +158,13 @@ fn load_diff(repo: &Repo, it: &Item) -> Vec<String> {
         out_lines(repo.git(&args))
     };
     match it.group {
+        // Checklist rows: the whole path, staged part first.
+        Group::Staged | Group::Changed if it.check.is_some() => {
+            paths.extend(e.orig.as_deref());
+            let mut lines = diff(true, &[], &paths);
+            lines.extend(diff(false, &[], &paths));
+            lines
+        }
         Group::Staged => {
             paths.extend(e.orig.as_deref());
             diff(true, &[], &paths)
@@ -238,7 +268,7 @@ fn handle(effect: Effect, app: &mut App, repo: &Repo, term: &mut DefaultTerminal
 }
 
 fn reload(app: &mut App, repo: &Repo) {
-    match repo.load() {
+    match repo.load(app.mode) {
         Ok((items, head)) => {
             app.head = head;
             app.replace_items(items);
@@ -277,15 +307,17 @@ fn event_loop(term: &mut DefaultTerminal, app: &mut App, repo: &Repo) -> io::Res
 }
 
 pub fn run(args: &[OsString]) -> i32 {
+    run_mode(Mode::Status, args)
+}
+
+pub fn run_mode(mode: Mode, args: &[OsString]) -> i32 {
     // Outside a repository: git's own error and exit code.
-    let top = match Command::new("git").args(["rev-parse", "--show-toplevel"]).stderr(Stdio::inherit()).output() {
-        Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim_end_matches('\n').to_string(),
-        Ok(o) => return exit_code(Ok(o.status)),
-        Err(e) => return exit_code(Err(e)),
+    let repo = match Repo::open(args) {
+        Ok(r) => r,
+        Err(code) => return code,
     };
-    let prefix = Command::new("git").args(["rev-parse", "--show-prefix"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default();
-    let repo = Repo { top, prefix: prefix.clone(), args: args.to_vec() };
-    let (items, head) = match repo.load() {
+    let prefix = repo.prefix.clone();
+    let (items, head) = match repo.load(mode) {
         Ok(v) => v,
         Err(e) => {
             eprintln!("{e}");
@@ -293,6 +325,7 @@ pub fn run(args: &[OsString]) -> i32 {
         }
     };
     let mut app = App::new(items, prefix, head);
+    app.mode = mode;
     app.color = !no_color_env();
     // ratatui::init: raw mode + alternate screen + a panic hook that restores the terminal.
     let mut term = ratatui::init();
@@ -458,6 +491,26 @@ mod tests {
         write(&r, "d/x", "x\n");
         write(&r, "d/y", "y\n");
         assert_eq!(load_diff(&r, &item(&r, Group::Untracked, "d/")), vec!["2 untracked files:", "  d/x", "  d/y"]);
+    }
+
+    #[test]
+    fn add_mode_diff_and_toggle() {
+        let (_d, r) = repo();
+        write(&r, "a.rs", "one\nTWO\n");
+        r.run(&["add", "a.rs"]).unwrap();
+        write(&r, "a.rs", "one\nTWO\nthree\n");
+        write(&r, "f*.txt", "a\n");
+        write(&r, "foo.txt", "b\n");
+        let rows = |r: &Repo| add_items(&parse_status_v2(&r.git(&["status", "--porcelain=v2", "-z"]).output().unwrap().stdout), &LineStats::default());
+        let a = rows(&r).into_iter().find(|i| i.entry.path == "a.rs").unwrap();
+        assert_eq!(a.check, Some(gw_render::stage::Check::Partial));
+        let d = load_diff(&r, &a);
+        assert!(d.contains(&"+TWO".into()) && d.contains(&"+three".into()), "both parts: {d:?}");
+        // Toggle partial -> staged, staged -> unstaged; literal path.
+        r.run(&["add", "-A", "--", "a.rs"]).unwrap();
+        r.run(&["add", "-A", "--", "f*.txt"]).unwrap();
+        let checks: Vec<_> = rows(&r).into_iter().map(|i| (i.entry.path, i.check.unwrap().mark())).collect();
+        assert_eq!(checks, vec![("a.rs".into(), "[x]"), ("f*.txt".into(), "[x]"), ("foo.txt".into(), "[ ]")]);
     }
 
     #[test]

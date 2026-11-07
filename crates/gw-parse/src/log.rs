@@ -88,13 +88,15 @@ pub fn parse_branches(text: &str) -> Vec<Branch> {
 }
 
 /// Format for `git stash list` parsed by [`parse_stash_list`].
-pub const STASH_FORMAT: &str = "--format=%gd%x1f%cr%x1f%gs";
+pub const STASH_FORMAT: &str = "--format=%gd%x1f%H%x1f%cr%x1f%gs";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Stash {
     /// `stash@{N}`
     pub reference: String,
     pub index: usize,
+    /// Commit id, to detect a shifted list before acting on `reference`.
+    pub oid: String,
     pub age: String,
     pub branch: Option<String>,
     pub message: String,
@@ -103,8 +105,8 @@ pub struct Stash {
 pub fn parse_stash_list(text: &str) -> Vec<Stash> {
     text.lines()
         .filter_map(|l| {
-            let mut f = l.splitn(3, US);
-            let (reference, age, gs) = (f.next()?, f.next()?, f.next()?);
+            let mut f = l.splitn(4, US);
+            let (reference, oid, age, gs) = (f.next()?, f.next()?, f.next()?, f.next()?);
             let index = reference.strip_prefix("stash@{")?.strip_suffix('}')?.parse().ok()?;
             // "%gs" is "WIP on <branch>: <sha> <subject>" or "On <branch>: <message>".
             let body = gs.strip_prefix("WIP on ").or_else(|| gs.strip_prefix("On "));
@@ -112,7 +114,7 @@ pub fn parse_stash_list(text: &str) -> Vec<Stash> {
                 Some((b, m)) => (Some(b.to_string()), m.to_string()),
                 None => (None, gs.to_string()),
             };
-            Some(Stash { reference: reference.into(), index, age: age.into(), branch, message })
+            Some(Stash { reference: reference.into(), index, oid: oid.into(), age: age.into(), branch, message })
         })
         .collect()
 }
@@ -154,6 +156,13 @@ mod tests {
         let r = parse_graph_line("* \x1fabc\x1fa\x1f5\x1fN\x1fHEAD -> main, tag: v1\x1fs: x");
         let c = r.commit.unwrap();
         assert_eq!((r.graph.as_str(), c.refs.len(), c.subject.as_str()), ("*", 2, "s: x"));
+    }
+
+    #[test]
+    fn stash_list() {
+        let v = parse_stash_list("stash@{0}\x1fabc\x1f2 hours ago\x1fOn main: fix: a: b\nstash@{1}\x1fdef\x1f3 days ago\x1fWIP on feat: 123 s\n");
+        assert_eq!((v[0].index, v[0].oid.as_str(), v[0].branch.as_deref(), v[0].message.as_str()), (0, "abc", Some("main"), "fix: a: b"));
+        assert_eq!((v[1].reference.as_str(), v[1].age.as_str()), ("stash@{1}", "3 days ago"));
     }
 
     #[test]
