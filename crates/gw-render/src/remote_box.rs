@@ -115,6 +115,9 @@ fn wrap(line: &str, max: usize) -> Vec<String> {
         if !cur.trim().is_empty() && cur.width() + sep + word.width() > max {
             out.push(String::new());
         } else if i > 0 {
+            if out.last().unwrap().width() + 1 > max {
+                out.push(String::new());
+            }
             out.last_mut().unwrap().push(' ');
         }
         for c in word.chars() {
@@ -140,7 +143,7 @@ pub fn titled_box(title: &str, title_sgr: &str, lines: &[String], term_width: us
     out += &paint(&format!("{}┐", "─".repeat(total - 4 - title.width())), DIM, color);
     out.push('\n');
     for piece in clean.iter().flat_map(|l| wrap(l, inner)) {
-        out += &format!("{} {piece}{} {}\n", paint("│", DIM, color), " ".repeat(inner - piece.width()), paint("│", DIM, color));
+        out += &format!("{} {piece}{} {}\n", paint("│", DIM, color), " ".repeat(inner.saturating_sub(piece.width())), paint("│", DIM, color));
     }
     out += &paint(&format!("└{}┘", "─".repeat(total - 2)), DIM, color);
     out.push('\n');
@@ -161,5 +164,9 @@ mod titled_tests {
         assert!(out.lines().nth(2).unwrap().ends_with("│"));
         assert!(!out.contains('\x1b'));
         assert!(titled_box("hint", DIM, &["a".into()], 40, true).contains('\x1b'));
+        // Indentation wider than the box (e.g. a file name of spaces) must not overflow.
+        let spaces = format!("{}x", " ".repeat(200));
+        let out = titled_box("hint", DIM, &[spaces, " ".repeat(200)], 40, false);
+        assert!(out.lines().all(|l| l.width() <= 40), "{out}");
     }
 }
