@@ -7,7 +7,7 @@ After a failed `gw merge` the important part (which files conflict, what to run 
 - On a merge conflict (`gw merge`, and `gw pull` when its merge or rebase stops on conflicts) a red-titled **Merge conflict** box lists the conflicted files and the commands to continue or abort. It replaces git's `Automatic merge failed; …` line.
 - Consecutive `hint:` lines from `merge` and `pull` are shown in a dim-titled **hint** box, `hint: ` prefix removed, long lines wrapped to the terminal width. `error:`/`fatal:` lines stay outside the box, in their place and colors.
 - Other commands keep printing `hint:` lines as before.
-- Depends on `git-locale-english` (conflict detection reads English result lines).
+- Relies on the English git output that `gw` already forces for merge and pull (spec: `git-locale-english`).
 
 ## Capabilities
 

@@ -16,7 +16,8 @@ use gw_parse::{
 use gw_render::{
     ThrobberState,
     bar::{Animator, ProgressLine},
-    refs::{RefGroup, all_up_to_date, render_messages, render_pull_summary, render_ref_groups, render_up_to_date},
+    refs::{
+        ConflictOp, RefGroup, all_up_to_date, render_conflict_box, render_messages, render_messages_boxed, render_pull_summary, render_ref_groups, render_up_to_date},
     remote_box::render_box,
     status::{LineStats, relative, render_status},
     style::no_color_env,
@@ -295,14 +296,49 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
             let _ = write!(out, "{}", render_ref_groups(&groups, color));
         }
     }
+    let merging = matches!(cmd, "pull" | "merge");
+    let conflicts = if merging && code != 0 { unmerged_paths() } else { Vec::new() };
+    if !conflicts.is_empty() {
+        stdout_lines.retain(|l| !l.starts_with("Automatic merge failed"));
+    }
     if matches!(cmd, "pull" | "clone" | "merge") {
         let _ = write!(out, "{}", render_pull_summary(&stdout_lines, color));
+    }
+    if !conflicts.is_empty() {
+        let _ = write!(out, "{}", render_conflict_box(&conflicts, conflict_op(), term_width(), color));
     }
     let _ = out.flush();
     drop(out);
 
-    let _ = write!(io::stderr().lock(), "{}", render_messages(&others, color));
+    let msgs = if merging { render_messages_boxed(&others, term_width(), color) } else { render_messages(&others, color) };
+    let _ = write!(io::stderr().lock(), "{msgs}");
     code
+}
+
+/// Paths with unmerged index entries, relative to the repository top.
+fn unmerged_paths() -> Vec<String> {
+    let Ok(o) = Command::new("git").args(["diff", "--name-only", "--diff-filter=U", "-z"]).stderr(Stdio::null()).output() else {
+        return Vec::new();
+    };
+    let mut v: Vec<String> = o.stdout.split(|b| *b == 0).filter(|p| !p.is_empty()).map(|p| String::from_utf8_lossy(p).into_owned()).collect();
+    v.dedup();
+    v
+}
+
+/// Which operation stopped on the conflict: a merge (`MERGE_HEAD`) or a rebase (its state dir).
+fn conflict_op() -> ConflictOp {
+    let git = |args: &[&str]| Command::new("git").args(args).stderr(Stdio::null()).output().ok().filter(|o| o.status.success()).map(|o| o.stdout);
+    if git(&["rev-parse", "-q", "--verify", "MERGE_HEAD"]).is_some() {
+        return ConflictOp::Merge;
+    }
+    for dir in ["rebase-merge", "rebase-apply"] {
+        if let Some(p) = git(&["rev-parse", "--git-path", dir])
+            && std::path::Path::new(String::from_utf8_lossy(&p).trim()).is_dir()
+        {
+            return ConflictOp::Rebase;
+        }
+    }
+    ConflictOp::Unknown
 }
 
 /// Appends to the last repository's group (a target-less one if none yet).

@@ -1,0 +1,11 @@
+---
+source: crates/gw-render/src/refs.rs
+expression: "render_conflict_box(&p, ConflictOp::Merge, 80, false)"
+---
+┌ Merge conflict ───────────────────────────┐
+│ src/a.rs                                  │
+│ b.txt                                     │
+│                                           │
+│ resolve, then: gw add <file> && gw commit │
+│ or abort:      gw merge --abort           │
+└───────────────────────────────────────────┘

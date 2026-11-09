@@ -1,6 +1,7 @@
 //! Target header, ref update list, and pull summary.
 
 use crate::style::{BOLD, BRANCH, DIM, GREEN, LINK, RED, YELLOW, link, paint, sanitize};
+use crate::remote_box::titled_box;
 use gw_parse::{PullLine, PullResult, RefKind, RefUpdate, classify_pull_line};
 use unicode_width::UnicodeWidthStr;
 
@@ -166,6 +167,49 @@ pub fn render_pull_summary(lines: &[String], color: bool) -> String {
     out
 }
 
+/// Like [`render_messages`], but each run of `hint:` lines becomes one `hint` box at its place.
+pub fn render_messages_boxed(lines: &[String], width: usize, color: bool) -> String {
+    let mut out = String::new();
+    let mut i = 0;
+    while i < lines.len() {
+        let n = lines[i..].iter().take_while(|l| l.starts_with("hint:")).count();
+        if n > 0 {
+            let body: Vec<String> = lines[i..i + n].iter().map(|l| l["hint:".len()..].strip_prefix(' ').unwrap_or(&l["hint:".len()..]).to_string()).collect();
+            out += &titled_box("hint", DIM, &body, width, color);
+            i += n;
+        } else {
+            let m = lines[i..].iter().take_while(|l| !l.starts_with("hint:")).count();
+            out += &render_messages(&lines[i..i + m], color);
+            i += m;
+        }
+    }
+    out
+}
+
+/// Operation stopped by a conflict, for the next-step lines.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConflictOp {
+    Merge,
+    Rebase,
+    Unknown,
+}
+
+/// `Merge conflict` box: unmerged paths, then how to continue or abort.
+pub fn render_conflict_box(paths: &[String], op: ConflictOp, width: usize, color: bool) -> String {
+    let mut lines: Vec<String> = paths.to_vec();
+    let steps = match op {
+        ConflictOp::Merge => Some(("gw add <file> && gw commit", "gw merge --abort")),
+        ConflictOp::Rebase => Some(("gw add <file> && git rebase --continue", "git rebase --abort")),
+        ConflictOp::Unknown => None,
+    };
+    if let Some((go, abort)) = steps {
+        lines.push(String::new());
+        lines.push(format!("resolve, then: {go}"));
+        lines.push(format!("or abort:      {abort}"));
+    }
+    titled_box("Merge conflict", "1;31", &lines, width, color)
+}
+
 /// git's leftover stderr lines: `error:`/`fatal:` prefix red, `warning:` yellow, `hint:` lines dim.
 pub fn render_messages(lines: &[String], color: bool) -> String {
     let mut out = String::new();
@@ -181,4 +225,61 @@ pub fn render_messages(lines: &[String], color: bool) -> String {
         out.push('\n');
     }
     out
+}
+
+#[cfg(test)]
+mod box_tests {
+    use super::*;
+
+    fn v(l: &[&str]) -> Vec<String> {
+        l.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn hints_boxed_in_place() {
+        let l = v(&[
+            "error: Merging is not possible because you have unmerged files.",
+            "hint: Fix them up in the work tree, and then use 'git add/rm <file>'",
+            "hint: as appropriate to mark resolution and make a commit.",
+            "fatal: Exiting because of an unresolved conflict.",
+        ]);
+        let out = render_messages_boxed(&l, 100, false);
+        let rows: Vec<&str> = out.lines().collect();
+        assert!(rows[0].starts_with("error: Merging"), "{out}");
+        assert!(rows[1].starts_with("┌ hint "), "{out}");
+        assert!(rows[2].starts_with("│ Fix them up"), "{out}");
+        assert!(rows[4].starts_with("└"), "{out}");
+        assert_eq!(rows[5], "fatal: Exiting because of an unresolved conflict.");
+        assert!(!out.contains("hint:"), "{out}");
+    }
+
+    #[test]
+    fn diverging_hints_one_box() {
+        let l = v(&[
+            "hint: Diverging branches can't be fast-forwarded, you need to either:",
+            "hint:",
+            "hint: \tgit merge --no-ff",
+            "hint:",
+            "hint: or:",
+            "hint:",
+            "hint: \tgit rebase",
+            "hint:",
+            "hint: Disable this message with \"git config set advice.diverging false\"",
+            "fatal: Not possible to fast-forward, aborting.",
+        ]);
+        let out = render_messages_boxed(&l, 50, true);
+        assert_eq!(out.matches("┌").count(), 1, "{out}");
+        assert!(crate::style::strip_escapes(&out).contains("│     git merge --no-ff"), "{out}");
+        assert!(crate::style::strip_escapes(&out).contains("│ Diverging branches can't be fast-forwarded,    │\n│ you need to either:"), "{out}");
+        assert!(out.lines().last().unwrap().contains("\x1b[31mfatal:"), "{out:?}");
+        assert!(crate::style::strip_escapes(&out).lines().all(|l| l.width() <= 50), "{out}");
+    }
+
+    #[test]
+    fn conflict_box_steps() {
+        let p = v(&["src/a.rs", "b.txt"]);
+        insta::assert_snapshot!("conflict_merge", render_conflict_box(&p, ConflictOp::Merge, 80, false));
+        insta::assert_snapshot!("conflict_rebase", render_conflict_box(&p, ConflictOp::Rebase, 80, false));
+        insta::assert_snapshot!("conflict_unknown", render_conflict_box(&p, ConflictOp::Unknown, 80, false));
+    }
 }

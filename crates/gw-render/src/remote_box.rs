@@ -104,3 +104,62 @@ pub fn render_box(lines: &[String], branches: &[String], term_width: usize, colo
     out.push('\n');
     out
 }
+
+/// Splits `line` into pieces of at most `max` display columns: at spaces when possible,
+/// inside a word only when the word alone is too long. Leading indentation is kept.
+fn wrap(line: &str, max: usize) -> Vec<String> {
+    let mut out = vec![String::new()];
+    for (i, word) in line.split(' ').enumerate() {
+        let cur = out.last().unwrap();
+        let sep = usize::from(i > 0);
+        if !cur.trim().is_empty() && cur.width() + sep + word.width() > max {
+            out.push(String::new());
+        } else if i > 0 {
+            out.last_mut().unwrap().push(' ');
+        }
+        for c in word.chars() {
+            let cw = unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
+            if out.last().unwrap().width() + cw > max {
+                out.push(String::new());
+            }
+            out.last_mut().unwrap().push(c);
+        }
+    }
+    out
+}
+
+/// A box like the remote box with a fixed title; lines are sanitized (tabs become four spaces)
+/// and wrapped so no output line is wider than `term_width`.
+pub fn titled_box(title: &str, title_sgr: &str, lines: &[String], term_width: usize, color: bool) -> String {
+    let clean: Vec<String> = lines.iter().map(|l| sanitize(&l.replace('\t', "    ")).trim_end().to_string()).collect();
+    let longest = clean.iter().map(|l| l.width()).max().unwrap_or(0);
+    let total = (longest + 4).max(title.width() + 6).min(term_width.max(title.width() + 6));
+    let inner = total - 4;
+    let mut out = paint("┌", DIM, color);
+    out += &format!(" {} ", paint(title, title_sgr, color));
+    out += &paint(&format!("{}┐", "─".repeat(total - 4 - title.width())), DIM, color);
+    out.push('\n');
+    for piece in clean.iter().flat_map(|l| wrap(l, inner)) {
+        out += &format!("{} {piece}{} {}\n", paint("│", DIM, color), " ".repeat(inner - piece.width()), paint("│", DIM, color));
+    }
+    out += &paint(&format!("└{}┘", "─".repeat(total - 2)), DIM, color);
+    out.push('\n');
+    out
+}
+
+#[cfg(test)]
+mod titled_tests {
+    use super::*;
+
+    #[test]
+    fn wraps_to_width() {
+        let long = "x".repeat(70);
+        let out = titled_box("hint", DIM, &[long.clone(), String::new(), "\tgit merge --no-ff".into()], 40, false);
+        assert!(out.lines().all(|l| l.width() <= 40), "{out}");
+        assert_eq!(out.matches('x').count(), 70);
+        assert!(out.contains("│     git merge --no-ff"), "{out}");
+        assert!(out.lines().nth(2).unwrap().ends_with("│"));
+        assert!(!out.contains('\x1b'));
+        assert!(titled_box("hint", DIM, &["a".into()], 40, true).contains('\x1b'));
+    }
+}

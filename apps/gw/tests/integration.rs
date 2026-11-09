@@ -28,6 +28,11 @@ fn git(dir: &Path, args: &[&str]) {
 
 /// Runs `gw args` on a pty. Returns (exit code, combined output).
 fn gw(dir: &Path, args: &[&str], no_color: bool) -> (i32, String) {
+    gw_env(dir, args, no_color, &[])
+}
+
+/// `gw` on a pty with extra environment variables.
+fn gw_env(dir: &Path, args: &[&str], no_color: bool, envs: &[(&str, &str)]) -> (i32, String) {
     let mut c = if cfg!(target_os = "macos") {
         let mut c = Command::new("script");
         c.args(["-q", "/dev/null", GW]).args(args);
@@ -41,6 +46,7 @@ fn gw(dir: &Path, args: &[&str], no_color: bool) -> (i32, String) {
     if no_color {
         c.env("NO_COLOR", "1");
     }
+    c.envs(envs.iter().copied());
     let out = git_env(&mut c).output().unwrap();
     (out.status.code().unwrap_or(-1), String::from_utf8_lossy(&out.stdout).into_owned())
 }
@@ -280,4 +286,103 @@ fn submodules() {
     assert!(out.contains("Submodules (1)") && out.contains("modified content"), "{out}");
     assert!(!out.contains("+0 -0") && !out.contains("Total"), "{out}");
     assert!(!has_sgr(&out), "{out:?}");
+}
+
+/// Parsed commands run git in English whatever the user's locale; passthrough keeps the locale.
+#[test]
+fn locale() {
+    let tmp = TempDir(std::env::temp_dir().join(format!("gw-it-loc-{}", std::process::id())));
+    let w = &tmp.0;
+    let _ = std::fs::remove_dir_all(w);
+    std::fs::create_dir_all(w).unwrap();
+    git(w, &["init", "-q", "-b", "main"]);
+    std::fs::write(w.join("f"), "a\n").unwrap();
+    git(w, &["add", "f"]);
+    git(w, &["commit", "-qm", "i"]);
+    git(w, &["checkout", "-qb", "x"]);
+    std::fs::write(w.join("f"), "b\n").unwrap();
+    git(w, &["commit", "-qam", "x"]);
+    git(w, &["checkout", "-q", "main"]);
+    std::fs::write(w.join("f"), "c\n").unwrap();
+    git(w, &["commit", "-qam", "m"]);
+    git(w, &["config", "alias.lang", "!echo \"[$LC_ALL]\""]);
+
+    // Passthrough: the alias sees the user's LC_ALL.
+    let (code, out) = gw_env(w, &["lang"], true, &[("LC_ALL", "uk_UA.UTF-8")]);
+    assert_eq!(code, 0, "{out}");
+    assert!(out.contains("[uk_UA.UTF-8]"), "{out}");
+
+    // Only meaningful where git has a Ukrainian catalog and the locale exists.
+    let plain = git_env(Command::new("git").args(["merge", "x"]).current_dir(w).env("LC_ALL", "uk_UA.UTF-8")).output().unwrap();
+    git(w, &["merge", "--abort"]);
+    if String::from_utf8_lossy(&plain.stdout).contains("CONFLICT") {
+        eprintln!("skip: git prints English under uk_UA.UTF-8 here");
+        return;
+    }
+    let (code, out) = gw_env(w, &["merge", "x"], true, &[("LC_ALL", "uk_UA.UTF-8"), ("LANGUAGE", "uk")]);
+    assert_eq!(code, 1, "{out}");
+    assert!(out.contains("CONFLICT (content): Merge conflict in f"), "{out}");
+}
+
+/// Merge conflict box and hint box for `gw merge` / `gw pull`.
+#[test]
+fn merge_boxes() {
+    let tmp = TempDir(std::env::temp_dir().join(format!("gw-it-mb-{}", std::process::id())));
+    let root = &tmp.0;
+    let _ = std::fs::remove_dir_all(root);
+    std::fs::create_dir_all(root).unwrap();
+    let w = &root.join("w");
+    std::fs::create_dir_all(w).unwrap();
+    git(w, &["init", "-q", "-b", "main"]);
+    let write = |name: &str, body: &str| std::fs::write(w.join(name), body).unwrap();
+    write("a.rs", "1\n");
+    write("b.txt", "1\n");
+    git(w, &["add", "."]);
+    git(w, &["commit", "-qm", "i"]);
+    git(w, &["checkout", "-qb", "feat"]);
+    write("a.rs", "feat\n");
+    write("b.txt", "feat\n");
+    git(w, &["commit", "-qam", "feat"]);
+    git(w, &["checkout", "-q", "main"]);
+    write("a.rs", "main\n");
+    write("b.txt", "main\n");
+    git(w, &["commit", "-qam", "main"]);
+
+    // Content conflict: box with both files and merge steps, no "Automatic merge failed".
+    let (code, out) = gw(w, &["merge", "feat"], true);
+    assert_eq!(code, 1, "{out}");
+    assert!(out.contains("CONFLICT (content): Merge conflict in a.rs"), "{out}");
+    assert!(out.contains("┌ Merge conflict") && out.contains("│ a.rs") && out.contains("│ b.txt"), "{out}");
+    assert!(out.contains("gw merge --abort") && !out.contains("Automatic merge failed"), "{out}");
+
+    // Merging again during the conflict: error, hint box, fatal; no hint: prefixes.
+    let (_, out) = gw(w, &["merge", "feat"], true);
+    let e = out.find("error: Merging is not possible").expect(&out);
+    let h = out.find("┌ hint").expect(&out);
+    let f = out.find("fatal: Exiting").expect(&out);
+    assert!(e < h && h < f && !out.contains("hint:"), "{out}");
+    git(w, &["merge", "--abort"]);
+
+    // Local changes would be overwritten: no conflict box.
+    write("a.rs", "dirty\n");
+    let (code, out) = gw(w, &["merge", "feat"], true);
+    assert_ne!(code, 0, "{out}");
+    assert!(!out.contains("Merge conflict"), "{out}");
+    git(w, &["checkout", "--", "a.rs"]);
+
+    // Diverging --ff-only: one hint box then fatal.
+    let (code, out2) = gw(w, &["merge", "--ff-only", "feat"], true);
+    assert_ne!(code, 0, "{out2}");
+    assert_eq!(out2.matches("┌ hint").count(), 1, "{out2}");
+    assert!(out2.find("┌ hint").unwrap() < out2.find("fatal: Not possible to fast-forward").expect(&out2), "{out2}");
+
+    // pull --rebase conflict: rebase steps.
+    git(root, &["clone", "-q", "-b", "feat", "w", "c"]);
+    let c = &root.join("c");
+    std::fs::write(c.join("a.rs"), "clone\n").unwrap();
+    git(c, &["commit", "-qam", "clone"]);
+    let (code, out) = gw(c, &["pull", "--rebase", "origin", "main"], true);
+    assert_ne!(code, 0, "{out}");
+    assert!(out.contains("┌ Merge conflict") && out.contains("│ a.rs"), "{out}");
+    assert!(out.contains("git rebase --continue") && out.contains("git rebase --abort"), "{out}");
 }

@@ -35,11 +35,13 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 ### `gw merge`: conflicts you can't miss
 
-![gw merge: Auto-merging dimmed, conflicts and the failed submodule merge in red, hint lines dimmed](docs/screenshots/merge.svg)
+![gw merge: conflicts in red, a Merge conflict box with the files and next steps, then a hint box for a refused fast-forward](docs/screenshots/merge-conflict.svg)
 
-- **Auto-merging lines are dimmed**, so the conflicts stand out in red: `CONFLICT …`, `Failed to merge submodule …`, `Automatic merge failed…`.
+- **Auto-merging lines are dimmed**, so the conflicts stand out in red: `CONFLICT …`, `Failed to merge submodule …`.
+- **A Merge conflict box** lists the files left unmerged and the commands to continue or abort, for a merge or a `gw pull --rebase` that stops on a conflict. It replaces git's `Automatic merge failed…` line.
+- **A hint box.** For `gw merge` and `gw pull`, git's `hint:` lines go in one box without the prefix, wrapped to the terminal width.
 - **A clean merge or fast-forward** gets the same colored summary and diffstat as `gw pull`.
-- **git's messages:** `error:` and `fatal:` in red, `warning:` in yellow, the `hint:` block dimmed. This applies to `push`, `pull`, `fetch`, and `clone` too.
+- **git's messages:** `error:` and `fatal:` in red, `warning:` in yellow. For `push`, `fetch`, and `clone` the `hint:` lines are dimmed.
 
 ### `gw status`: grouped, counted, no hints
 
@@ -107,6 +109,7 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 - **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
 - **Anything else is plain git.** `gw diff`, `gw rebase`, `gw show`, … just run git.
 - **Untrusted text is inert.** Control characters in file names, branch names, and server messages are shown as `\xNN`, so a hostile remote or file name can't inject terminal escape sequences.
+- **Any locale.** `gw push`, `pull`, `fetch`, `clone` and `merge` run git with `LC_ALL=C` so their output can be parsed; git's own messages there are in English. Every other command keeps your language.
 - **`NO_COLOR` is respected.** Colors turn off, the layout stays the same, the bar uses `#` and `.`, and links stay clickable.
 
 ## Install

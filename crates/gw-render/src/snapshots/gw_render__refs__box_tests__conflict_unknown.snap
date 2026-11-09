@@ -1,0 +1,8 @@
+---
+source: crates/gw-render/src/refs.rs
+expression: "render_conflict_box(&p, ConflictOp::Unknown, 80, false)"
+---
+┌ Merge conflict ──┐
+│ src/a.rs         │
+│ b.txt            │
+└──────────────────┘
