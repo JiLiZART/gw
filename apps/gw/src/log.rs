@@ -5,7 +5,7 @@ use std::{
     collections::{HashMap, VecDeque},
     ffi::OsString,
     io::{self, BufRead, BufReader, IsTerminal, Read, Write},
-    process::{Child, Command, Stdio},
+    process::{Child, Stdio},
     sync::mpsc::{self, Receiver, Sender},
     thread,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
@@ -32,7 +32,7 @@ pub fn wants_passthrough(args: &[String]) -> bool {
 }
 
 fn git(args: &[&str]) -> Option<String> {
-    let o = Command::new("git").args(args).stderr(Stdio::null()).output().ok()?;
+    let o = crate::git().args(args).stderr(Stdio::null()).output().ok()?;
     o.status.success().then(|| String::from_utf8_lossy(&o.stdout).into_owned())
 }
 
@@ -69,7 +69,7 @@ impl Loader {
         }
         self.run_id += 1;
         let run_id = self.run_id;
-        let child = Command::new("git")
+        let child = crate::git()
             .args(["log", "--graph", "--color=never", "--no-show-signature", "--decorate=short", LOG_FORMAT])
             .args(filter_args)
             .stdin(Stdio::null())
@@ -126,7 +126,7 @@ const DIFF_ARGS: [&str; 6] = ["show", "--format=", "--diff-merges=first-parent",
 /// File list with change codes and line counts for one commit (first parent for merges).
 fn load_files(sha: &str) -> Vec<FileEntry> {
     let out = |extra: &[&str]| {
-        Command::new("git").args(DIFF_ARGS).args(extra).arg(sha).stderr(Stdio::null()).output().map(|o| o.stdout).unwrap_or_default()
+        crate::git().args(DIFF_ARGS).args(extra).arg(sha).stderr(Stdio::null()).output().map(|o| o.stdout).unwrap_or_default()
     };
     let names = parse_name_status_z(&out(&["--name-status", "-z"]));
     let stats = parse_numstat_z(&out(&["--numstat", "-z"]));
@@ -134,7 +134,7 @@ fn load_files(sha: &str) -> Vec<FileEntry> {
 }
 
 fn load_diff(sha: &str, path: &str) -> Vec<String> {
-    let o = Command::new("git").args(DIFF_ARGS).args(["--no-color", sha, "--", path]).stderr(Stdio::null()).output();
+    let o = crate::git().args(DIFF_ARGS).args(["--no-color", sha, "--", path]).stderr(Stdio::null()).output();
     String::from_utf8_lossy(&o.map(|o| o.stdout).unwrap_or_default()).lines().map(str::to_string).collect()
 }
 
@@ -223,7 +223,7 @@ fn handle(effect: Effect, app: &mut App, loader: &mut Loader, term: &mut Default
         },
         Effect::PrepareReset(mode, sha) => {
             let branch = git(&["symbolic-ref", "-q", "--short", "HEAD"]).map_or("detached HEAD".into(), |b| b.trim().to_string());
-            let out = Command::new("git").args(["status", "--porcelain=v2", "-z", "--untracked-files=no"]).output().map(|o| o.stdout).unwrap_or_default();
+            let out = crate::git().args(["status", "--porcelain=v2", "-z", "--untracked-files=no"]).output().map(|o| o.stdout).unwrap_or_default();
             let at_risk = parse_status_v2(&out).entries.into_iter().map(|e| e.path).collect();
             app.confirm_reset(mode, sha, branch, at_risk);
         }
@@ -232,7 +232,7 @@ fn handle(effect: Effect, app: &mut App, loader: &mut Loader, term: &mut Default
             let (ok, err) = if action.needs_terminal() {
                 run_on_terminal(term, &args, "gw log")
             } else {
-                match Command::new("git").args(&args).output() {
+                match crate::git().args(&args).output() {
                     Ok(o) => (o.status.success(), String::from_utf8_lossy(&o.stderr).lines().next().unwrap_or("").to_string()),
                     Err(e) => (false, e.to_string()),
                 }

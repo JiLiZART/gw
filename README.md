@@ -152,6 +152,13 @@ gw stash list
 gw stash -i
 ```
 
+To use a git binary other than the first `git` on `PATH`, put `--git <path>` before the subcommand or set `GW_GIT`:
+
+```sh
+gw --git /opt/homebrew/bin/git pull
+export GW_GIT=/opt/homebrew/bin/git
+```
+
 ### Use it from git
 
 Add shell aliases so `gw` runs behind short git commands:

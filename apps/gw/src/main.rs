@@ -4,7 +4,7 @@ use std::{
     ffi::OsString,
     io::{self, IsTerminal, Read, Write},
     process::{Command, ExitStatus, Stdio, exit},
-    sync::mpsc,
+    sync::{OnceLock, mpsc},
     thread,
     time::{Duration, Instant},
 };
@@ -39,10 +39,25 @@ const SETTLE_MAX: Duration = Duration::from_secs(1);
 /// No progress for this long: show `Connecting…` so slow handshakes are not a blank wait.
 const CONNECT_DELAY: Duration = Duration::from_millis(300);
 
+/// git binary: leading `--git <path>` / `--git=<path>`, else `$GW_GIT`, else `git` from PATH.
+static GIT: OnceLock<OsString> = OnceLock::new();
+
+pub(crate) fn git() -> Command {
+    Command::new(GIT.get().map_or("git".as_ref(), |g| g.as_os_str()))
+}
+
 fn main() {
-    let args: Vec<OsString> = std::env::args_os().skip(1).collect();
+    let mut args: Vec<OsString> = std::env::args_os().skip(1).collect();
+    let bin = match args.first().and_then(|a| a.to_str()) {
+        Some("--git") if args.len() > 1 => Some(args.drain(..2).nth(1).unwrap()),
+        Some(a) if a.starts_with("--git=") => Some(args.remove(0).to_str().unwrap()["--git=".len()..].into()),
+        _ => std::env::var_os("GW_GIT"),
+    };
+    if let Some(b) = bin.filter(|b| !b.is_empty()) {
+        let _ = GIT.set(b);
+    }
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add> [git args...]\nAny other subcommand runs plain git.");
+        eprintln!("usage: gw [--git <path>] <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add> [git args...]\nAny other subcommand runs plain git. $GW_GIT also sets the git binary.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
@@ -79,7 +94,7 @@ fn exit_code(r: io::Result<ExitStatus>) -> i32 {
             1
         }),
         Err(e) if e.kind() == io::ErrorKind::NotFound => {
-            eprintln!("gw: git not found in PATH");
+            eprintln!("gw: {} not found", GIT.get().map_or("git in PATH".into(), |g| g.to_string_lossy()));
             127
         }
         Err(e) => {
@@ -90,7 +105,7 @@ fn exit_code(r: io::Result<ExitStatus>) -> i32 {
 }
 
 fn passthrough(args: &[OsString]) -> i32 {
-    exit_code(Command::new("git").args(args).status())
+    exit_code(git().args(args).status())
 }
 
 /// Ctrl-C reaches git through the process group; gw keeps running to finalize the screen.
@@ -136,7 +151,7 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
         git_args.push("--porcelain".into());
     }
     git_args.extend(rest.iter().cloned());
-    let child = Command::new("git")
+    let child = git()
         .args(&git_args)
         .env("LC_ALL", "C")
         .stdin(Stdio::inherit())
@@ -317,7 +332,7 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
 
 /// Paths with unmerged index entries, relative to the repository top.
 fn unmerged_paths() -> Vec<String> {
-    let Ok(o) = Command::new("git").args(["diff", "--name-only", "--diff-filter=U", "-z"]).stderr(Stdio::null()).output() else {
+    let Ok(o) = git().args(["diff", "--name-only", "--diff-filter=U", "-z"]).stderr(Stdio::null()).output() else {
         return Vec::new();
     };
     let mut v: Vec<String> = o.stdout.split(|b| *b == 0).filter(|p| !p.is_empty()).map(|p| String::from_utf8_lossy(p).into_owned()).collect();
@@ -327,7 +342,7 @@ fn unmerged_paths() -> Vec<String> {
 
 /// Which operation stopped on the conflict: a merge (`MERGE_HEAD`) or a rebase (its state dir).
 fn conflict_op() -> ConflictOp {
-    let git = |args: &[&str]| Command::new("git").args(args).stderr(Stdio::null()).output().ok().filter(|o| o.status.success()).map(|o| o.stdout);
+    let git = |args: &[&str]| git().args(args).stderr(Stdio::null()).output().ok().filter(|o| o.status.success()).map(|o| o.stdout);
     if git(&["rev-parse", "-q", "--verify", "MERGE_HEAD"]).is_some() {
         return ConflictOp::Merge;
     }
@@ -371,7 +386,7 @@ fn status(rest: &[OsString]) -> i32 {
         args.extend(rest.iter().cloned());
         return passthrough(&args);
     }
-    let out = Command::new("git").args(["status", "--porcelain=v2", "--branch", "-z"]).args(rest).output();
+    let out = git().args(["status", "--porcelain=v2", "--branch", "-z"]).args(rest).output();
     let out = match out {
         Ok(o) if o.status.success() => o,
         Ok(o) => {
@@ -381,7 +396,7 @@ fn status(rest: &[OsString]) -> i32 {
         Err(e) => return exit_code(Err(e)),
     };
     let _ = io::stderr().write_all(&out.stderr);
-    let prefix = Command::new("git")
+    let prefix = git()
         .args(["rev-parse", "--show-prefix"])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
@@ -395,7 +410,7 @@ fn status(rest: &[OsString]) -> i32 {
 /// Line counts for every group and checked-out submodule commits, for `gw status` and `gw status -i`.
 fn load_stats(st: &Status, prefix: &str) -> LineStats {
     let numstat = |cached: bool| {
-        let mut c = Command::new("git");
+        let mut c = git();
         c.args(["diff", "--numstat", "-z", "--no-ext-diff", "--no-textconv"]);
         if cached {
             c.arg("--cached");
@@ -409,8 +424,8 @@ fn load_stats(st: &Status, prefix: &str) -> LineStats {
     // Checked-out commits are only needed when a submodule moved off its recorded commit.
     let moved: Vec<&str> = st.entries.iter().filter(|e| e.submodule.as_ref().is_some_and(|s| s.commit_changed)).map(|e| e.path.as_str()).collect();
     if !moved.is_empty()
-        && let Ok(top) = Command::new("git").args(["rev-parse", "--show-toplevel"]).output()
-        && let Ok(o) = Command::new("git")
+        && let Ok(top) = git().args(["rev-parse", "--show-toplevel"]).output()
+        && let Ok(o) = git()
             .arg("-C")
             .arg(String::from_utf8_lossy(&top.stdout).trim())
             .args(["submodule", "status", "--"])

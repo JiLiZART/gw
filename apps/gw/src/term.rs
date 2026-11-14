@@ -2,7 +2,7 @@
 
 use std::{
     io::{self, BufRead, Read, Write},
-    process::{Command, Stdio},
+    process::Stdio,
     thread,
 };
 
@@ -20,7 +20,7 @@ pub fn run_on_terminal(term: &mut DefaultTerminal, args: &[String], screen: &str
     let _ = disable_raw_mode();
     let _ = execute!(io::stdout(), LeaveAlternateScreen);
     println!("\n$ git {}", args.join(" "));
-    let child = Command::new("git").args(args).stdin(Stdio::inherit()).stdout(Stdio::inherit()).stderr(Stdio::piped()).spawn();
+    let child = crate::git().args(args).stdin(Stdio::inherit()).stdout(Stdio::inherit()).stderr(Stdio::piped()).spawn();
     let (ok, first_err) = match child {
         Ok(mut c) => {
             let mut err = c.stderr.take().unwrap();

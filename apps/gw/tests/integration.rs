@@ -386,3 +386,19 @@ fn merge_boxes() {
     assert!(out.contains("┌ Merge conflict") && out.contains("│ a.rs"), "{out}");
     assert!(out.contains("git rebase --continue") && out.contains("git rebase --abort"), "{out}");
 }
+
+#[test]
+fn git_binary_override() {
+    let d = std::env::temp_dir().join(format!("gw-gitbin-{}", std::process::id()));
+    std::fs::create_dir_all(&d).unwrap();
+    let fake = d.join("fake-git");
+    std::fs::write(&fake, "#!/bin/sh\necho \"fake $*\"\n").unwrap();
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
+    let f = fake.to_str().unwrap();
+    let run = |c: &mut Command| String::from_utf8(c.output().unwrap().stdout).unwrap();
+    assert_eq!(run(Command::new(GW).args(["--git", f, "version"])), "fake version\n");
+    assert_eq!(run(Command::new(GW).args([&format!("--git={f}"), "version"])), "fake version\n");
+    assert_eq!(run(Command::new(GW).arg("version").env("GW_GIT", f)), "fake version\n");
+    std::fs::remove_dir_all(&d).unwrap();
+}

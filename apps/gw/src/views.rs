@@ -2,7 +2,7 @@
 
 use std::{
     ffi::OsString,
-    process::{Command, Stdio},
+    process::Stdio,
 };
 
 use gw_parse::{BRANCH_FORMAT, STASH_FORMAT, parse_branches, parse_numstat_z, parse_stash_list};
@@ -20,7 +20,7 @@ fn with(cmd: &str, args: &[OsString]) -> Vec<OsString> {
 }
 
 fn git_out(args: &[&str]) -> Option<Vec<u8>> {
-    let o = Command::new("git").args(args).stderr(Stdio::null()).output().ok()?;
+    let o = crate::git().args(args).stderr(Stdio::null()).output().ok()?;
     o.status.success().then_some(o.stdout)
 }
 
@@ -35,7 +35,7 @@ pub fn branch(args: &[OsString]) -> i32 {
     if !args.is_empty() {
         return passthrough(&with("branch", args));
     }
-    let out = Command::new("git").args(["for-each-ref", "--sort=-committerdate", BRANCH_FORMAT, "refs/heads"]).output();
+    let out = crate::git().args(["for-each-ref", "--sort=-committerdate", BRANCH_FORMAT, "refs/heads"]).output();
     match out {
         Ok(o) if o.status.success() => {
             print!("{}", render_branches(&parse_branches(&String::from_utf8_lossy(&o.stdout)), term_width(), !no_color_env()));
@@ -53,7 +53,7 @@ pub fn commit(args: &[OsString]) -> i32 {
         return passthrough(&with("commit", args));
     }
     // Real terminal for the editor and hooks; --quiet drops git's own summary.
-    let code = exit_code(Command::new("git").arg("commit").arg("--quiet").args(args).status());
+    let code = exit_code(crate::git().arg("commit").arg("--quiet").args(args).status());
     if code != 0 {
         return code;
     }

@@ -37,7 +37,7 @@ pub(crate) struct Repo {
 impl Repo {
     /// `git -C <top> --literal-pathspecs <args>`: paths from porcelain are top-relative and literal.
     pub fn git(&self, args: &[&str]) -> Command {
-        let mut c = Command::new("git");
+        let mut c = crate::git();
         c.arg("-C").arg(&self.top).arg("--literal-pathspecs").args(args);
         c
     }
@@ -63,7 +63,7 @@ impl Repo {
 
     /// Fresh `git status` with line stats and the branch line.
     pub fn status(&self) -> Result<(Status, LineStats, String), String> {
-        let out = Command::new("git").args(["status", "--porcelain=v2", "--branch", "-z"]).args(&self.args).output().map_err(|e| e.to_string())?;
+        let out = crate::git().args(["status", "--porcelain=v2", "--branch", "-z"]).args(&self.args).output().map_err(|e| e.to_string())?;
         if !out.status.success() {
             return Err(first_line(&out.stderr));
         }
@@ -82,12 +82,12 @@ impl Repo {
     /// `git rev-parse --show-toplevel` / `--show-prefix` from the cwd; `Err` is gw's exit code
     /// after git printed its own error (outside a repository).
     pub fn open(args: &[OsString]) -> Result<Repo, i32> {
-        let top = match Command::new("git").args(["rev-parse", "--show-toplevel"]).stderr(Stdio::inherit()).output() {
+        let top = match crate::git().args(["rev-parse", "--show-toplevel"]).stderr(Stdio::inherit()).output() {
             Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim_end_matches('\n').to_string(),
             Ok(o) => return Err(exit_code(Ok(o.status))),
             Err(e) => return Err(exit_code(Err(e))),
         };
-        let prefix = Command::new("git").args(["rev-parse", "--show-prefix"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default();
+        let prefix = crate::git().args(["rev-parse", "--show-prefix"]).output().map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string()).unwrap_or_default();
         Ok(Repo { top, prefix, args: args.to_vec() })
     }
 }
@@ -221,7 +221,7 @@ fn handle(effect: Effect, app: &mut App, repo: &Repo, term: &mut DefaultTerminal
         }
         // From the cwd, without literal pathspecs: the user's pathspecs mean what they meant to `git status`.
         Effect::StageAll => run_quiet({
-            let mut c = Command::new("git");
+            let mut c = crate::git();
             c.args(["add", "-A"]);
             let ps = repo.pathspecs();
             if !ps.is_empty() {
@@ -230,7 +230,7 @@ fn handle(effect: Effect, app: &mut App, repo: &Repo, term: &mut DefaultTerminal
             c
         }),
         Effect::UnstageAll => run_quiet({
-            let mut c = Command::new("git");
+            let mut c = crate::git();
             c.args(["reset", "-q"]);
             let ps = repo.pathspecs();
             if !ps.is_empty() {
