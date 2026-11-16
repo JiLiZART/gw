@@ -1,8 +1,10 @@
+# branch-interactive Specification
+
 ## Purpose
 
-`gw branch -i` lets the user browse local and remote branches, see what each branch changed against the current branch, and check out, create, delete, rename or merge branches without leaving the screen.
+`gw branch -i` lets the user browse local and remote branches, see what each branch changed against the current branch, and check out, create, delete, rename or merge branches without leaving the screen. Bare `gw switch` opens the same screen as a branch picker.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Launch and fallback
 `gw branch -i` (or `--interactive`) alone with stdin and stdout on a TTY SHALL open a full-screen view and restore the terminal on exit, on error and on panic. With stdout not a TTY it SHALL run plain `git branch -i` (git's own error and exit code). Outside a repository git's error SHALL be printed and its exit code returned.
@@ -100,3 +102,22 @@ The diff pane SHALL show the selected file's diff for the comparison of the file
 #### Scenario: Escape in a name
 - **WHEN** a commit subject contains `ESC[2J`
 - **THEN** it is shown escaped and the screen is not cleared
+
+### Requirement: Switch picker
+Bare `gw switch` with stdin and stdout on a TTY SHALL open the branch screen in picker mode with the current branch selected. In picker mode `Enter` SHALL switch to the selected branch as Checkout does (a remote branch gets a local tracking branch) and close the screen; `q` and `Esc` SHALL close without switching; `n`, `d`, `R` and `m` SHALL do nothing, and the hotkey bar SHALL list only `Enter`, `Tab`, `^R`, `q`. If the switch fails, git's error SHALL be shown in the status line and the picker SHALL stay open. With stdout not a TTY, or with any argument, `gw switch` SHALL run unchanged as before.
+
+#### Scenario: Pick a branch
+- **WHEN** the user runs `gw switch` on a TTY, selects `feat` and presses `Enter`
+- **THEN** the screen closes, `feat` is the current branch, and the exit code is 0
+
+#### Scenario: Quit without switching
+- **WHEN** the user presses `q` in the picker
+- **THEN** the screen closes, the current branch is unchanged, and the exit code is 0
+
+#### Scenario: Piped
+- **WHEN** the user runs `gw switch | cat`
+- **THEN** the output and exit code equal `git switch | cat`
+
+#### Scenario: With arguments
+- **WHEN** the user runs `gw switch feat`
+- **THEN** it behaves as before this change

@@ -33,4 +33,4 @@
 
 - [x] 6.1 Run `cargo test --workspace` and `cargo clippy --workspace --all-targets -- -D warnings`. Verify both pass on macOS and in Docker `rust:1-trixie`.
 - [x] 6.2 README: `gw add` and `gw stash -i` sections with key tables and screenshots `docs/screenshots/add-interactive.svg`, `docs/screenshots/stash-interactive.svg`. Verify by reading the README diff and opening the SVGs (no local paths).
-- [ ] 6.3 Manual check on a dark theme at 80 and 200 columns. Verify panes read clearly and nothing overlaps.
+- [x] 6.3 Manual check on a dark theme at 80 and 200 columns. Verify panes read clearly and nothing overlaps.

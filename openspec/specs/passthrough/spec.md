@@ -7,7 +7,7 @@ Defines how `gw` dispatches subcommands to the real git, keeps git's semantics (
 ## Requirements
 
 ### Requirement: Subcommand dispatch and argument passthrough
-`gw <cmd> [args...]` SHALL run the real `git <cmd> [args...]` for `cmd` in {`push`, `pull`, `fetch`, `clone`, `status`, `log`, `branch`, `commit`, `stash`}, passing every user argument unchanged and in order. Each of these commands SHALL fall back to plain `git <cmd> [args...]` under its own rule (output-format flags, arguments, or subcommands it does not format). Any other subcommand SHALL be executed as plain `git <cmd> [args...]` with inherited stdio and no formatting.
+`gw <cmd> [args...]` SHALL run the real `git <cmd> [args...]` for `cmd` in {`push`, `pull`, `fetch`, `clone`, `merge`, `status`, `log`, `branch`, `commit`, `stash`, `add`}, passing every user argument unchanged and in order. Each of these commands SHALL fall back to plain `git <cmd> [args...]` under its own rule (output-format flags, arguments, or subcommands it does not format; `add` falls back whenever it has any argument). Any other subcommand SHALL be executed as plain `git <cmd> [args...]` with inherited stdio and no formatting.
 
 #### Scenario: Arguments forwarded
 - **WHEN** the user runs `gw push -u origin feat --force-with-lease`
@@ -20,6 +20,10 @@ Defines how `gw` dispatches subcommands to the real git, keeps git's semantics (
 #### Scenario: Formatted command falls back
 - **WHEN** the user runs `gw log --oneline`
 - **THEN** `git log --oneline` runs with its normal output and pager
+
+#### Scenario: Add with arguments
+- **WHEN** the user runs `gw add -p src/`
+- **THEN** `git add -p src/` runs unchanged
 
 #### Scenario: No subcommand
 - **WHEN** the user runs `gw` with no arguments
@@ -44,11 +48,15 @@ Credential, SSH passphrase, and host-key prompts issued by git or its helpers SH
 - **THEN** the prompt is visible, the user can type the passphrase, and the push proceeds
 
 ### Requirement: Raw passthrough when not a TTY
-When stdout is not a terminal, `gw` SHALL behave exactly like plain `git <cmd> [args...]`: no extra flags injected, no formatting, no escape sequences.
+When stdout is not a terminal, `gw` SHALL behave exactly like plain `git <cmd> [args...]`: no extra flags injected, no formatting, no escape sequences. The one exception: for `gw status`, the gw-only flags `-i` and `--interactive` SHALL be removed before running git, since git does not accept them.
 
 #### Scenario: Piped output
 - **WHEN** the user runs `gw push | cat`
 - **THEN** the output is identical to `git push | cat`
+
+#### Scenario: Piped interactive status
+- **WHEN** the user runs `gw status -i | cat`
+- **THEN** the output is identical to `git status | cat`
 
 ### Requirement: NO_COLOR
 When the `NO_COLOR` environment variable is set to a non-empty value, `gw` SHALL keep its structured layout (progress line, box, grouped lists) but emit no SGR color or style codes (bare reset sequences such as `ESC[0m` from the bar renderer are allowed); the progress bar SHALL use `#` for filled and `.` for empty cells. Hyperlinks SHALL still be emitted.

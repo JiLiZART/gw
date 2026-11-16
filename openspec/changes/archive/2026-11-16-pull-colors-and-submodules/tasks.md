@@ -52,4 +52,4 @@
   Verify `cargo test --workspace` passes on macOS and in Docker `rust:1-trixie`.
 - [x] 5.2 Run `cargo clippy --workspace --all-targets -- -D warnings`. Verify it is clean, fixing pre-existing collapsible-if and unit-arg findings too. (`cargo fmt --check` already fails across the repo on HEAD, so it is out of scope here.)
 - [x] 5.3 Update README: in the feature list, mention the colored pull summary and submodule display. Verify by reading the README diff.
-- [ ] 5.4 Manual check in a real terminal: run `gw pull` in a repo with submodules and `gw status` with a dirty submodule. Verify the colors read clearly on a dark theme.
+- [x] 5.4 Manual check in a real terminal: run `gw pull` in a repo with submodules and `gw status` with a dirty submodule. Verify the colors read clearly on a dark theme.

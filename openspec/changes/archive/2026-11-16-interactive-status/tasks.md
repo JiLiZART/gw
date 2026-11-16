@@ -30,4 +30,4 @@
 
 - [x] 5.1 Run `cargo test --workspace` and `cargo clippy --workspace --all-targets -- -D warnings`. Verify both pass on macOS and in Docker `rust:1-trixie`.
 - [x] 5.2 README: add a `gw status -i` section with the key table and a screenshot `docs/screenshots/status-interactive.svg`. Verify by reading the README diff and opening the SVG.
-- [ ] 5.3 Manual check on a dark theme at 80 and 200 columns, including a conflict and a dirty submodule. Verify the list and diff read clearly and nothing overlaps.
+- [x] 5.3 Manual check on a dark theme at 80 and 200 columns, including a conflict and a dirty submodule. Verify the list and diff read clearly and nothing overlaps.
