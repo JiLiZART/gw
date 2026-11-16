@@ -92,7 +92,11 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 ![gw switch with no arguments: the branch list as a picker](docs/screenshots/switch-picker.svg)
 
-With no arguments `gw switch` opens the same screen as a picker: `Enter` switches to the selected branch and exits, `q` exits without switching. With arguments, or piped, it is plain `git switch`.
+With no arguments `gw switch` opens the same screen as a picker: `Enter` switches to the selected branch and exits, `q` exits without switching.
+
+### `gw switch <branch>` and `gw checkout`: colored output
+
+With arguments, `gw switch` and `gw checkout` run git's own command and color what it prints: `Switched to branch` in green with the branch name, `Already on` dimmed, files carried over (`M`, `A`, `D`) by status, and the upstream line by state (up to date dimmed, ahead green, behind yellow, diverged or gone red). `error:` and `fatal:` lines are red, and `hint:` lines go in a box as with `gw merge`.
 
 ### `gw log`: a commit browser in your terminal
 
@@ -120,10 +124,10 @@ With no arguments `gw switch` opens the same screen as a picker: `Enter` switche
 
 - **Same arguments, same exit code.** `gw` passes your arguments to git untouched and exits with git's code (`128 + signal` if git was killed, 127 if git is missing).
 - **Pipes and scripts get plain git.** When stdout is not a terminal (pipes, CI, `$(...)`), `gw` behaves exactly like `git`.
-- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>` except `-i`, `gw switch <anything>`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
+- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>` except `-i`, `gw switch` / `gw checkout` with `-p` / `--patch` or `-h` / `--help`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
 - **Anything else is plain git.** `gw diff`, `gw rebase`, `gw show`, … just run git.
 - **Untrusted text is inert.** Control characters in file names, branch names, and server messages are shown as `\xNN`, so a hostile remote or file name can't inject terminal escape sequences.
-- **Any locale.** `gw push`, `pull`, `fetch`, `clone` and `merge` run git with `LC_ALL=C` so their output can be parsed; git's own messages there are in English. Every other command keeps your language.
+- **Any locale.** `gw push`, `pull`, `fetch`, `clone`, `merge`, `switch` and `checkout` run git with `LC_ALL=C` so their output can be parsed; git's own messages there are in English. Every other command keeps your language.
 - **`NO_COLOR` is respected.** Colors turn off, the layout stays the same, the bar uses `#` and `.`, and links stay clickable.
 
 ## Install
@@ -162,7 +166,8 @@ gw add
 gw log [revisions] [-- paths]
 gw branch
 gw branch -i
-gw switch
+gw switch [git switch args...]
+gw checkout [git checkout args...]
 gw commit [git commit args...]
 gw stash list
 gw stash -i

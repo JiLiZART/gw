@@ -17,7 +17,7 @@ use gw_render::{
     ThrobberState,
     bar::{Animator, ProgressLine},
     refs::{
-        ConflictOp, RefGroup, all_up_to_date, render_conflict_box, render_messages, render_messages_boxed, render_pull_summary, render_ref_groups, render_up_to_date},
+        ConflictOp, RefGroup, all_up_to_date, render_conflict_box, render_messages, render_messages_boxed, render_pull_summary, render_ref_groups, render_switch, render_up_to_date},
     remote_box::render_box,
     status::{LineStats, relative, render_status},
     style::no_color_env,
@@ -31,7 +31,7 @@ mod stash_ui;
 mod term;
 mod views;
 
-const FORMATTED: [&str; 12] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash", "add", "switch"];
+const FORMATTED: [&str; 13] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash", "add", "switch", "checkout"];
 const TICK: Duration = Duration::from_millis(80);
 /// Redraw interval while easing the bar.
 const FRAME: Duration = Duration::from_millis(30);
@@ -58,7 +58,7 @@ fn main() {
         let _ = GIT.set(b);
     }
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw [--git <path>] <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add|switch> [git args...]\nAny other subcommand runs plain git. $GW_GIT also sets the git binary.");
+        eprintln!("usage: gw [--git <path>] <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add|switch|checkout> [git args...]\nAny other subcommand runs plain git. $GW_GIT also sets the git binary.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
@@ -77,7 +77,9 @@ fn main() {
             "add" => passthrough(&args),
             // Bare `gw switch`: the branch picker; with arguments it is git's own.
             "switch" if args.len() == 1 && io::stdin().is_terminal() => branch_ui::run_ui(true),
-            "switch" => passthrough(&args),
+            // `--help` opens a pager/man page, `-p` prompts: never capture them.
+            "switch" | "checkout" if args[1..].iter().any(|a| matches!(a.to_str(), Some("-h" | "--help" | "-p" | "--patch"))) => passthrough(&args),
+            "switch" | "checkout" => switch(&args),
             // These open an editor or print nothing worth formatting.
             "merge" if args[1..].iter().any(|a| matches!(a.to_str(), Some("-e" | "--edit" | "--continue" | "--abort" | "--quit"))) => passthrough(&args),
             _ => network(&cmd, &args[1..]),
@@ -332,6 +334,20 @@ fn network(cmd: &str, rest: &[OsString]) -> i32 {
     let msgs = if merging { render_messages_boxed(&others, term_width(), color) } else { render_messages(&others, color) };
     let _ = write!(io::stderr().lock(), "{msgs}");
     code
+}
+
+/// `gw switch|checkout <args>`: git's own command, its output colored. C locale so the lines match.
+fn switch(args: &[OsString]) -> i32 {
+    let out = match git().args(args).env("LC_ALL", "C").stdin(Stdio::inherit()).output() {
+        Ok(o) => o,
+        Err(e) => return exit_code(Err(e)),
+    };
+    let lines = |b: &[u8]| String::from_utf8_lossy(b).lines().map(str::to_string).collect::<Vec<_>>();
+    let color = !no_color_env();
+    // stderr first: it carries the `Switched to` headline, stdout the changes and tracking lines.
+    let _ = write!(io::stderr().lock(), "{}", render_switch(&lines(&out.stderr), term_width(), color));
+    let _ = write!(io::stdout().lock(), "{}", render_switch(&lines(&out.stdout), term_width(), color));
+    exit_code(Ok(out.status))
 }
 
 /// Paths with unmerged index entries, relative to the repository top.

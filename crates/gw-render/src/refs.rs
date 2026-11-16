@@ -1,6 +1,6 @@
 //! Target header, ref update list, and pull summary.
 
-use crate::style::{BOLD, BRANCH, DIM, GREEN, LINK, RED, YELLOW, link, paint, sanitize};
+use crate::style::{BOLD, BRANCH, BRANCH_BOLD, DIM, GREEN, LINK, RED, UPSTREAM, YELLOW, link, paint, sanitize};
 use crate::remote_box::titled_box;
 use gw_parse::{PullLine, PullResult, RefKind, RefUpdate, classify_pull_line};
 use unicode_width::UnicodeWidthStr;
@@ -186,6 +186,82 @@ pub fn render_messages_boxed(lines: &[String], width: usize, color: bool) -> Str
     out
 }
 
+fn is_message(l: &str) -> bool {
+    ["error:", "fatal:", "warning:", "hint:"].iter().any(|p| l.starts_with(p))
+}
+
+/// `git switch`/`git checkout` output (C locale), colored line by line; message runs as in [`render_messages_boxed`].
+pub fn render_switch(lines: &[String], width: usize, color: bool) -> String {
+    let mut out = String::new();
+    for run in lines.chunk_by(|a, b| is_message(a) == is_message(b)) {
+        if is_message(&run[0]) {
+            out += &render_messages_boxed(run, width, color);
+            continue;
+        }
+        for line in run {
+            out += &switch_line(line, color);
+            out.push('\n');
+        }
+    }
+    out
+}
+
+fn switch_line(raw: &str, color: bool) -> String {
+    // Lead text, its color, and the color of the first `'name'` after it.
+    const RULES: [(&str, &str, &str); 8] = [
+        ("Switched to", GREEN, BRANCH_BOLD),
+        ("Already on", DIM, BRANCH),
+        ("Your branch is up to date with", DIM, UPSTREAM),
+        ("Your branch is ahead of", GREEN, UPSTREAM),
+        ("Your branch is behind", YELLOW, UPSTREAM),
+        ("Your branch and", RED, UPSTREAM),
+        ("Your branch is based on", RED, UPSTREAM),
+        ("branch '", DIM, BRANCH),
+    ];
+    let l = sanitize(raw);
+    if !color {
+        return l;
+    }
+    let p = |s: &str, sgr: &str| paint(s, sgr, true);
+    // `M\tpath`: a local change carried over to the new branch.
+    if let Some((st @ ("M" | "A" | "D" | "T" | "U"), path)) = raw.split_once('\t') {
+        let sgr = match st {
+            "A" => GREEN,
+            "D" | "U" => RED,
+            _ => YELLOW,
+        };
+        return format!("{} {}", p(st, sgr), sanitize(path));
+    }
+    let rule = RULES.iter().find(|r| l.starts_with(r.0));
+    let quoted = l.split_once('\'').and_then(|(head, r)| r.split_once('\'').map(|(name, tail)| (head, name, tail)));
+    if let (Some(&(_, head_sgr, name_sgr)), Some((head, name, tail))) = (rule, quoted) {
+        // Second name, as in `branch 'x' set up to track 'origin/x'.`
+        let tail = match tail.split_once('\'').and_then(|(a, r)| r.split_once('\'').map(|(n, b)| (a, n, b))) {
+            Some((a, n, b)) => format!("{a}'{}'{b}", p(n, UPSTREAM)),
+            None => tail.to_string(),
+        };
+        return format!("{}'{}'{tail}", p(head, head_sgr), p(name, name_sgr));
+    }
+    if let Some(rest) = l.strip_prefix("HEAD is now at ") {
+        let (sha, msg) = rest.split_once(' ').unwrap_or((rest, ""));
+        return format!("{} {} {msg}", p("HEAD is now at", DIM), p(sha, YELLOW));
+    }
+    if l.starts_with("  (use ") || l.starts_with("Previous HEAD position was ") {
+        return p(&l, DIM);
+    }
+    if let Some(rest) = l.strip_prefix("Note:") {
+        return format!("{}{rest}", p("Note:", YELLOW));
+    }
+    // `git checkout <path>`: `Updated 2 paths from the index`.
+    if l.starts_with("Updated ") && l.contains(" path") {
+        return p(&l, GREEN);
+    }
+    if l == "Aborting" {
+        return p(&l, RED);
+    }
+    l
+}
+
 /// Operation stopped by a conflict, for the next-step lines.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConflictOp {
@@ -233,6 +309,34 @@ mod box_tests {
 
     fn v(l: &[&str]) -> Vec<String> {
         l.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn switch_lines_colored() {
+        let out = render_switch(
+            &v(&[
+                "M\tsrc/a.rs",
+                "Switched to a new branch 'feat'",
+                "branch 'feat' set up to track 'origin/feat'.",
+                "Your branch is behind 'origin/feat' by 2 commits, and can be fast-forwarded.",
+                "  (use \"git pull\" to update your local branch)",
+                "HEAD is now at abc1234 msg",
+                "Updated 1 path from the index",
+            ]),
+            100,
+            true,
+        );
+        let rows: Vec<&str> = out.lines().collect();
+        assert_eq!(rows[0], "\x1b[33mM\x1b[0m src/a.rs");
+        assert_eq!(rows[1], "\x1b[32mSwitched to a new branch \x1b[0m'\x1b[1;36mfeat\x1b[0m'");
+        assert_eq!(rows[2], "\x1b[2mbranch \x1b[0m'\x1b[36mfeat\x1b[0m' set up to track '\x1b[35morigin/feat\x1b[0m'.");
+        assert!(rows[3].starts_with("\x1b[33mYour branch is behind \x1b[0m'\x1b[35morigin/feat"), "{out}");
+        assert!(rows[4].starts_with("\x1b[2m  (use"), "{out}");
+        assert_eq!(rows[5], "\x1b[2mHEAD is now at\x1b[0m \x1b[33mabc1234\x1b[0m msg");
+        assert_eq!(rows[6], "\x1b[32mUpdated 1 path from the index\x1b[0m");
+        // No color: text unchanged except tabs.
+        let plain = render_switch(&v(&["Already on 'main'", "fatal: invalid reference: x"]), 100, false);
+        assert_eq!(plain, "Already on 'main'\nfatal: invalid reference: x\n");
     }
 
     #[test]
