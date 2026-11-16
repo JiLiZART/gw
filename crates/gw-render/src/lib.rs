@@ -1,6 +1,7 @@
 //! Rendering: the live ratatui progress line plus static ANSI sections.
 
 pub mod bar;
+pub mod branch;
 pub mod browser;
 pub mod refs;
 pub mod remote_box;

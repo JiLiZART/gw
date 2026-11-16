@@ -1,0 +1,16 @@
+---
+source: crates/gw-render/src/branch/view.rs
+expression: t
+---
+┌ Branches ──────────────────┐┌ feat vs main ──────────────┐┌─ src/a.rs +10 -1 ──────────────────────────────────────────────────────────────────────┐
+│Local                       ││ M src/a.rs           +10 -1││@@ -1 +1 @@                                                                             │
+│ * main ↑2  1 day ago       ││ A new.rs              +3 -0││-old                                                                                    │
+│   feat gone  1 day ago     ││                            ││+new                                                                                    │
+│Remote                      ││                            ││                                                                                        │
+│   origin/main  1 day ago   ││                            ││                                                                                        │
+│   origin/fix  1 day ago    ││                            ││                                                                                        │
+│                            ││                            ││                                                                                        │
+│                            ││                            ││                                                                                        │
+└────────────────────────────┘└────────────────────────────┘└────────────────────────────────────────────────────────────────────────────────────────┘
+feat 1 day ago: feat work
+ Enter Checkout  n New  d Delete  R Rename  m Merge  Tab Focus  ^R Reload  q Quit

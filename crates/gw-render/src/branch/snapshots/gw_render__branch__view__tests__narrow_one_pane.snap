@@ -1,0 +1,14 @@
+---
+source: crates/gw-render/src/branch/view.rs
+expression: t
+---
+┌ feat vs main ────────────────────────────────────────────┐
+│ M src/a.rs                                         +10 -1│
+│ A new.rs                                            +3 -0│
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+feat 1 day ago: feat work
+ Enter Checkout  n New  d Delete  R Rename  m Merge

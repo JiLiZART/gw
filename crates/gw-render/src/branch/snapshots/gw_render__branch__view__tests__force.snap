@@ -1,0 +1,18 @@
+---
+source: crates/gw-render/src/branch/view.rs
+expression: t
+---
+┌ Branches ────────────┐┌ feat vs main ────────┐┌─ src/a.rs +10 -1 ────────────────────────────────────────────────────┐
+│Local                 ││ M src/a.rs     +10 -1││@@ -1 +1 @@                                                           │
+│ * main ↑2  1 day ago ││ A new.rs        +3 -0││-old                                                                  │
+│   feat gone  1 day ag││              ┌ Force delete? ─────────────────────────┐                                      │
+│Remote                ││              │feat is not fully merged.               │                                      │
+│   origin/main  1 day ││              │                                        │                                      │
+│   origin/fix  1 day a││              │Its commits may be lost.                │                                      │
+│                      ││              │ y  force delete   any other key: cancel│                                      │
+│                      ││              └────────────────────────────────────────┘                                      │
+│                      ││                      ││                                                                      │
+│                      ││                      ││                                                                      │
+└──────────────────────┘└──────────────────────┘└──────────────────────────────────────────────────────────────────────┘
+feat 1 day ago: feat work
+ y Yes  any key Cancel

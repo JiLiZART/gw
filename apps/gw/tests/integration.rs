@@ -402,3 +402,86 @@ fn git_binary_override() {
     assert_eq!(run(Command::new(GW).arg("version").env("GW_GIT", f)), "fake version\n");
     std::fs::remove_dir_all(&d).unwrap();
 }
+
+/// `gw args` on a pty, typing `keys` one chunk at a time once the screen is up.
+fn gw_keys(dir: &Path, args: &[&str], keys: &[&str]) -> (i32, String) {
+    use std::io::Write;
+    // The pty starts 0x0 when stdin is a pipe: size it before the screen opens.
+    let sh = format!("stty cols 150 rows 30; exec {GW} {}", args.join(" "));
+    let mut c = Command::new("script");
+    if cfg!(target_os = "macos") {
+        c.args(["-q", "/dev/null", "sh", "-c", &sh]);
+    } else {
+        c.args(["-qec", &sh, "/dev/null"]);
+    }
+    c.current_dir(dir).env("NO_COLOR", "1").stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::piped());
+    let mut child = git_env(&mut c).spawn().unwrap();
+    let mut stdin = child.stdin.take().unwrap();
+    for k in keys {
+        std::thread::sleep(std::time::Duration::from_millis(700));
+        stdin.write_all(k.as_bytes()).unwrap();
+        stdin.flush().unwrap();
+    }
+    let out = child.wait_with_output().unwrap();
+    (out.status.code().unwrap_or(-1), String::from_utf8_lossy(&out.stdout).into_owned())
+}
+
+fn current_branch(dir: &Path) -> String {
+    let o = git_env(Command::new("git").args(["branch", "--show-current"]).current_dir(dir)).output().unwrap();
+    String::from_utf8_lossy(&o.stdout).trim().to_string()
+}
+
+#[test]
+fn branch_interactive_and_switch_picker() {
+    let tmp = TempDir(std::env::temp_dir().join(format!("gw-it-branch-{}", std::process::id())));
+    let w = &tmp.0;
+    let _ = std::fs::remove_dir_all(w);
+    std::fs::create_dir_all(w).unwrap();
+    git(w, &["init", "-q", "-b", "main"]);
+    std::fs::write(w.join("f"), "base\n").unwrap();
+    git(w, &["add", "."]);
+    git(w, &["commit", "-qm", "init"]);
+    git(w, &["switch", "-qc", "feat"]);
+    std::fs::write(w.join("f"), "feat\n").unwrap();
+    git(w, &["commit", "-qam", "feat change"]);
+    git(w, &["switch", "-q", "main"]);
+
+    // Piped: plain git, same output and exit code.
+    for args in [&["branch", "-i"][..], &["switch"]] {
+        let piped = git_env(Command::new(GW).args(args).current_dir(w)).output().unwrap();
+        let plain = git_env(Command::new("git").args(args).current_dir(w)).output().unwrap();
+        assert_eq!((piped.status.code(), &piped.stdout, &piped.stderr), (plain.status.code(), &plain.stdout, &plain.stderr), "{args:?}");
+    }
+    // -i with another argument is a usage error.
+    let (code, out) = gw(w, &["branch", "-i", "-a"], true);
+    assert_eq!(code, 129, "{out}");
+    assert!(out.contains("branch -i cannot be combined with -a"), "{out}");
+
+    // Picker: q leaves the branch; Enter on feat switches and exits 0.
+    let (code, out) = gw_keys(w, &["switch"], &["q"]);
+    assert_eq!((code, current_branch(w)), (0, "main".into()), "{out}");
+    let (code, out) = gw_keys(w, &["switch"], &["j", "\r"]);
+    assert_eq!((code, current_branch(w)), (0, "feat".into()), "{out}");
+    assert!(out.contains("Switch") && !out.contains("Rename"), "picker hotkeys: {out}");
+    // With an argument: git's own switch.
+    let (code, _) = gw(w, &["switch", "main"], true);
+    assert_eq!((code, current_branch(w)), (0, "main".into()));
+
+    // branch -i: new branch from feat, then merge it into main with a conflict.
+    std::fs::write(w.join("f"), "main side\n").unwrap();
+    git(w, &["commit", "-qam", "main change"]);
+    let (code, out) = gw_keys(w, &["branch", "-i"], &["j", "n", "feat2", "\r", "q"]);
+    assert_eq!((code, current_branch(w)), (0, "feat2".into()), "{out}");
+    assert!(out.contains("feat") && out.contains("vs"), "files pane: {out}");
+    git(w, &["switch", "-q", "main"]);
+    // Rows: main, feat2, feat (by date). Merge feat2: conflict, merge output, exit 1.
+    let (code, out) = gw_keys(w, &["branch", "-i"], &["j", "m", "y"]);
+    assert_eq!(code, 1, "{out}");
+    assert!(out.contains("Merge conflict") && out.contains("gw merge --abort"), "{out}");
+    git(w, &["merge", "--abort"]);
+    // Delete the last row (feat or feat2: same commit, same date), unmerged: y, then force y.
+    let (code, out) = gw_keys(w, &["branch", "-i"], &["G", "d", "y", "y", "q"]);
+    assert_eq!(code, 0, "{out}");
+    let o = git_env(Command::new("git").args(["branch", "--list", "feat*"]).current_dir(w)).output().unwrap();
+    assert_eq!(String::from_utf8_lossy(&o.stdout).lines().count(), 1, "one deleted: {out}");
+}

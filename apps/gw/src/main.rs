@@ -24,13 +24,14 @@ use gw_render::{
 };
 use ratatui::{Terminal, TerminalOptions, Viewport, backend::CrosstermBackend, layout::Position};
 
+mod branch_ui;
 mod log;
 mod stage;
 mod stash_ui;
 mod term;
 mod views;
 
-const FORMATTED: [&str; 11] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash", "add"];
+const FORMATTED: [&str; 12] = ["push", "pull", "fetch", "clone", "merge", "status", "log", "branch", "commit", "stash", "add", "switch"];
 const TICK: Duration = Duration::from_millis(80);
 /// Redraw interval while easing the bar.
 const FRAME: Duration = Duration::from_millis(30);
@@ -57,7 +58,7 @@ fn main() {
         let _ = GIT.set(b);
     }
     let Some(cmd) = args.first().map(|a| a.to_string_lossy().into_owned()) else {
-        eprintln!("usage: gw [--git <path>] <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add> [git args...]\nAny other subcommand runs plain git. $GW_GIT also sets the git binary.");
+        eprintln!("usage: gw [--git <path>] <push|pull|fetch|clone|merge|status|log|branch|commit|stash list|add|switch> [git args...]\nAny other subcommand runs plain git. $GW_GIT also sets the git binary.");
         exit(1);
     };
     let code = if !FORMATTED.contains(&cmd.as_str()) || !io::stdout().is_terminal() {
@@ -74,6 +75,9 @@ fn main() {
             // Bare `gw add`: the checklist; any argument is git's own `add`.
             "add" if args.len() == 1 => stage::run_mode(gw_render::stage::Mode::Add, &[]),
             "add" => passthrough(&args),
+            // Bare `gw switch`: the branch picker; with arguments it is git's own.
+            "switch" if args.len() == 1 && io::stdin().is_terminal() => branch_ui::run_ui(true),
+            "switch" => passthrough(&args),
             // These open an editor or print nothing worth formatting.
             "merge" if args[1..].iter().any(|a| matches!(a.to_str(), Some("-e" | "--edit" | "--continue" | "--abort" | "--quit"))) => passthrough(&args),
             _ => network(&cmd, &args[1..]),

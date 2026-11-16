@@ -15,6 +15,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "5 days ago",
             subject: "Merge o1 o2 o3",
+            oid: "0000000000000000000000000000000000000001",
+            remote: false,
         },
         Branch {
             name: "noup",
@@ -25,6 +27,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "5 days ago",
             subject: "Merge o1 o2 o3",
+            oid: "0000000000000000000000000000000000000002",
+            remote: false,
         },
         Branch {
             name: "side",
@@ -35,6 +39,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "2 weeks ago",
             subject: "side: \u{1b}[2J two",
+            oid: "0000000000000000000000000000000000000003",
+            remote: false,
         },
         Branch {
             name: "o3",
@@ -45,6 +51,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "2 weeks ago",
             subject: "o3",
+            oid: "0000000000000000000000000000000000000004",
+            remote: false,
         },
         Branch {
             name: "o2",
@@ -55,6 +63,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "2 weeks ago",
             subject: "o2",
+            oid: "0000000000000000000000000000000000000005",
+            remote: false,
         },
         Branch {
             name: "o1",
@@ -65,6 +75,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: false,
             age: "3 weeks ago",
             subject: "o1",
+            oid: "0000000000000000000000000000000000000006",
+            remote: false,
         },
         Branch {
             name: "feat",
@@ -77,6 +89,8 @@ expression: "(parse_branches(&s(\"branches.txt\")), parse_stash_list(&s(\"stash-
             gone: true,
             age: "3 weeks ago",
             subject: "wip: forms 2",
+            oid: "0000000000000000000000000000000000000007",
+            remote: false,
         },
     ],
     [

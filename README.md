@@ -80,6 +80,20 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 ![gw stash -i new stash: two of three files ticked, message prompt](docs/screenshots/stash-new.svg)
 
+### `gw branch -i`: see what a branch brings, then act on it
+
+![gw branch -i: local and remote branches, files the selected branch changed, and the file's diff](docs/screenshots/branch-interactive.svg)
+
+- **Three panes:** local branches (current first, then by last commit) and remote branches, the files the selected branch changed since it split from yours (with line counts), and the selected file's diff. On the current branch the files pane shows your working tree instead.
+- **`Enter` checks out** the selected branch. A remote branch gets a local tracking branch, or switches to the local one if it already exists.
+- **`n` new branch** from the selected one, **`R` rename**, **`d` delete** (asks first, then asks again before force-deleting an unmerged branch; on a remote branch it deletes it on the server), **`m` merge** it into the current branch with the usual `gw merge` output.
+
+### `gw switch`: pick a branch
+
+![gw switch with no arguments: the branch list as a picker](docs/screenshots/switch-picker.svg)
+
+With no arguments `gw switch` opens the same screen as a picker: `Enter` switches to the selected branch and exits, `q` exits without switching. With arguments, or piped, it is plain `git switch`.
+
 ### `gw log`: a commit browser in your terminal
 
 ![gw log: graph with branches and tags on the left, changed files with line counts on the right, key bar](docs/screenshots/log.svg)
@@ -106,7 +120,7 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 - **Same arguments, same exit code.** `gw` passes your arguments to git untouched and exits with git's code (`128 + signal` if git was killed, 127 if git is missing).
 - **Pipes and scripts get plain git.** When stdout is not a terminal (pipes, CI, `$(...)`), `gw` behaves exactly like `git`.
-- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
+- **Machine formats pass through.** `gw status -s` / `--porcelain` / `-z`, `gw log --oneline` / `--format` / `-p` / `--graph`, `gw commit --dry-run`, `gw merge --edit` / `--continue` / `--abort`, `gw branch <anything>` except `-i`, `gw switch <anything>`, `gw add <anything>`, and every `gw stash` form except `list` and `-i` run plain git.
 - **Anything else is plain git.** `gw diff`, `gw rebase`, `gw show`, … just run git.
 - **Untrusted text is inert.** Control characters in file names, branch names, and server messages are shown as `\xNN`, so a hostile remote or file name can't inject terminal escape sequences.
 - **Any locale.** `gw push`, `pull`, `fetch`, `clone` and `merge` run git with `LC_ALL=C` so their output can be parsed; git's own messages there are in English. Every other command keeps your language.
@@ -147,6 +161,8 @@ gw status -i [pathspec...]
 gw add
 gw log [revisions] [-- paths]
 gw branch
+gw branch -i
+gw switch
 gw commit [git commit args...]
 gw stash list
 gw stash -i
@@ -212,6 +228,22 @@ Alias names can't shadow built-in commands: git ignores an alias named `push`, `
 | `n` | New stash: `Space` toggles a file, `A` toggles all, `Enter` asks for a message, `Enter` stashes, `Esc` goes back |
 | `Ctrl-R` | Reload |
 | `q`, `Esc` | Quit |
+
+### `gw branch -i` keys
+
+| Keys | Action |
+|---|---|
+| `j`/`k`, `↑`/`↓`, `PgUp`/`PgDn`, `g`/`G` | Move in the focused pane (or scroll the diff) |
+| `Tab` / `Shift-Tab` | Next / previous pane: branches, files, diff |
+| `Enter` | Check out the selected branch |
+| `n` | New branch from the selected one (type a name, `Enter`) |
+| `R` | Rename the selected local branch |
+| `d` | Delete the selected branch, after a `y` confirmation (and a second `y` to force an unmerged one) |
+| `m` | Merge the selected branch into the current one, after a `y` confirmation |
+| `Ctrl-R` | Reload |
+| `q`, `Esc` | Quit |
+
+In the `gw switch` picker only `Enter` (switch and exit), `Tab`, `Ctrl-R` and `q`/`Esc` work.
 
 ### `gw log` keys
 

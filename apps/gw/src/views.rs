@@ -1,4 +1,4 @@
-//! `gw branch`, `gw commit`, `gw stash list` (`gw stash -i` routes to `stash_ui`): run git, print a compact colored view.
+//! `gw branch`, `gw commit`, `gw stash list` (`gw branch -i` routes to `branch_ui`, `gw stash -i` to `stash_ui`): run git, print a compact colored view.
 
 use std::{
     ffi::OsString,
@@ -32,6 +32,13 @@ fn totals(numstat: &[u8]) -> (usize, u64, u64) {
 }
 
 pub fn branch(args: &[OsString]) -> i32 {
+    if args.iter().any(crate::is_interactive) {
+        if let Some(other) = args.iter().find(|a| !crate::is_interactive(a)) {
+            eprintln!("gw: branch -i cannot be combined with {}", other.to_string_lossy());
+            return 129;
+        }
+        return crate::branch_ui::run_ui(false);
+    }
     if !args.is_empty() {
         return passthrough(&with("branch", args));
     }

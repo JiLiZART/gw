@@ -84,7 +84,7 @@ fn stash_diff(repo: &Repo, s: &Stash, it: &Item) -> Vec<String> {
 }
 
 /// Runs git; `Err` is git's first error line (stderr, else stdout: conflicts print there).
-fn run_reporting(mut c: Command) -> Result<(), String> {
+pub(crate) fn run_reporting(mut c: Command) -> Result<(), String> {
     match c.stdin(Stdio::null()).output() {
         Ok(o) if o.status.success() => Ok(()),
         Ok(o) => {

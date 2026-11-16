@@ -46,8 +46,9 @@ pub fn parse_graph_line(line: &str) -> LogRow {
     }
 }
 
-/// Format for `git for-each-ref refs/heads` parsed by [`parse_branches`].
-pub const BRANCH_FORMAT: &str = "--format=%(HEAD)%1f%(refname:short)%1f%(upstream:short)%1f%(upstream:track,nobracket)%1f%(committerdate:relative)%1f%(subject)";
+/// Format for `git for-each-ref refs/heads [refs/remotes]` parsed by [`parse_branches`].
+pub const BRANCH_FORMAT: &str =
+    "--format=%(HEAD)%1f%(refname:short)%1f%(upstream:short)%1f%(upstream:track,nobracket)%1f%(committerdate:relative)%1f%(objectname)%1f%(refname)%1f%(subject)";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Branch {
@@ -60,13 +61,18 @@ pub struct Branch {
     pub gone: bool,
     pub age: String,
     pub subject: String,
+    /// Tip commit id, to detect a moved branch before acting on it.
+    pub oid: String,
+    /// A remote-tracking branch (`refs/remotes/...`).
+    pub remote: bool,
 }
 
+/// Rows of [`BRANCH_FORMAT`]; `<remote>/HEAD` symrefs are skipped.
 pub fn parse_branches(text: &str) -> Vec<Branch> {
     text.lines()
         .filter_map(|l| {
             let f: Vec<&str> = l.split(US).collect();
-            if f.len() < 6 {
+            if f.len() < 8 || (f[6].starts_with("refs/remotes/") && f[6].ends_with("/HEAD")) {
                 return None;
             }
             let track = f[3];
@@ -81,7 +87,9 @@ pub fn parse_branches(text: &str) -> Vec<Branch> {
                 behind: num("behind "),
                 gone: track == "gone",
                 age: f[4].into(),
-                subject: f[5..].join("\u{1f}"),
+                oid: f[5].into(),
+                remote: f[6].starts_with("refs/remotes/"),
+                subject: f[7..].join("\u{1f}"),
             })
         })
         .collect()
@@ -170,5 +178,14 @@ mod tests {
         let v = parse_name_status_z(b"M\0a.rs\0R087\0old\0new\0D\0gone\0");
         assert_eq!(v[1], ('R', "new".into(), Some("old".into())));
         assert_eq!(v.len(), 3);
+    }
+
+    #[test]
+    fn branches_local_remote_head() {
+        let row = |h: &str, short: &str, full: &str| format!("{h}\x1f{short}\x1f\x1f\x1f1 day ago\x1fabc\x1f{full}\x1fs\n");
+        let text = [row("*", "main", "refs/heads/main"), row(" ", "origin", "refs/remotes/origin/HEAD"), row(" ", "origin/fix", "refs/remotes/origin/fix")].concat();
+        let b = parse_branches(&text);
+        assert_eq!(b.iter().map(|b| (b.name.as_str(), b.remote, b.current)).collect::<Vec<_>>(), [("main", false, true), ("origin/fix", true, false)]);
+        assert_eq!(b[0].oid, "abc");
     }
 }

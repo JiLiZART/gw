@@ -11,7 +11,7 @@ use ratatui::{
 use super::{App, Focus, Screen};
 use crate::browser::view::{DIM, FOCUS, diff_line, draw_keys, draw_modal, fg, pane_block};
 use crate::stage::{
-    Check, NARROW,
+    Check, Item, NARROW,
     view::{item_line, list_width, sel_style, stat_text},
 };
 use crate::status::relative;
@@ -81,22 +81,46 @@ fn draw_pick(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Paragraph::new(lines), inner);
 }
 
-fn draw_diff(f: &mut Frame, app: &App, area: Rect) {
-    let Some(it) = app.diff_item() else {
-        f.render_widget(pane_block(String::new(), app.focus == Focus::Diff), area);
+/// Diff pane titled with the file name and its `+N -M`; blank when there is no file.
+pub(crate) fn draw_diff_pane(f: &mut Frame, it: Option<&Item>, diff: &[String], scroll: usize, prefix: &str, focused: bool, area: Rect) {
+    let Some(it) = it else {
+        f.render_widget(pane_block(String::new(), focused), area);
         return;
     };
-    let mut title = vec![Span::raw(format!(" {} ", sanitize(&relative(&it.entry.path, &app.prefix))))];
+    let mut title = vec![Span::raw(format!(" {} ", sanitize(&relative(&it.entry.path, prefix))))];
     let stat = stat_text(it.stat);
     if !stat.is_empty() {
         title.extend(stat);
         title.push(Span::raw(" "));
     }
-    let block = pane_block(String::new(), app.focus == Focus::Diff).title(Line::from(title));
+    let block = pane_block(String::new(), focused).title(Line::from(title));
     let inner = block.inner(area);
     f.render_widget(block, area);
-    let lines: Vec<Line> = app.diff.iter().skip(app.diff_scroll).take(inner.height as usize).map(|l| diff_line(l)).collect();
+    let lines: Vec<Line> = diff.iter().skip(scroll).take(inner.height as usize).map(|l| diff_line(l)).collect();
     f.render_widget(Paragraph::new(lines), inner);
+}
+
+fn draw_diff(f: &mut Frame, app: &App, area: Rect) {
+    draw_diff_pane(f, app.diff_item(), &app.diff, app.diff_scroll, &app.prefix, app.focus == Focus::Diff, area);
+}
+
+/// Areas of the list, files and diff panes; under [`NARROW`] columns only pane `focused` (0..3) gets one.
+pub(crate) fn three_panes(body: Rect, focused: usize) -> [Option<Rect>; 3] {
+    if body.width < NARROW {
+        let mut out = [None; 3];
+        out[focused] = Some(body);
+        return out;
+    }
+    let lw = list_width(body.width);
+    let [a, b, c] = Layout::horizontal([Constraint::Length(lw), Constraint::Length(lw), Constraint::Min(1)]).areas(body);
+    [Some(a), Some(b), Some(c)]
+}
+
+/// NO_COLOR: keep layout and modifiers (bold, reverse), drop every color.
+pub(crate) fn strip_colors(f: &mut Frame) {
+    for c in f.buffer_mut().content.iter_mut() {
+        c.set_fg(Color::Reset).set_bg(Color::Reset);
+    }
 }
 
 pub fn draw(f: &mut Frame, app: &App) {
@@ -104,19 +128,11 @@ pub fn draw(f: &mut Frame, app: &App) {
     let [body, status, keys] = Layout::vertical([Constraint::Min(1), Constraint::Length(1), Constraint::Length(1)]).areas(area);
     let narrow = body.width < NARROW;
     if app.screen == Screen::Browse {
-        if narrow {
-            match app.focus {
-                Focus::Stashes => draw_stashes(f, app, body),
-                Focus::Files => draw_files(f, app, body),
-                Focus::Diff => draw_diff(f, app, body),
-            }
-        } else {
-            let lw = list_width(body.width);
-            let [a, b, c] = Layout::horizontal([Constraint::Length(lw), Constraint::Length(lw), Constraint::Min(1)]).areas(body);
-            draw_stashes(f, app, a);
-            draw_files(f, app, b);
-            draw_diff(f, app, c);
-        }
+        let focused = [Focus::Stashes, Focus::Files, Focus::Diff].iter().position(|x| *x == app.focus).unwrap_or(0);
+        let [a, b, c] = three_panes(body, focused);
+        a.into_iter().for_each(|r| draw_stashes(f, app, r));
+        b.into_iter().for_each(|r| draw_files(f, app, r));
+        c.into_iter().for_each(|r| draw_diff(f, app, r));
     } else if narrow {
         if app.focus == Focus::Diff { draw_diff(f, app, body) } else { draw_pick(f, app, body) }
     } else {
@@ -157,10 +173,7 @@ pub fn draw(f: &mut Frame, app: &App) {
         draw_modal(f, &format!("Drop {}?", s.reference), lines, body, true);
     }
     if !app.color {
-        // NO_COLOR: keep layout and modifiers (bold, reverse), drop every color.
-        for c in f.buffer_mut().content.iter_mut() {
-            c.set_fg(Color::Reset).set_bg(Color::Reset);
-        }
+        strip_colors(f);
     }
 }
 
