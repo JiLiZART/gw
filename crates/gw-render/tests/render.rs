@@ -259,3 +259,38 @@ fn status_submodules() {
     let out = one(&format!("1 .M SC.. 160000 160000 160000 {h} {h} lib"), &[]);
     assert!(out.contains("  M lib  256f977  new commits\n"), "{out}");
 }
+
+#[test]
+fn status_groups_by_directory() {
+    let st = parse_status_v2(
+        b"# branch.head m\0\
+1 .M N... 100644 100644 100644 0 0 top.rs\0\
+1 .M N... 100644 100644 100644 0 0 apps/gw/src/a.rs\0\
+1 .M N... 100644 100644 100644 0 0 apps/gw/src/long_name.rs\0\
+1 .M N... 100644 100644 100644 0 0 crates/x.rs\0\
+2 R. N... 100644 100644 100644 0 0 R100 src/new.rs\0src/old.rs\0\
+2 R. N... 100644 100644 100644 0 0 R100 b/moved.rs\0a/moved.rs\0\
+? docs/img/\0",
+    );
+    let stats = LineStats { unstaged: parse_numstat_z(b"1\t0\ttop.rs\x0012\t3\tapps/gw/src/a.rs\0"), ..Default::default() };
+    assert_eq!(
+        render_status(&st, "", &stats, false),
+        "m  no upstream
+Staged (2)
+  R a/moved.rs -> b/moved.rs
+  src/
+    R old.rs -> new.rs
+Changed (4)
+  M top.rs  +1 -0
+  apps/gw/src/
+    M a.rs  +12 -3
+    M long_name.rs
+  crates/
+    M x.rs
+Untracked (1)
+  docs/
+    ? img/
+Total +13 -3
+"
+    );
+}

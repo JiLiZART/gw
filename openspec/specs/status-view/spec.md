@@ -18,7 +18,7 @@ Gives `gw status` a compact, grouped, colored view of the working tree and branc
 - **THEN** the header shows `detached at a22b7ed` in yellow
 
 ### Requirement: Grouped file lists
-Files SHALL be listed in groups, in this order, each with a header and count, omitting empty groups: "Conflicts" (red), "Staged" (green), "Changed" (yellow), "Submodules" (cyan), "Untracked" (dim). Each file line SHALL show a one-letter change code (`M`, `A`, `D`, `R`, `C`, `U`, `?`) and the path; renames SHALL show `old -> new`. A file both staged and changed SHALL appear in both groups. A submodule with changes SHALL appear only in the Submodules group, never in Staged or Changed. A submodule in conflict SHALL stay in Conflicts.
+Files SHALL be listed in groups, in this order, each with a header and count, omitting empty groups: "Conflicts" (red), "Staged" (green), "Changed" (yellow), "Submodules" (cyan), "Untracked" (dim). Each file line SHALL show a one-letter change code (`M`, `A`, `D`, `R`, `C`, `U`, `?`) and the file name. Within a group, files in a directory SHALL be listed under a dim `<dir>/` header, indented, with top-level files first and no header; renames SHALL show `old -> new` (base names under the directory when both are in it, full paths at the top level otherwise). A file both staged and changed SHALL appear in both groups. A submodule with changes SHALL appear only in the Submodules group, never in Staged or Changed. A submodule in conflict SHALL stay in Conflicts.
 
 #### Scenario: Mixed working tree
 - **WHEN** `a.rs` is staged-modified, `b.rs` is unstaged-modified, and `n.txt` is untracked

@@ -45,10 +45,11 @@ The progress is one animated line: a spinner, the stage name, then a bar with `c
 
 ### `gw status`: grouped, counted, no hints
 
-![gw status: branch header, Staged/Changed/Submodules/Untracked groups with +N -M, Total](docs/screenshots/status.svg)
+![gw status: branch header, Staged/Changed/Submodules/Untracked groups with files under directory headers, +N -M, Total](docs/screenshots/status.svg)
 
 - **The header** shows the branch, its upstream, and ahead/behind as `↑N ↓M`.
 - **The groups** are Conflicts, Staged, Changed, Submodules, and Untracked. Each file gets GitHub-style `+N -M` counts, and a **Total** line sums them.
+- **Files sit under their directory**, so deep paths don't push lines past a narrow terminal. Top-level files come first; a rename within one directory shows as `old.rs -> new.rs` under it, one across directories in full.
 - **Submodules** show the recorded and checked-out commits (`db0d316 → 9c75318`) and what's going on inside: `staged`, `new commits`, `modified content`, `untracked content`.
 - **No `(use "git add <file>..." …)` advice lines.**
 

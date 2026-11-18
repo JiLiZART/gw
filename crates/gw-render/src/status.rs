@@ -19,6 +19,18 @@ pub fn relative(path: &str, prefix: &str) -> String {
     out
 }
 
+/// `a/b/c.rs` -> (`a/b`, `c.rs`); an untracked dir `a/b/` -> (`a`, `b/`); top-level -> (``, name).
+fn split_dir(path: &str) -> (String, String) {
+    let (p, slash) = match path.strip_suffix('/') {
+        Some(p) => (p, "/"),
+        None => (path, ""),
+    };
+    match p.rsplit_once('/') {
+        Some((dir, base)) => (dir.to_string(), format!("{base}{slash}")),
+        None => (String::new(), path.to_string()),
+    }
+}
+
 fn count(n: u32, sgr: &str, arrow: &str, color: bool) -> String {
     paint(&format!("{arrow}{n}"), if n > 0 { sgr } else { DIM }, color)
 }
@@ -159,20 +171,22 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
     out.push('\n');
 
     // -z output is unquoted: file names may carry escape sequences.
-    let rel = |p: &str| sanitize(&relative(p, prefix));
-    let name = |e: &Entry| match &e.orig {
-        Some(o) => format!("{} -> {}", rel(o), rel(&e.path)),
-        None => rel(&e.path),
+    let rel = |p: &str| split_dir(&sanitize(&relative(p, prefix)));
+    // A rename within one directory shows under it; across directories it shows in full at the top.
+    let place = |e: &Entry| match (&e.orig, rel(&e.path)) {
+        (Some(o), (dir, base)) if rel(o).0 == dir => (dir, format!("{} -> {base}", rel(o).1)),
+        (Some(o), _) => (String::new(), format!("{} -> {}", sanitize(&relative(o, prefix)), sanitize(&relative(&e.path, prefix)))),
+        (None, p) => p,
     };
-    // (code, path, stats, submodule detail)
-    type Line = (char, String, Option<Option<(u64, u64)>>, String);
+    // (code, dir, name, stats, submodule detail)
+    type Line = (char, String, String, Option<Option<(u64, u64)>>, String);
     let groups: Vec<(&str, &str, Vec<Line>)> = groups(st)
         .into_iter()
         .map(|(g, entries)| {
-            let lines = entries
+            let mut lines: Vec<Line> = entries
                 .into_iter()
                 .map(|e| {
-                    let path = if g.shows_orig() { name(e) } else { rel(&e.path) };
+                    let (dir, path) = if g.shows_orig() { place(e) } else { rel(&e.path) };
                     let n = match g {
                         Group::Staged => stats.staged.get(&e.path).copied(),
                         Group::Changed => stats.unstaged.get(&e.path).copied(),
@@ -183,9 +197,11 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
                         (Group::Submodules, Some(sub)) => submodule_detail(e, sub, &stats.checkouts, color),
                         _ => String::new(),
                     };
-                    (g.code(e), path, n, detail)
+                    (g.code(e), dir, path, n, detail)
                 })
                 .collect();
+            // Stable: files keep git's order within a directory; top-level files come first.
+            lines.sort_by(|a, b| a.1.cmp(&b.1));
             (g.title(), g.sgr(), lines)
         })
         .collect();
@@ -196,20 +212,28 @@ pub fn render_status(st: &Status, prefix: &str, stats: &LineStats, color: bool) 
     }
     for (title, sgr, files) in groups.iter().filter(|g| !g.2.is_empty()) {
         out += &format!("{}\n", paint(&format!("{title} ({})", files.len()), sgr, color));
-        let width = files.iter().filter(|f| f.2.is_some() || !f.3.is_empty()).map(|f| f.1.width()).max().unwrap_or(0);
-        for (code, path, n, detail) in files {
+        // Files under a directory header are indented two more columns; stats align across both.
+        let indent = |dir: &str| if dir.is_empty() { 0 } else { 2 };
+        let width = files.iter().filter(|f| f.3.is_some() || !f.4.is_empty()).map(|f| indent(&f.1) + f.2.width()).max().unwrap_or(0);
+        let mut cur: Option<&str> = None;
+        for (code, dir, path, n, detail) in files {
+            if !dir.is_empty() && cur != Some(dir) {
+                out += &format!("  {}\n", paint(&format!("{dir}/"), DIM, color));
+            }
+            cur = Some(dir);
+            let pad = " ".repeat(indent(dir));
             let code = paint(&code.to_string(), sgr, color);
             let tail = if detail.is_empty() { stat(*n, color) } else { detail.clone() };
             if tail.is_empty() {
-                out += &format!("  {code} {path}\n");
+                out += &format!("  {pad}{code} {path}\n");
             } else {
-                out += &format!("  {code} {path}{}  {tail}\n", " ".repeat(width.saturating_sub(path.width())));
+                out += &format!("  {pad}{code} {path}{}  {tail}\n", " ".repeat(width.saturating_sub(indent(dir) + path.width())));
             }
         }
     }
     // Sum of every count shown; binary files and files without stats add nothing.
-    let (a, d) = groups.iter().flat_map(|g| &g.2).filter_map(|f| f.2.flatten()).fold((0, 0), |t, (a, d)| (t.0 + a, t.1 + d));
-    if groups.iter().any(|g| g.2.iter().any(|f| f.2.is_some())) {
+    let (a, d) = groups.iter().flat_map(|g| &g.2).filter_map(|f| f.3.flatten()).fold((0, 0), |t, (a, d)| (t.0 + a, t.1 + d));
+    if groups.iter().any(|g| g.2.iter().any(|f| f.3.is_some())) {
         out += &format!("Total {}\n", stat(Some(Some((a, d))), color));
     }
     out

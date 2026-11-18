@@ -16,14 +16,17 @@ Untracked (1)
 == status-mixed prefix="sub/"
 feat -> origin/feat  ↑1 ↓0
 Staged (3)
-  A ../added.txt
-  M ../f1.txt
-  R ../f6.txt -> ../renamed.txt
+  ../
+    A added.txt
+    M f1.txt
+    R f6.txt -> renamed.txt
 Changed (2)
-  M ../f1.txt
-  M ../f2.txt
+  ../
+    M f1.txt
+    M f2.txt
 Untracked (1)
-  ? ../n.txt
+  ../
+    ? n.txt
 == status-clean prefix=""
 feat -> origin/feat  ↑3 ↓0
 clean
